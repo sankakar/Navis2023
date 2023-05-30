@@ -1,0 +1,131 @@
+{
+	"name": "TTWaitTime_aqaba",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"linkedService": {
+						"referenceName": "linkedService1",
+						"type": "LinkedServiceReference"
+					},
+					"name": "source1"
+				}
+			],
+			"sinks": [
+				{
+					"linkedService": {
+						"referenceName": "linkedService1",
+						"type": "LinkedServiceReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "filter1"
+				},
+				{
+					"name": "window1"
+				},
+				{
+					"name": "sort1"
+				},
+				{
+					"name": "derivedColumn1"
+				},
+				{
+					"name": "AlterRow1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          ecEventGkey as long,",
+				"          yardGkey as short,",
+				"          YardID as string,",
+				"          FcyID as string,",
+				"          cheKind as string,",
+				"          cheName as string,",
+				"          cheID as long,",
+				"          EcEventTime as timestamp,",
+				"          type as short,",
+				"          subType as short,",
+				"          typeDescription as string,",
+				"          fromCheIdName as boolean,",
+				"          ToCheIdName as boolean,",
+				"          unitIdName as string,",
+				"          powName as string,",
+				"          poolName as string,",
+				"          workQueue as string,",
+				"          travelDistance as short,",
+				"          moveKind as string,",
+				"          isTwinMove as boolean,",
+				"          startDistance as short,",
+				"          workAssignmentId as double,",
+				"          unitReference as string,",
+				"          tranId as string,",
+				"          locType as string,",
+				"          locId as string,",
+				"          locSlot as string,",
+				"          opsPosId as string,",
+				"          unladenLoctype as string,",
+				"          unladenLocid as string,",
+				"          unladenLocSlot as string,",
+				"          ladenLoctype as string,",
+				"          ladenLocid as string,",
+				"          ladenLocSlot as string,",
+				"          lastEstMoveTime as string,",
+				"          Year as integer,",
+				"          Month as integer,",
+				"          Week as integer",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     format: 'delta',",
+				"     fileSystem: 'apmtaqaba',",
+				"     folderPath: 'silver/ecevents') ~> source1",
+				"source1 filter(cheKind==\"ITV\" && (typeDescription==\"AYDR\" || typeDescription==\"TYDR\" ||typeDescription==\"AVDR\" || typeDescription==\"TVDR\"|| typeDescription==\"CMPL\") && (moveKind==\"DSCH\" || moveKind==\"LOAD\")) ~> filter1",
+				"sort1 window(asc(cheID, true),",
+				"     asc(EcEventTime, true),",
+				"     asc(ecEventGkey, true),",
+				"     typeDescription_nxt = lead(typeDescription),",
+				"          unitIdName_nxt = lead(unitIdName),",
+				"          cheID_nxt = lead(cheID),",
+				"          cheID_nxt2 = lead(cheID,2),",
+				"          EcEventTime_nxt = lead(EcEventTime),",
+				"          typeDescription_nxt2 = lead(typeDescription,2),",
+				"          EcEventTime_nxt2 = lead(EcEventTime,2),",
+				"          unitIdName_nxt2 = lead(unitIdName,2)) ~> window1",
+				"filter1 sort(asc(cheID, true),",
+				"     asc(EcEventTime, true),",
+				"     asc(ecEventGkey, true)) ~> sort1",
+				"window1 derive(TTWaitTime = iif(cheID==cheID_nxt && cheID_nxt2==cheID_nxt && unitIdName==unitIdName_nxt \r",
+				"&& unitIdName_nxt2==unitIdName_nxt && (typeDescription=='TYDR'||typeDescription=='TVDR') && (typeDescription_nxt=='AYDR'||typeDescription_nxt=='AVDR') \r",
+				"&& typeDescription_nxt2=='CMPL', minus(EcEventTime_nxt2,EcEventTime_nxt)/60000,\r",
+				"iif(cheID==cheID_nxt && unitIdName==unitIdName_nxt && (typeDescription=='TYDR'||typeDescription=='TVDR') \r",
+				"&& typeDescription_nxt=='CMPL',(minus(EcEventTime_nxt,(EcEventTime+toInteger((travelDistance/(1000*20))*3600000)))/60000),toLong(0)))) ~> derivedColumn1",
+				"derivedColumn1 alterRow(upsertIf(true())) ~> AlterRow1",
+				"AlterRow1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'delta',",
+				"     fileSystem: 'apmtaqaba',",
+				"     folderPath: 'gold/ttwaittime',",
+				"     mergeSchema: true,",
+				"     autoCompact: true,",
+				"     optimizedWrite: true,",
+				"     vacuum: 0,",
+				"     deletable:false,",
+				"     insertable:false,",
+				"     updateable:false,",
+				"     upsertable:true,",
+				"     keys:['ecEventGkey'],",
+				"     umask: 0777,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> sink1"
+			]
+		}
+	}
+}

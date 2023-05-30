@@ -1,0 +1,32 @@
+{
+	"name": "RemoveDuplicates",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"linkedService": {
+						"referenceName": "powerbianalyticsdata-WorkspaceDefaultStorage",
+						"type": "LinkedServiceReference"
+					},
+					"name": "Delta"
+				}
+			],
+			"sinks": [
+				{
+					"linkedService": {
+						"referenceName": "powerbianalyticsdata-WorkspaceDefaultStorage",
+						"type": "LinkedServiceReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "Aggregate1"
+				}
+			],
+			"script": "source(output(\n\t\tUnitNbr as string,\n\t\tFacilityId as string,\n\t\tComplexId as string,\n\t\tYardId as string,\n\t\tCarrierVisitKey as string,\n\t\tEventTypeId as string,\n\t\tMoveKind as string,\n\t\tFromLocation as string,\n\t\tToLocation as string,\n\t\tFromPositionName as string,\n\t\tToPositionName as string,\n\t\tCarryCHEOperatorId as string,\n\t\tFetchCHEOperatorId as string,\n\t\tPutCHEOperatorId as string,\n\t\tFetchCHEId as long,\n\t\tFetchCHEKind as string,\n\t\tCarryCHEId as long,\n\t\tCarryCHEKind as string,\n\t\tPutCHEId as long,\n\t\tPutCHEKind as string,\n\t\tQCCHEId as long,\n\t\tQCCHEKind as string,\n\t\tt_carry_complete as timestamp,\n\t\tt_put as timestamp,\n\t\tt_fetch as timestamp,\n\t\tt_dispatch as string,\n\t\tt_discharge as timestamp,\n\t\tt_carry_dispatch as string,\n\t\tt_carry_fetch_ready as string,\n\t\tt_carry_put_ready as string,\n\t\tdist_carry as string,\n\t\tdist_start as string,\n\t\tTwinFetch as string,\n\t\tTwinCarry as string,\n\t\tTwinPut as string,\n\t\tCategoryId as string,\n\t\tFreightKindId as string,\n\t\tto_pos_gkey as string,\n\t\tfm_pos_gkey as string,\n\t\tRestowReason as string,\n\t\tContainerLineId as string,\n\t\tContainerLineRole as string,\n\t\tpow as string,\n\t\tmve_gkey as integer,\n\t\tufv_gkey as integer,\n\t\tBerthId as string,\n\t\tGoodsAndCtrWtKg as string,\n\t\tactive_ufv as integer,\n\t\tRequiresPowerFlag as string,\n\t\tOOGFlag as string,\n\t\tShipperId as string,\n\t\tConsigneeId as string,\n\t\tCommodityId as string,\n\t\tATD as string,\n\t\tRehandles as string,\n\t\tYear as integer,\n\t\tMonth as integer,\n\t\tWeek as integer\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tformat: 'delta',\n\tfileSystem: 'eurogatectb',\n\tfolderPath: 'silver/moves') ~> Delta\nDelta aggregate(groupBy(mve_gkey),\n\teach(match(name!='mve_gkey'), $$ = first($$))) ~> Aggregate1\nAggregate1 sink(allowSchemaDrift: true,\n\tvalidateSchema: true,\n\tformat: 'delta',\n\tfileSystem: 'eurogatectb',\n\tfolderPath: 'silver/moves',\n\toverwrite:true,\n\tmergeSchema: true,\n\tautoCompact: true,\n\toptimizedWrite: true,\n\tvacuum: 0,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tumask: 0022,\n\tpreCommands: [],\n\tpostCommands: [],\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\tpartitionBy('key',\n\t\t0,\n\t\tYear,\n\t\tMonth,\n\t\tWeek\n\t)) ~> sink1"
+		}
+	}
+}

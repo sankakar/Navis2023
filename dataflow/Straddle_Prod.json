@@ -1,0 +1,84 @@
+{
+	"name": "Straddle_Prod",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"linkedService": {
+						"referenceName": "linkedService1",
+						"type": "LinkedServiceReference"
+					},
+					"name": "source1"
+				}
+			],
+			"sinks": [
+				{
+					"linkedService": {
+						"referenceName": "linkedService1",
+						"type": "LinkedServiceReference"
+					},
+					"name": "sink1"
+				},
+				{
+					"linkedService": {
+						"referenceName": "linkedService1",
+						"type": "LinkedServiceReference"
+					},
+					"name": "sink2"
+				}
+			],
+			"transformations": [
+				{
+					"name": "Select1"
+				},
+				{
+					"name": "DerivedColumn1"
+				},
+				{
+					"name": "DerivedColumn2"
+				},
+				{
+					"name": "DerivedColumn3"
+				},
+				{
+					"name": "Aggregate1"
+				},
+				{
+					"name": "DerivedColumn4"
+				},
+				{
+					"name": "DerivedColumn5"
+				},
+				{
+					"name": "DerivedColumn6"
+				},
+				{
+					"name": "Filter4"
+				},
+				{
+					"name": "filter1"
+				},
+				{
+					"name": "AlterRow1"
+				},
+				{
+					"name": "window1"
+				},
+				{
+					"name": "derivedColumn10"
+				},
+				{
+					"name": "sort1"
+				},
+				{
+					"name": "AlterRow2"
+				},
+				{
+					"name": "aggregate10"
+				}
+			],
+			"script": "source(output(\n\t\tmve_gkey as integer,\n\t\tUnit_Nbr as string,\n\t\tFacility_Id as string,\n\t\tComplex_Id as string,\n\t\tYard_Id as string,\n\t\tCarrier_Visit_Key as integer,\n\t\tEvent_Type_Id as string,\n\t\tMove_Kind as string,\n\t\tFrom_Location as string,\n\t\tTo_Location as string,\n\t\tFrom_Position_Name as string,\n\t\tTo_Position_Name as string,\n\t\tCarry_CHE_Operator_Id as short,\n\t\tFetch_CHE_Operator_Id as string,\n\t\tPut_CHE_Operator_Id as string,\n\t\tFetch_CHE_Id as long,\n\t\tFetch_CHE_Kind as string,\n\t\tCarry_CHE_Id as long,\n\t\tCarry_CHE_Kind as string,\n\t\tPut_CHE_Id as long,\n\t\tPut_CHE_Kind as string,\n\t\tQC_CHE_Id as long,\n\t\tQC_CHE_Kind as string,\n\t\tt_carry_complete as timestamp,\n\t\tt_put as timestamp,\n\t\tt_fetch as timestamp,\n\t\tt_dispatch as timestamp,\n\t\tt_discharge as timestamp,\n\t\tt_carry_dispatch as timestamp,\n\t\tt_carry_fetch_ready as timestamp,\n\t\tt_carry_put_ready as timestamp,\n\t\tdist_carry as integer,\n\t\tdist_start as short,\n\t\tTwin_Fetch as string,\n\t\tTwin_Carry as string,\n\t\tTwin_Put as string,\n\t\tCategory_Id as string,\n\t\tFreight_Kind_Id as string,\n\t\tto_pos_gkey as integer,\n\t\tfm_pos_gkey as integer,\n\t\tRestow_Reason as string,\n\t\tContainer_Line_Id as string,\n\t\tContainer_Line_Role as string,\n\t\tpow as string,\n\t\tufv_gkey as integer,\n\t\tBerth_Id as string,\n\t\tGoods_And_Ctr_Wt_Kg as double,\n\t\tactive_ufv as integer,\n\t\tRequires_Power_Flag as string,\n\t\tOOG_Flag as string,\n\t\tShipper_Id as string,\n\t\tConsignee_Id as string,\n\t\tCommodity_Id as string,\n\t\tATA as timestamp,\n\t\tATD as timestamp,\n\t\tRehandles as string,\n\t\tYear as integer,\n\t\tMonth as integer,\n\t\tWeek as integer\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tformat: 'delta',\n\tfileSystem: 'eurogatectb',\n\tfolderPath: 'silver/moves') ~> source1\nsource1 select(mapColumn(\n\t\tmve_gkey,\n\t\tUnit_Nbr,\n\t\tFacility_Id,\n\t\tComplex_Id,\n\t\tYard_Id,\n\t\tCarrier_Visit_Key,\n\t\tEvent_Type_Id,\n\t\tMove_Kind,\n\t\tFetch_CHE_Id,\n\t\tFetch_CHE_Kind,\n\t\tCarry_CHE_Id,\n\t\tCarry_CHE_Kind,\n\t\tPut_CHE_Id,\n\t\tPut_CHE_Kind,\n\t\tQC_CHE_Id,\n\t\tQC_CHE_Kind,\n\t\tt_carry_complete,\n\t\tt_put,\n\t\tt_fetch,\n\t\tt_dispatch,\n\t\tt_discharge,\n\t\tpow,\n\t\tYear,\n\t\tMonth,\n\t\tWeek\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> Select1\naggregate10 derive(Time_Completed_Date_Time = iif(Event_Type_Id== \"UNIT_LOAD\" || Event_Type_Id==\"UNIT_PAYLOAD_LOAD\",iif(Carry_CHE_Kind==\"SC\",t_carry_complete,iif(Fetch_CHE_Kind==\"SC\",t_fetch,iif(Put_CHE_Kind==\"SC\",t_put,toTimestamp(null())))),iif(Put_CHE_Kind==\"SC\",t_put,iif(Carry_CHE_Kind==\"SC\",iifNull(t_carry_complete,t_fetch),iif(Fetch_CHE_Kind==\"SC\",t_fetch,toTimestamp(null()))))),\n\t\tSC_Che_Id = iif(Event_Type_Id== \"UNIT_LOAD\" || Event_Type_Id==\"UNIT_PAYLOAD_LOAD\",iif(Carry_CHE_Kind==\"SC\",Carry_CHE_Id,iif(Fetch_CHE_Kind==\"SC\",Fetch_CHE_Id,iif(Put_CHE_Kind==\"SC\",Put_CHE_Id,toLong(null())))),iif(Put_CHE_Kind==\"SC\",Put_CHE_Id,iif(Carry_CHE_Kind==\"SC\",Carry_CHE_Id,iif(Fetch_CHE_Kind==\"SC\",Fetch_CHE_Id,toLong(null())))))) ~> DerivedColumn1\nfilter1 derive(Time = toString(Time_Completed_Date_Time,'HH:mm:ss'),\n\t\tDate = toDate(toString(Time_Completed_Date_Time,'yyyy-MM-dd'))) ~> DerivedColumn2\nDerivedColumn6 derive(Shift_Start_Time = iif(Day_Of_Week==1 || Day_Of_Week==7,    iif(Time>=toString('06:00:00') && Time<toString('12:00:00'),        toTimestamp(concat(toString(Date),' ','06:00:00')),        iif(Time>=toString('12:00:00') && Time<toString('18:00:00'),            toTimestamp(concat(toString(Date),' ','12:00:00')),            iif(Time>=toString('18:00:00') && Time<toString('24:00:00'),                toTimestamp(concat(toString(Date),' ','18:00:00')),                toTimestamp(concat(toString(subDays(Date,1)),' ','24:00:00'))))),    iif(Time>=toString('06:00:00') && Time<toString('14:00:00'),        toTimestamp(concat(toString(Date),' ','06:00:00')),        iif(Time>=toString('14:00:00') && Time<toString('22:00:00'),            toTimestamp(concat(toString(Date),' ','14:00:00')),            iif(Time>=toString('22:00:00'),                toTimestamp(concat(toString(Date),' ','22:00:00')),\t\t\t\ttoTimestamp(concat(toString(subDays(Date,1)),' ','22:00:00')))))),\n\t\tShift_End_Time = iif(Day_Of_Week==1 || Day_Of_Week==7,    iif(Time>=toString('06:00:00') && Time<toString('12:00:00'),        toTimestamp(concat(toString(Date),' ','11:59:59')),        iif(Time>=toString('12:00:00') && Time<toString('18:00:00'),            toTimestamp(concat(toString(Date),' ','17:59:59')),            iif(Time>=toString('18:00:00') && Time<toString('24:00:00'),                toTimestamp(concat(toString(Date),' ','23:59:59')),                toTimestamp(concat(toString(Date),' ','05:59:59'))))),    iif(Time>=toString('06:00:00') && Time<toString('14:00:00'),        toTimestamp(concat(toString(Date),' ','13:59:59')),        iif(Time>=toString('14:00:00') && Time<toString('22:00:00'),            toTimestamp(concat(toString(Date),' ','21:59:59')),            iif(Time>=toString('22:00:00'),                toTimestamp(concat(toString(addDays(Date,1)),' ','05:59:59')),\t\t\t\ttoTimestamp(concat(toString(Date),' ','05:59:59'))))))) ~> DerivedColumn3\nDerivedColumn5 aggregate(groupBy(SC_Che_Id,\n\t\tShift_Start_Time,\n\t\tShift_End_Time,\n\t\tShift_Date,\n\t\tShift),\n\tFirst_Lift = min(Time_Completed_Date_Time),\n\t\tLast_Lift = max(Time_Completed_Date_Time),\n\t\tMove_Count = count(mve_gkey)) ~> Aggregate1\nFilter4 derive(WorkTime = Last_Lift-First_Lift,\n\t\tYear = iifNull(year(Shift_Date),0),\n\t\tMonth = iifNull(month(Shift_Date),0),\n\t\tWeek = iifNull(weekOfYear(Shift_Date),0)) ~> DerivedColumn4\nDerivedColumn3 derive(Shift = iif(toString(Shift_Start_Time, 'HH:mm:ss')==toString('06:00:00'),1,\r\niif(toString(Shift_Start_Time, 'HH:mm:ss')==toString('14:00:00')||toString(Shift_Start_Time, 'HH:mm:ss')==toString('12:00:00'),2,\r\niif(toString(Shift_Start_Time, 'HH:mm:ss')==toString('22:00:00')||toString(Shift_Start_Time, 'HH:mm:ss')==toString('18:00:00'),3,4)))) ~> DerivedColumn5\nDerivedColumn2 derive(Day_Of_Week = dayOfWeek(iif(Time<toString('06:00:00'),subDays(Date,1),Date)),\n\t\tShift_Date = iif(Time<toString('06:00:00'),subDays(Date,1),Date)) ~> DerivedColumn6\nAggregate1 filter(isNull(SC_Che_Id)==false()) ~> Filter4\nDerivedColumn1 filter(isNull(SC_Che_Id)==false()) ~> filter1\nDerivedColumn4 alterRow(upsertIf(true())) ~> AlterRow1\nsort1 window(asc(SC_Che_Id, true),\n\tasc(Time_Completed_Date_Time, true),\n\tstartRowOffset: 1L,\n\tendRowOffset: 1L,\n\tSC_Che_Id_nxt = lead(SC_Che_Id),\n\t\tShift_Date_nxt = lead(Shift_Date),\n\t\tShift_nxt = lead(Shift),\n\t\tTime_Completed_Date_Time_nxt = lead(Time_Completed_Date_Time)) ~> window1\nwindow1 derive(SC_Idle_Time = iif(SC_Che_Id==SC_Che_Id_nxt && Shift_Date==Shift_Date_nxt && Shift==Shift_nxt,iif((Time_Completed_Date_Time_nxt-Time_Completed_Date_Time)<0,toLong(0),(Time_Completed_Date_Time_nxt-Time_Completed_Date_Time)),toLong(0))) ~> derivedColumn10\nDerivedColumn5 sort(asc(SC_Che_Id, true),\n\tasc(Time_Completed_Date_Time, true)) ~> sort1\nderivedColumn10 alterRow(upsertIf(true())) ~> AlterRow2\nSelect1 aggregate(groupBy(mve_gkey),\n\teach(match(name!='mve_gkey'), $$ = first($$))) ~> aggregate10\nAlterRow1 sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'delta',\n\tfileSystem: 'eurogatectb',\n\tfolderPath: 'gold/sc_prod',\n\ttruncate:true,\n\tmergeSchema: true,\n\tautoCompact: true,\n\toptimizedWrite: true,\n\tvacuum: 0,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tkeys:['pow','Shift','Shift_Date'],\n\tumask: 0777,\n\tpreCommands: [],\n\tpostCommands: [],\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\tpartitionBy('key',\n\t\t0,\n\t\tYear,\n\t\tMonth,\n\t\tWeek\n\t)) ~> sink1\nAlterRow2 sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'delta',\n\tfileSystem: 'eurogatectb',\n\tfolderPath: 'gold/sc_idle_time',\n\ttruncate:true,\n\tmergeSchema: true,\n\tautoCompact: true,\n\toptimizedWrite: true,\n\tvacuum: 0,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tkeys:['mve_gkey'],\n\tumask: 0777,\n\tpreCommands: [],\n\tpostCommands: [],\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> sink2"
+		}
+	}
+}

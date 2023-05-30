@@ -1,0 +1,57 @@
+{
+	"name": "Rehandle_Unproductive_moves_cmsa",
+	"properties": {
+		"description": "Find unproductive moves for RECV and RDSC Full Export, IMPRT, TRSHP ctrs that are loaded on a vessel",
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"linkedService": {
+						"referenceName": "linkedService2",
+						"type": "LinkedServiceReference"
+					},
+					"name": "source1"
+				}
+			],
+			"sinks": [
+				{
+					"linkedService": {
+						"referenceName": "linkedService2",
+						"type": "LinkedServiceReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "IBandOBAndUnproductiveMoves"
+				},
+				{
+					"name": "IBFull"
+				},
+				{
+					"name": "DerivedColumn2"
+				},
+				{
+					"name": "Select1"
+				},
+				{
+					"name": "Join1"
+				},
+				{
+					"name": "AlterRow1"
+				},
+				{
+					"name": "window1"
+				},
+				{
+					"name": "select2"
+				},
+				{
+					"name": "derivedColumn1"
+				}
+			],
+			"script": "parameters{\n\tcustomer as string ('cmsa')\n}\nsource(output(\n\t\tmve_gkey as long,\n\t\tUnit_Nbr as string,\n\t\tFacility_Id as string,\n\t\tYard_Id as string,\n\t\tCarrier_Visit_Key as long,\n\t\tEvent_Type_Id as string,\n\t\tMove_Kind as string,\n\t\tFrom_Location as string,\n\t\tTo_Location as string,\n\t\tFrom_Position_Name as string,\n\t\tTo_Position_Name as string,\n\t\tCarry_CHE_Operator_Id as string,\n\t\tFetch_CHE_Operator_Id as string,\n\t\tPut_CHE_Operator_Id as string,\n\t\tFetch_CHE_Id as long,\n\t\tFetch_CHE_Kind as string,\n\t\tCarry_CHE_Id as long,\n\t\tCarry_CHE_Kind as string,\n\t\tPut_CHE_Id as long,\n\t\tPut_CHE_Kind as string,\n\t\tQC_CHE_Id as long,\n\t\tQC_CHE_Kind as string,\n\t\tt_carry_complete as timestamp,\n\t\tt_put as timestamp,\n\t\tt_fetch as timestamp,\n\t\tt_dispatch as timestamp,\n\t\tt_discharge as timestamp,\n\t\tt_carry_dispatch as timestamp,\n\t\tt_carry_fetch_ready as timestamp,\n\t\tt_carry_put_ready as timestamp,\n\t\tdist_carry as long,\n\t\tdist_start as long,\n\t\tTwin_Fetch as boolean,\n\t\tTwin_Carry as boolean,\n\t\tTwin_Put as boolean,\n\t\tCategory_Id as string,\n\t\tFreight_Kind_Id as string,\n\t\tRestow_Reason as string,\n\t\tPOW as string,\n\t\tufv_gkey as string,\n\t\tGoods_And_Ctr_Wt_Kg as double,\n\t\tRequires_Power_Flag as boolean,\n\t\tOOG_Flag as boolean,\n\t\tATA as timestamp,\n\t\tATD as timestamp,\n\t\tRehandles as long,\n\t\tComplex_Id as string,\n\t\tCarrier_Visit_Id as string,\n\t\tPhase as string,\n\t\tVisit_Nbr as string,\n\t\tCarrier_Mode as string,\n\t\tETA as string,\n\t\tETD as string,\n\t\tOperator_Line_Id as string,\n\t\tOperator_Line_Role as string,\n\t\tOperator_Line_Name as string,\n\t\tTime_First_Availabilty as string,\n\t\tTime_Discharge_Complete as string,\n\t\tService_Id as string,\n\t\tService_Name as string,\n\t\tVessel_Id as string,\n\t\tIB_VYG as string,\n\t\tOB_VYG as string,\n\t\tCarrier_Name as string,\n\t\tVessel_Class as string,\n\t\tPublished_ETA as string,\n\t\tPublished_ETD as string,\n\t\tStart_Work as string,\n\t\tEnd_Work as string,\n\t\tBegin_Receive_Date as string,\n\t\tCargo_Cutoff_Date as string,\n\t\tHazard_Cutoff_Date as string,\n\t\tReefer_Cutoff_Date as string,\n\t\tLabor_On_Board_Date as string,\n\t\tLabor_Off_Board_Date as string,\n\t\tOff_Port_Arrival_Date as string,\n\t\tOff_Port_Departure as string,\n\t\tPilot_On_Board_Date as string,\n\t\tPilot_Off_Board_Date as string,\n\t\tEst_BBK_Discharge as string,\n\t\tEst_BBK_Load as string,\n\t\tEst_Load as string,\n\t\tEst_Discharge as string,\n\t\tEst_Restow as string,\n\t\tEst_Shift as string,\n\t\tvvFlexString01 as string,\n\t\tvvFlexString02 as string,\n\t\tvvFlexString03 as string,\n\t\tvvFlexString04 as string,\n\t\tvvFlexString05 as string,\n\t\tvvFlexString06 as string,\n\t\tvvFlexString07 as string,\n\t\tvvFlexString08 as string,\n\t\tvvFlexDate01 as string,\n\t\tvvFlexDate02 as string,\n\t\tvvFlexDate03 as string,\n\t\tvvFlexDate04 as string,\n\t\tvvFlexDate05 as string,\n\t\tvvFlexDate06 as string,\n\t\tvvFlexDate07 as string,\n\t\tvvFlexDate08 as string,\n\t\tVessel_Classification as string,\n\t\tVessel_Class_Length_Overall_cm as integer,\n\t\tVessel_Class_Beam_cm as string,\n\t\tVessel_TEU_Capacity as string,\n\t\tLloyds_Code as string,\n\t\tYear as integer,\n\t\tMonth as integer,\n\t\tWeek as integer\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tformat: 'delta',\n\tfileSystem: 'cmsa',\n\tfolderPath: 'silver/moves',\n\tmode: 'read') ~> source1\nsource1 filter((Freight_Kind_Id=='FCL' && ( Move_Kind=='LOAD'||Move_Kind=='RECV' ||Move_Kind=='RDSC' || Move_Kind=='YARD' || Move_Kind=='SHFT'|| Move_Kind=='DSCH') && (Category_Id=='EXPRT'||Category_Id=='TRSHP' ||Category_Id=='IMPRT') )) ~> IBandOBAndUnproductiveMoves\nsource1 filter((Freight_Kind_Id=='FCL'  &&  (Move_Kind=='RECV' || Move_Kind=='RDSC'|| Move_Kind=='DSCH') && (Category_Id=='EXPRT'||Category_Id=='TRSHP' ||Category_Id=='IMPRT') )) ~> IBFull\nIBFull derive(Max_T_Put = addDays(t_put,14),\n\t\tufv_gkey = toLong(ufv_gkey)) ~> DerivedColumn2\nDerivedColumn2 select(mapColumn(\n\t\tIB_mve_gkey = mve_gkey,\n\t\tIB_Unit_Nbr = Unit_Nbr,\n\t\tIB_Facility_Id = Facility_Id,\n\t\tIB_Move_Kind = Move_Kind,\n\t\tIB_t_put = t_put,\n\t\tIB_Category_Id = Category_Id,\n\t\tIB_ufv_gkey = ufv_gkey,\n\t\tIB_Requires_Power_Flag = Requires_Power_Flag,\n\t\tIB_OOG_Flag = OOG_Flag,\n\t\tIB_Year = Year,\n\t\tIB_Month = Month,\n\t\tIB_Week = Week,\n\t\tIB_Max_T_Put = Max_T_Put\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> Select1\nselect2, Select1 join(ufv_gkey == IB_ufv_gkey,\n\tjoinType:'inner',\n\tmatchType:'exact',\n\tignoreSpaces: false,\n\tbroadcast: 'right')~> Join1\nwindow1 alterRow(insertIf(true())) ~> AlterRow1\nJoin1 window(over(IB_ufv_gkey),\n\tasc(IB_t_put, true),\n\tasc(t_put, true),\n\tasc(mve_gkey, true),\n\tRNumber = rowNumber(),\n\t\tMovesPerUnitFcyVisit = count(mve_gkey)) ~> window1\nderivedColumn1 select(mapColumn(\n\t\tmve_gkey,\n\t\tUnit_Nbr,\n\t\tFacility_Id,\n\t\tMove_Kind,\n\t\tTo_Position_Name,\n\t\tt_put,\n\t\tCategory_Id,\n\t\tFreight_Kind_Id,\n\t\tufv_gkey,\n\t\tRequires_Power_Flag,\n\t\tOOG_Flag,\n\t\tYear,\n\t\tMonth,\n\t\tWeek,\n\t\tFrom_Position_Name\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> select2\nIBandOBAndUnproductiveMoves derive(ufv_gkey = toLong(ufv_gkey)) ~> derivedColumn1\nAlterRow1 sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'delta',\n\tfileSystem: 'cmsa',\n\tfolderPath: 'gold/rehandle_uprod_moves',\n\ttruncate:true,\n\tmergeSchema: false,\n\tautoCompact: false,\n\toptimizedWrite: false,\n\tvacuum: 0,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tumask: 0022,\n\tpreCommands: [],\n\tpostCommands: [],\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\tmapColumn(\n\t\tmve_gkey,\n\t\tUnit_Nbr,\n\t\tFacility_Id,\n\t\tMove_Kind,\n\t\tTo_Position_Name,\n\t\tt_put,\n\t\tCategory_Id,\n\t\tFreight_Kind_Id,\n\t\tufv_gkey,\n\t\tRequires_Power_Flag,\n\t\tOOG_Flag,\n\t\tYear,\n\t\tMonth,\n\t\tWeek,\n\t\tFrom_Position_Name,\n\t\tIB_mve_gkey,\n\t\tIB_Unit_Nbr,\n\t\tIB_Facility_Id,\n\t\tIB_Move_Kind,\n\t\tIB_t_put,\n\t\tIB_Category_Id,\n\t\tIB_ufv_gkey,\n\t\tIB_Requires_Power_Flag,\n\t\tIB_OOG_Flag,\n\t\tIB_Year,\n\t\tIB_Month,\n\t\tIB_Week,\n\t\tIB_Max_T_Put,\n\t\tRNumber,\n\t\tMovesPerUnitFcyVisit\n\t)) ~> sink1"
+		}
+	}
+}

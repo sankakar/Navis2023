@@ -1,0 +1,35 @@
+{
+	"name": "ParquetToDelta",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"linkedService": {
+						"referenceName": "powerbianalyticsdata-WorkspaceDefaultStorage",
+						"type": "LinkedServiceReference"
+					},
+					"name": "source1"
+				}
+			],
+			"sinks": [
+				{
+					"linkedService": {
+						"referenceName": "powerbianalyticsdata-WorkspaceDefaultStorage",
+						"type": "LinkedServiceReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "DerivedColumn1"
+				},
+				{
+					"name": "AlterRow1"
+				}
+			],
+			"script": "source(output(\n\t\tecEventGkey as long,\n\t\tyardGkey as string,\n\t\tYardID as string,\n\t\tFcyID as string,\n\t\tcheKind as string,\n\t\tCHE_Name as string,\n\t\tCHE_ID as long,\n\t\tTimeStamp as timestamp,\n\t\teventType as string,\n\t\teventSubType as string,\n\t\teventTypeDescription as string,\n\t\tfromCheIdName as string,\n\t\tToCheIdName as string,\n\t\tunit as string,\n\t\tpow as string,\n\t\tpool as string,\n\t\tworkQueue as string,\n\t\ttravelDistance as string,\n\t\tmoveKind as string,\n\t\tisTwin as string,\n\t\tstartDistance as string,\n\t\tworkAssignment as string,\n\t\tunitRef as string,\n\t\ttrain_ID as string,\n\t\tlocType as string,\n\t\tlocID as string,\n\t\tlocSlot as string,\n\t\topsPosID as string,\n\t\tunladenLoctype as string,\n\t\tunladenLocID as string,\n\t\tunladenLocSlot as string,\n\t\tladenLoctype as string,\n\t\tladenLocID as string,\n\t\tladen_LocSlot as string,\n\t\tlastEstMoveTime as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tinferDriftedColumnTypes: true,\n\tignoreNoFilesFound: false,\n\tformat: 'parquet',\n\tfileSystem: 'ptpbianalyticsdata',\n\tfolderPath: 'RawData/EcEvents/2021/202110',\n\tfileName: 'part-00000-tid-2874371059126942969-3ceea6c0-94b1-488f-82fe-a7a21d733ccb-14-1-c000.snappy.parquet') ~> source1\nsource1 derive(Year = year(TimeStamp),\n\t\tMonth = month(TimeStamp),\n\t\tWeek = weekOfYear(TimeStamp)) ~> DerivedColumn1\nDerivedColumn1 alterRow(updateIf(true())) ~> AlterRow1\nAlterRow1 sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'delta',\n\tfileSystem: 'ptpbianalyticsdata',\n\tfolderPath: 'RawData/EcEvents/Delta',\n\tmergeSchema: false,\n\tautoCompact: false,\n\toptimizedWrite: false,\n\tvacuum: 0,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:true,\n\tupsertable:false,\n\tkeys:['ecEventGkey'],\n\tumask: 0022,\n\tpreCommands: [],\n\tpostCommands: [],\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\tpartitionBy('key',\n\t\t0,\n\t\tYear,\n\t\tMonth,\n\t\tWeek\n\t)) ~> sink1"
+		}
+	}
+}

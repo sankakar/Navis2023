@@ -1,0 +1,47 @@
+{
+	"name": "QC_Idle_Time_GTI",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"linkedService": {
+						"referenceName": "linkedService1",
+						"type": "LinkedServiceReference"
+					},
+					"name": "source1"
+				}
+			],
+			"sinks": [
+				{
+					"linkedService": {
+						"referenceName": "linkedService1",
+						"type": "LinkedServiceReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "Filter1"
+				},
+				{
+					"name": "DerivedColumn1"
+				},
+				{
+					"name": "Select1"
+				},
+				{
+					"name": "AlterRow1"
+				},
+				{
+					"name": "Window1"
+				},
+				{
+					"name": "DerivedColumn2"
+				}
+			],
+			"script": "parameters{\n\tcustomer as string ('gti')\n}\nsource(output(\n\t\tmve_gkey as integer,\n\t\tUnit_Nbr as string,\n\t\tFacility_Id as string,\n\t\tComplex_Id as string,\n\t\tYard_Id as string,\n\t\tCarrier_Visit_Key as integer,\n\t\tEvent_Type_Id as string,\n\t\tMove_Kind as string,\n\t\tFrom_Location as string,\n\t\tTo_Location as string,\n\t\tFrom_Position_Name as string,\n\t\tTo_Position_Name as string,\n\t\tCarry_CHE_Operator_Id as string,\n\t\tFetch_CHE_Operator_Id as string,\n\t\tPut_CHE_Operator_Id as string,\n\t\tFetch_CHE_Id as long,\n\t\tFetch_CHE_Kind as string,\n\t\tCarry_CHE_Id as long,\n\t\tCarry_CHE_Kind as string,\n\t\tPut_CHE_Id as long,\n\t\tPut_CHE_Kind as string,\n\t\tQC_CHE_Id as long,\n\t\tQC_CHE_Kind as string,\n\t\tt_carry_complete as timestamp,\n\t\tt_put as timestamp,\n\t\tt_fetch as timestamp,\n\t\tt_dispatch as timestamp,\n\t\tt_discharge as timestamp,\n\t\tt_carry_dispatch as timestamp,\n\t\tt_carry_fetch_ready as timestamp,\n\t\tt_carry_put_ready as timestamp,\n\t\tdist_carry as short,\n\t\tdist_start as short,\n\t\tTwin_Fetch as string,\n\t\tTwin_Carry as string,\n\t\tTwin_Put as string,\n\t\tCategory_Id as string,\n\t\tFreight_Kind_Id as string,\n\t\tto_pos_gkey as string,\n\t\tfm_pos_gkey as string,\n\t\tRestow_Reason as string,\n\t\tContainer_Line_Id as string,\n\t\tContainer_Line_Role as string,\n\t\tpow as string,\n\t\tufv_gkey as integer,\n\t\tBerth_Id as string,\n\t\tGoods_And_Ctr_Wt_Kg as string,\n\t\tactive_ufv as integer,\n\t\tRequires_Power_Flag as string,\n\t\tOOG_Flag as string,\n\t\tShipper_Id as string,\n\t\tConsignee_Id as string,\n\t\tCommodity_Id as string,\n\t\tATA as timestamp,\n\t\tATD as timestamp,\n\t\tRehandles as short,\n\t\tYear as integer,\n\t\tMonth as integer,\n\t\tWeek as integer\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tformat: 'delta',\n\tfileSystem: 'gti',\n\tfolderPath: 'silver/moves',\n\tmode: 'read') ~> source1\nSelect1 filter(equals(Event_Type_Id,'UNIT_DISCH') || equals(Event_Type_Id,'UNIT_LOAD')) ~> Filter1\nFilter1 derive(Move_Completion_Date_Time = iif(Event_Type_Id=='UNIT_LOAD', t_carry_complete, t_discharge),\n\t\tMove_Complete_Date = toDate(toString(iif(Event_Type_Id=='UNIT_LOAD', t_carry_complete, t_discharge),'yyyy-MM-dd'),'yyyy-MM-dd'),\n\t\tMove_Complete_Time = toString(iif(Event_Type_Id=='UNIT_LOAD', t_carry_complete, t_discharge),'HH:mm:ss'),\n\t\tVessel_Code = iif(Event_Type_Id=='UNIT_LOAD',left(substring(To_Position_Name,3),instr(substring(To_Position_Name,3), '-')),left(substring(From_Position_Name,3),instr(substring(From_Position_Name,3), '-')))) ~> DerivedColumn1\nsource1 select(mapColumn(\n\t\tYard_Id,\n\t\tCarrier_Visit_Key,\n\t\tEvent_Type_Id,\n\t\tMove_Kind,\n\t\tFrom_Location,\n\t\tTo_Location,\n\t\tFrom_Position_Name,\n\t\tTo_Position_Name,\n\t\tQC_CHE_Id,\n\t\tQC_CHE_Kind,\n\t\tt_carry_complete,\n\t\tt_put,\n\t\tt_fetch,\n\t\tt_dispatch,\n\t\tt_discharge,\n\t\tpow,\n\t\tYear,\n\t\tMonth,\n\t\tWeek,\n\t\tmve_gkey,\n\t\tUnit_Nbr\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> Select1\nDerivedColumn2 alterRow(upsertIf(true()),\n\tinsertIf(true())) ~> AlterRow1\nDerivedColumn1 window(asc(pow, true),\n\tasc(Move_Completion_Date_Time, true),\n\tstartRowOffset: -1L,\n\tendRowOffset: -1L,\n\tMove_Completion_Date_Time_PREV = lag(Move_Completion_Date_Time),\n\t\tPOW_PREV = lag(pow),\n\t\tVessel_PREV = iif(lag(Event_Type_Id)=='UNIT_LOAD',left(substring(lag(To_Position_Name),3),instr(substring(lag(To_Position_Name),3), '-')),left(substring(lag(From_Position_Name),3),instr(substring(lag(From_Position_Name),3), '-')))) ~> Window1\nWindow1 derive(Idle_Time_Min = iif(POW_PREV==pow && Vessel_Code==Vessel_PREV,minus(Move_Completion_Date_Time,Move_Completion_Date_Time_PREV)/60000,toLong(0)),\n\t\tIdle_Time_Range = case(iif(POW_PREV==pow && Vessel_Code==Vessel_PREV,minus(Move_Completion_Date_Time,Move_Completion_Date_Time_PREV)/60000,toLong(0))>0 \r\n&& iif(POW_PREV==pow && Vessel_Code==Vessel_PREV,minus(Move_Completion_Date_Time,Move_Completion_Date_Time_PREV)/60000,toLong(0))<=2,\"Upto 2 min\",\r\niif(POW_PREV==pow && Vessel_Code==Vessel_PREV,minus(Move_Completion_Date_Time,Move_Completion_Date_Time_PREV)/60000,toLong(0))>2 \r\n&& iif(POW_PREV==pow && Vessel_Code==Vessel_PREV,minus(Move_Completion_Date_Time,Move_Completion_Date_Time_PREV)/60000,toLong(0))<=5,\"02 to 05 min\",\r\niif(POW_PREV==pow && Vessel_Code==Vessel_PREV,minus(Move_Completion_Date_Time,Move_Completion_Date_Time_PREV)/60000,toLong(0))>5\r\n&& iif(POW_PREV==pow && Vessel_Code==Vessel_PREV,minus(Move_Completion_Date_Time,Move_Completion_Date_Time_PREV)/60000,toLong(0))<=10,\"05 to 10 min\",\r\niif(POW_PREV==pow && Vessel_Code==Vessel_PREV,minus(Move_Completion_Date_Time,Move_Completion_Date_Time_PREV)/60000,toLong(0))>10\r\n&& iif(POW_PREV==pow && Vessel_Code==Vessel_PREV,minus(Move_Completion_Date_Time,Move_Completion_Date_Time_PREV)/60000,toLong(0))<=15,\"10 to 15 min\",\r\niif(POW_PREV==pow && Vessel_Code==Vessel_PREV,minus(Move_Completion_Date_Time,Move_Completion_Date_Time_PREV)/60000,toLong(0))>15\r\n&& iif(POW_PREV==pow && Vessel_Code==Vessel_PREV,minus(Move_Completion_Date_Time,Move_Completion_Date_Time_PREV)/60000,toLong(0))<=20,\"15 to 20 min\",\r\niif(POW_PREV==pow && Vessel_Code==Vessel_PREV,minus(Move_Completion_Date_Time,Move_Completion_Date_Time_PREV)/60000,toLong(0))>20\r\n&& iif(POW_PREV==pow && Vessel_Code==Vessel_PREV,minus(Move_Completion_Date_Time,Move_Completion_Date_Time_PREV)/60000,toLong(0))<=25,\"20 to 25 min\",\r\niif(POW_PREV==pow && Vessel_Code==Vessel_PREV,minus(Move_Completion_Date_Time,Move_Completion_Date_Time_PREV)/60000,toLong(0))>25\r\n&& iif(POW_PREV==pow && Vessel_Code==Vessel_PREV,minus(Move_Completion_Date_Time,Move_Completion_Date_Time_PREV)/60000,toLong(0))<=30,\"25 to 30 min\",\r\niif(POW_PREV==pow && Vessel_Code==Vessel_PREV,minus(Move_Completion_Date_Time,Move_Completion_Date_Time_PREV)/60000,toLong(0))>30\r\n&& iif(POW_PREV==pow && Vessel_Code==Vessel_PREV,minus(Move_Completion_Date_Time,Move_Completion_Date_Time_PREV)/60000,toLong(0))<=1000,\"> 30 min\")) ~> DerivedColumn2\nAlterRow1 sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'delta',\n\tfileSystem: 'gti',\n\tfolderPath: 'gold/qc_idle_time',\n\tmergeSchema: true,\n\tautoCompact: true,\n\toptimizedWrite: true,\n\tvacuum: 0,\n\tdeletable:false,\n\tinsertable:false,\n\tupdateable:false,\n\tupsertable:true,\n\tkeys:['mve_gkey'],\n\tumask: 0022,\n\tpreCommands: [],\n\tpostCommands: [],\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\tpartitionBy('key',\n\t\t0,\n\t\tYear,\n\t\tMonth,\n\t\tWeek\n\t)) ~> sink1"
+		}
+	}
+}

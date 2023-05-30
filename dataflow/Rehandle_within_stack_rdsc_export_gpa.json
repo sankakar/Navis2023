@@ -1,0 +1,48 @@
+{
+	"name": "Rehandle_within_stack_rdsc_export_gpa",
+	"properties": {
+		"description": "Find unproductive moves within same block, bay for RDSC Full Export ctrs in GCT facility",
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"linkedService": {
+						"referenceName": "linkedService1",
+						"type": "LinkedServiceReference"
+					},
+					"name": "source1"
+				}
+			],
+			"sinks": [
+				{
+					"linkedService": {
+						"referenceName": "linkedService1",
+						"type": "LinkedServiceReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "Sort2"
+				},
+				{
+					"name": "AlterRow1"
+				},
+				{
+					"name": "window1"
+				},
+				{
+					"name": "select2"
+				},
+				{
+					"name": "derivedColumn3"
+				},
+				{
+					"name": "filter1"
+				}
+			],
+			"script": "parameters{\n\tcustomer as string ('gpa')\n}\nsource(output(\n\t\tmve_gkey as long,\n\t\tUnit_Nbr as string,\n\t\tFacility_Id as string,\n\t\tMove_Kind as string,\n\t\tFrom_Position_Name as string,\n\t\tTo_Position_Name as string,\n\t\tt_put as timestamp,\n\t\tCategory_Id as string,\n\t\tFreight_Kind_Id as string,\n\t\tufv_gkey as long,\n\t\tRequires_Power_Flag as boolean,\n\t\tOOG_Flag as boolean,\n\t\tYear as integer,\n\t\tMonth as integer,\n\t\tWeek as integer,\n\t\tFromEB_WB as integer,\n\t\tIB_mve_gkey as long,\n\t\tIB_t_put as timestamp,\n\t\tIB_ufv_gkey as long,\n\t\tIB_Max_T_Put as timestamp,\n\t\tIB_Unit_Nbr as string,\n\t\tIB_Facility_Id as string,\n\t\tIB_Move_Kind as string,\n\t\tIB_Requires_Power_Flag as boolean,\n\t\tRNumber as integer,\n\t\tMovesPerUnitFcyVisit as long\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tformat: 'delta',\n\tfileSystem: 'gpa',\n\tfolderPath: 'gold/rehandle_rdsc_export',\n\tmode: 'read') ~> source1\nfilter1 sort(asc(ufv_gkey, true),\n\tasc(t_put, true),\n\tasc(mve_gkey, true)) ~> Sort2\nwindow1 alterRow(insertIf(true())) ~> AlterRow1\nSort2 window(over(IB_ufv_gkey),\n\tasc(t_put, true),\n\tasc(mve_gkey, true),\n\tRNumber = rowNumber(),\n\t\tMovesPerUnitFcyVisit = count(mve_gkey)) ~> window1\nderivedColumn3 select(mapColumn(\n\t\tmve_gkey,\n\t\tUnit_Nbr,\n\t\tFacility_Id,\n\t\tMove_Kind,\n\t\tFrom_Position_Name,\n\t\tTo_Position_Name,\n\t\tt_put,\n\t\tCategory_Id,\n\t\tFreight_Kind_Id,\n\t\tufv_gkey,\n\t\tRequires_Power_Flag,\n\t\tOOG_Flag,\n\t\tYear,\n\t\tMonth,\n\t\tWeek,\n\t\tFromEB_WB,\n\t\tIB_mve_gkey,\n\t\tIB_t_put,\n\t\tIB_ufv_gkey,\n\t\tIB_Max_T_Put,\n\t\tIB_Unit_Nbr,\n\t\tIB_Facility_Id,\n\t\tIB_Move_Kind,\n\t\tIB_Requires_Power_Flag,\n\t\tIncomplete_To_Position,\n\t\tIncomplete_From_Position,\n\t\tStack_Move\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> select2\nsource1 derive(Incomplete_To_Position = iif(((Move_Kind=='SHFT'||Move_Kind=='YARD')&&length(To_Position_Name)<13),1,0) ,\n\t\tIncomplete_From_Position = iif(((Move_Kind=='SHFT'||Move_Kind=='YARD')&& length(From_Position_Name)<13),1,0),\n\t\tStack_Move = iif(((Move_Kind=='SHFT'||Move_Kind=='YARD')&&(left(From_Position_Name,14)==left(To_Position_Name,14))),1,0)) ~> derivedColumn3\nselect2 filter(Incomplete_To_Position==0) ~> filter1\nAlterRow1 sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'delta',\n\tfileSystem: 'gpa',\n\tfolderPath: 'gold/rehandle_rdsc_export_within_stack',\n\ttruncate:true,\n\tmergeSchema: false,\n\tautoCompact: false,\n\toptimizedWrite: false,\n\tvacuum: 0,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tkeys:['mve_gkey'],\n\tumask: 0022,\n\tpreCommands: [],\n\tpostCommands: [],\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\tmapColumn(\n\t\tmve_gkey,\n\t\tUnit_Nbr,\n\t\tFacility_Id,\n\t\tMove_Kind,\n\t\tFrom_Position_Name,\n\t\tTo_Position_Name,\n\t\tt_put,\n\t\tCategory_Id,\n\t\tFreight_Kind_Id,\n\t\tufv_gkey,\n\t\tRequires_Power_Flag,\n\t\tOOG_Flag,\n\t\tYear,\n\t\tMonth,\n\t\tWeek,\n\t\tFromEB_WB,\n\t\tIB_mve_gkey,\n\t\tIB_t_put,\n\t\tIB_ufv_gkey,\n\t\tIB_Max_T_Put,\n\t\tIB_Unit_Nbr,\n\t\tIB_Facility_Id,\n\t\tIB_Move_Kind,\n\t\tIB_Requires_Power_Flag,\n\t\tIncomplete_To_Position,\n\t\tIncomplete_From_Position,\n\t\tStack_Move,\n\t\tRNumber,\n\t\tMovesPerUnitFcyVisit\n\t)) ~> sink1"
+		}
+	}
+}

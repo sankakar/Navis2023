@@ -1,0 +1,65 @@
+{
+	"name": "TrkVstStg_gpa",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"linkedService": {
+						"referenceName": "linkedService1",
+						"type": "LinkedServiceReference"
+					},
+					"name": "CSV"
+				}
+			],
+			"sinks": [
+				{
+					"linkedService": {
+						"referenceName": "linkedService1",
+						"type": "LinkedServiceReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "Aggregate1"
+				},
+				{
+					"name": "Select2"
+				},
+				{
+					"name": "AlterRow1"
+				},
+				{
+					"name": "join1"
+				},
+				{
+					"name": "flattenedTrkVst"
+				},
+				{
+					"name": "precheckRows"
+				},
+				{
+					"name": "derivedColumn1"
+				},
+				{
+					"name": "completedGCTVisits"
+				},
+				{
+					"name": "inspectionRows"
+				},
+				{
+					"name": "renameInspectionStageColumns"
+				},
+				{
+					"name": "TurnTime"
+				},
+				{
+					"name": "dedupeTVStgKey"
+				}
+			],
+			"script": "source(output(\n\t\tCarrier_Visit_Key as string,\n\t\tTV_Stg_Key as string,\n\t\tFacility_Id as string,\n\t\tGate_Stage_Id as string,\n\t\tTV_Stg_Seq as string,\n\t\tTruck_Visit_Status_Id as string,\n\t\tTrk_Yard_Entered_Time as string,\n\t\tTrk_Yard_Exited_Time as string,\n\t\tTV_Stg_Start_Time as string,\n\t\tTV_Stg_End_Time as string,\n\t\tqueue_time as long,\n\t\tTV_Stg_Trouble as boolean,\n\t\tTV_Stg_Trouble_Resolve_Time as long,\n\t\tTV_Stg_Extra_Time_Minute as long\n\t),\n\tuseSchema: false,\n\tallowSchemaDrift: false,\n\tvalidateSchema: true,\n\tignoreNoFilesFound: false,\n\tmoveFiles: ['bronze/trkvststg/load/','bronze/trkvststg/archive/'],\n\tformat: 'delimited',\n\tfileSystem: 'gpa',\n\tfolderPath: 'bronze/trkvststg/load',\n\tcolumnDelimiter: ',',\n\tescapeChar: '\\\\',\n\tquoteChar: '\\\"',\n\tcolumnNamesAsHeader: true,\n\tdateFormats: ['dd-MM-yyyy'],\n\ttimestampFormats: ['yyyy-MM-dd\\'T\\'HH:mm:ss.SSS\\'Z\\'','yyyy-MM-dd\\'T\\'HH:mm:ss\\'Z\\'']) ~> CSV\nTurnTime aggregate(groupBy(Carrier_Visit_Key),\n\teach(match(name!='Carrier_Visit_Key'), $$ = first($$))) ~> Aggregate1\nCSV select(mapColumn(\n\t\tCarrier_Visit_Key,\n\t\tTV_Stg_Key,\n\t\tFacility_Id,\n\t\tGate_Stage_Id,\n\t\tTV_Stg_Seq,\n\t\tTruck_Visit_Status_Id,\n\t\tTrk_Yard_Entered_Time,\n\t\tTrk_Yard_Exited_Time,\n\t\tTV_Stg_Start_Time,\n\t\tTV_Stg_End_Time,\n\t\tQUEUE_TIME = queue_time,\n\t\tTV_Stg_Trouble,\n\t\tTV_Stg_Trouble_Resolve_Time,\n\t\tTV_Stg_Extra_Time_Minute\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> Select2\nAggregate1 alterRow(upsertIf(true())) ~> AlterRow1\nprecheckRows, renameInspectionStageColumns join(Carrier_Visit_Key == insp_Carrier_Visit_Key,\n\tjoinType:'left',\n\tmatchType:'exact',\n\tignoreSpaces: false,\n\tbroadcast: 'auto')~> join1\njoin1 select(mapColumn(\n\t\tCarrier_Visit_Key,\n\t\tTV_Stg_Key,\n\t\tFacility_Id,\n\t\tGate_Stage_Id,\n\t\tTV_Stg_Seq,\n\t\tTruck_Visit_Status_Id,\n\t\tTrk_Yard_Entered_Time,\n\t\tTrk_Yard_Exited_Time,\n\t\tTV_Stg_Start_Time,\n\t\tTV_Stg_End_Time,\n\t\tQUEUE_TIME = insp_QUEUE_TIME,\n\t\tTV_Stg_Trouble,\n\t\tTV_Stg_Trouble_Resolve_Time,\n\t\tTV_Stg_Extra_Time_Minute,\n\t\tinsp_Carrier_Visit_Key,\n\t\tinsp_TV_Stg_Key,\n\t\tinsp_Facility_Id,\n\t\tinsp_Gate_Stage_Id,\n\t\tinsp_TV_Stg_Seq,\n\t\tinsp_Trk_Yard_Entered_Time,\n\t\tinsp_Trk_Yard_Exited_Time,\n\t\tinsp_TV_Stg_Start_Time,\n\t\tinsp_TV_Stg_End_Time\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> flattenedTrkVst\nderivedColumn1 filter(Gate_Stage_Id=='precheck'&&TV_Stg_Seq==1) ~> precheckRows\ndedupeTVStgKey derive(Carrier_Visit_Key = toLong(Carrier_Visit_Key),\n\t\tTV_Stg_Key = toLong(TV_Stg_Key),\n\t\tTV_Stg_Seq = toLong(TV_Stg_Seq),\n\t\tTrk_Yard_Entered_Time = toTimestamp(Trk_Yard_Entered_Time, 'MM/dd/yyyy HH:mm:ss'),\n\t\tTrk_Yard_Exited_Time = toTimestamp(Trk_Yard_Exited_Time,'MM/dd/yyyy HH:mm:ss'),\n\t\tTV_Stg_Start_Time = toTimestamp(TV_Stg_Start_Time,'MM/dd/yyyy HH:mm:ss'),\n\t\tTV_Stg_End_Time = toTimestamp(TV_Stg_End_Time,'MM/dd/yyyy HH:mm:ss')) ~> derivedColumn1\nSelect2 filter(Truck_Visit_Status_Id=='COMPLETE'&&Facility_Id=='GCT'&&(isNull(Trk_Yard_Exited_Time)==false())) ~> completedGCTVisits\nderivedColumn1 filter(Gate_Stage_Id=='inspection') ~> inspectionRows\ninspectionRows select(mapColumn(\n\t\tinsp_Carrier_Visit_Key = Carrier_Visit_Key,\n\t\tinsp_TV_Stg_Key = TV_Stg_Key,\n\t\tinsp_Facility_Id = Facility_Id,\n\t\tinsp_Gate_Stage_Id = Gate_Stage_Id,\n\t\tinsp_TV_Stg_Seq = TV_Stg_Seq,\n\t\tinsp_Trk_Yard_Entered_Time = Trk_Yard_Entered_Time,\n\t\tinsp_Trk_Yard_Exited_Time = Trk_Yard_Exited_Time,\n\t\tinsp_TV_Stg_Start_Time = TV_Stg_Start_Time,\n\t\tinsp_TV_Stg_End_Time = TV_Stg_End_Time,\n\t\tinsp_QUEUE_TIME = QUEUE_TIME\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> renameInspectionStageColumns\nflattenedTrkVst derive(TurnTimeSecond = round((minus(Trk_Yard_Exited_Time,coalesce(insp_TV_Stg_Start_Time,Trk_Yard_Entered_Time))/1000),0),\n\t\tYear = year(Trk_Yard_Exited_Time),\n\t\tMonth = month(Trk_Yard_Exited_Time),\n\t\tWeek = weekOfYear(Trk_Yard_Exited_Time)) ~> TurnTime\ncompletedGCTVisits aggregate(groupBy(TV_Stg_Key),\n\teach(match(name!='TV_Stg_Key'), $$ = first($$))) ~> dedupeTVStgKey\nAlterRow1 sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'delta',\n\tfileSystem: 'gpa',\n\tfolderPath: 'silver/truckturntime',\n\tmergeSchema: false,\n\tautoCompact: false,\n\toptimizedWrite: false,\n\tvacuum: 0,\n\tdeletable:false,\n\tinsertable:false,\n\tupdateable:false,\n\tupsertable:true,\n\tkeys:['Carrier_Visit_Key'],\n\tumask: 0777,\n\tpreCommands: [],\n\tpostCommands: [],\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\tmapColumn(\n\t\tCarrier_Visit_Key,\n\t\tTV_Stg_Key,\n\t\tFacility_Id,\n\t\tGate_Stage_Id,\n\t\tTV_Stg_Seq,\n\t\tTruck_Visit_Status_Id,\n\t\tTrk_Yard_Entered_Time,\n\t\tTrk_Yard_Exited_Time,\n\t\tTV_Stg_Start_Time,\n\t\tTV_Stg_End_Time,\n\t\tQUEUE_TIME,\n\t\tTV_Stg_Trouble,\n\t\tTV_Stg_Trouble_Resolve_Time,\n\t\tTV_Stg_Extra_Time_Minute,\n\t\tinsp_Carrier_Visit_Key,\n\t\tinsp_TV_Stg_Key,\n\t\tinsp_Facility_Id,\n\t\tinsp_Gate_Stage_Id,\n\t\tinsp_TV_Stg_Seq,\n\t\tinsp_Trk_Yard_Entered_Time,\n\t\tinsp_Trk_Yard_Exited_Time,\n\t\tinsp_TV_Stg_Start_Time,\n\t\tinsp_TV_Stg_End_Time,\n\t\tTurnTimeSecond,\n\t\tYear,\n\t\tMonth,\n\t\tWeek\n\t)) ~> sink1"
+		}
+	}
+}

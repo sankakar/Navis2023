@@ -1,0 +1,41 @@
+{
+	"name": "VesselVisits_gpa",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"linkedService": {
+						"referenceName": "linkedService1",
+						"type": "LinkedServiceReference"
+					},
+					"name": "source1"
+				}
+			],
+			"sinks": [
+				{
+					"linkedService": {
+						"referenceName": "linkedService1",
+						"type": "LinkedServiceReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "DerivedColumn1"
+				},
+				{
+					"name": "ColumnNameSpace"
+				},
+				{
+					"name": "AlterRow1"
+				},
+				{
+					"name": "aggregate1"
+				}
+			],
+			"script": "source(output(\n\t\tFacility_Id as string,\n\t\tCarrier_Visit_Id as string,\n\t\tPhase as string,\n\t\tVisit_Nbr as string,\n\t\tCarrier_Mode as string,\n\t\tATA as string,\n\t\tATD as string,\n\t\tTime_First_Availabilty as string,\n\t\tTime_Discharge_Complete as string,\n\t\tService_Id as string,\n\t\tService_Name as string,\n\t\tVessel_Id as string,\n\t\tIB_VYG as string,\n\t\tOB_VYG as string,\n\t\tCarrier_Name as string,\n\t\tVessel_Class as string,\n\t\tPublished_ETA as string,\n\t\tPublished_ETD as string,\n\t\tStart_Work as string,\n\t\tEnd_Work as string,\n\t\tCarrier_Visit_Key as string\n\t),\n\tuseSchema: false,\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tmoveFiles: ['bronze/vesselvisits','bronze/vesselvisits/archive'],\n\tformat: 'delimited',\n\tfileSystem: 'gpa',\n\tfolderPath: 'bronze/vesselvisits',\n\tcolumnDelimiter: ',',\n\tescapeChar: '\\\\',\n\tquoteChar: '\\\"',\n\tcolumnNamesAsHeader: true) ~> source1\nColumnNameSpace derive(ATA = coalesce( toTimestamp(ATA,'MM/dd/yyyy HH:mm'), toTimestamp(ATA,'MM/dd/yyyy HH:mm:ss'),toTimestamp(ATA,'dd-MM-yy HH:mm:ss'),toTimestamp(ATA,'dd.MM.yy HH:mm:ss'),toTimestamp(ATA,'dd/MM/yyyy\\'T\\'HH:mm:ss'), toTimestamp(ATA,'dd/MM/yyyy HH:mm:ss'),toTimestamp(ATA,'dd-MM-yyyy HH:mm:ss')),\n\t\tPublished_ETA = coalesce(toTimestamp(Published_ETA,'MM/dd/yyyy HH:mm'),toTimestamp(Published_ETA,'MM/dd/yyyy HH:mm:ss'),toTimestamp(Published_ETA,'dd-MM-yy HH:mm:ss'),toTimestamp(Published_ETA,'dd.MM.yy HH:mm:ss'),toTimestamp(Published_ETA,'dd/MM/yyyy\\'T\\'HH:mm:ss')),\n\t\tPublished_ETD = coalesce(toTimestamp(Published_ETD,'MM/dd/yyyy HH:mm'),toTimestamp(Published_ETD,'MM/dd/yyyy HH:mm:ss'),toTimestamp(Published_ETD,'dd-MM-yy HH:mm:ss'), toTimestamp(Published_ETD,'yyyy-MM-dd HH:mm:ss.SSS'),toTimestamp(Published_ETD,'dd-MM-yyyy HH:mm:ss')),\n\t\tATD = coalesce(toTimestamp(ATD,'MM/dd/yyyy HH:mm'),toTimestamp(ATD,'dd-MM-yy HH:mm:ss'),toTimestamp(ATD,'dd.MM.yy HH:mm:ss'),toTimestamp(ATD,'dd/MM/yyyy\\'T\\'HH:mm:ss'), toTimestamp(ATD,'yyyy-MM-dd HH:mm:ss.SSS'),toTimestamp(ATD,'dd/MM/yyyy HH:mm:ss'),toTimestamp(ATD,'dd-MM-yyyy HH:mm:ss')),\n\t\tTimeFirstAvailabilty = coalesce(toTimestamp(Time_First_Availabilty,'MM/dd/yyyy HH:mm'),toTimestamp(Time_First_Availabilty,'dd-MM-yy HH:mm:ss'),toTimestamp(Time_First_Availabilty,'dd.MM.yy HH:mm:ss'),toTimestamp(Time_First_Availabilty,'dd/MM/yyyy\\'T\\'HH:mm:ss')),\n\t\tStartWork = coalesce(toTimestamp(Start_Work,'MM/dd/yyyy HH:mm'),toTimestamp(Start_Work,'dd-MM-yy HH:mm:ss'),toTimestamp(Start_Work,'dd.MM.yy HH:mm:ss'),toTimestamp(Start_Work,'dd/MM/yyyy\\'T\\'HH:mm:ss')),\n\t\tTimeDischargeComplete = coalesce(toTimestamp(Time_Discharge_Complete,'yyyy/MM/dd HH:mm:ss.SSS'),toTimestamp(Time_Discharge_Complete,'dd-MM-yy HH:mm:ss'),toTimestamp(Time_Discharge_Complete,'dd.MM.yy HH:mm:ss'),toTimestamp(Time_Discharge_Complete,'dd/MM/yyyy\\'T\\'HH:mm:ss')),\n\t\tEndWork = coalesce(toTimestamp(End_Work,'MM/dd/yyyy HH:mm'),toTimestamp(End_Work,'dd-MM-yy HH:mm:ss'),toTimestamp(End_Work,'dd.MM.yy HH:mm:ss'),toTimestamp(End_Work,'dd/MM/yyyy\\'T\\'HH:mm:ss')),\n\t\tWeek = weekOfYear(iifNull(coalesce(toTimestamp(ATA,'MM/dd/yyyy HH:mm'),toTimestamp(ATA,'dd.MM.yy HH:mm:ss'),toTimestamp(ATA,'dd/MM/yyyy\\'T\\'HH:mm:ss')),coalesce(toTimestamp(Published_ETA,'MM/dd/yyyy HH:mm'),toTimestamp(Published_ETA,'dd-MM-yy HH:mm:ss'),toTimestamp(Published_ETA,'dd.MM.yy HH:mm:ss'),toTimestamp(Published_ETA,'dd/MM/yyyy\\'T\\'HH:mm:ss')))),\n\t\tYear = year(iifNull(coalesce(toTimestamp(ATA,'yyyy/MM/dd HH:mm:ss.SSS'),toTimestamp(ATA,'dd-MM-yy HH:mm:ss'),toTimestamp(ATA,'dd.MM.yy HH:mm:ss'),toTimestamp(ATA,'dd/MM/yyyy\\'T\\'HH:mm:ss')),coalesce(toTimestamp(Published_ETA,'MM/dd/yyyy HH:mm'),toTimestamp(Published_ETA,'dd-MM-yy HH:mm:ss'),toTimestamp(Published_ETA,'dd.MM.yy HH:mm:ss'),toTimestamp(Published_ETA,'dd/MM/yyyy\\'T\\'HH:mm:ss')))),\n\t\tMonth = month(iifNull(coalesce(toTimestamp(ATA,'yyyy/MM/dd HH:mm:ss.SSS'),toTimestamp(ATA,'dd-MM-yy HH:mm:ss'),toTimestamp(ATA,'dd.MM.yy HH:mm:ss'),toTimestamp(ATA,'dd/MM/yyyy\\'T\\'HH:mm:ss')),coalesce(toTimestamp(Published_ETA,'MM/dd/yyyy HH:mm'),toTimestamp(Published_ETA,'dd-MM-yy HH:mm:ss'),toTimestamp(Published_ETA,'dd.MM.yy HH:mm:ss'),toTimestamp(Published_ETA,'dd/MM/yyyy\\'T\\'HH:mm:ss')))),\n\t\tVisit_Nbr = toShort(Visit_Nbr),\n\t\tCarrier_Visit_Key = toLong(Carrier_Visit_Key)) ~> DerivedColumn1\nsource1 select(mapColumn(\n\t\teach(match(true()),\n\t\t\tregexReplace($$,' ','_') = $$)\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> ColumnNameSpace\naggregate1 alterRow(upsertIf(true())) ~> AlterRow1\nDerivedColumn1 aggregate(groupBy(Carrier_Visit_Key,\n\t\tFacility_Id),\n\teach(match(name!='Carrier_Visit_Key'&&name!='Facility_Id'), $$ = first($$))) ~> aggregate1\nAlterRow1 sink(allowSchemaDrift: true,\n\tvalidateSchema: true,\n\tformat: 'delta',\n\tfileSystem: 'gpa',\n\tfolderPath: 'silver/vesselvisits',\n\tmergeSchema: false,\n\tautoCompact: false,\n\toptimizedWrite: false,\n\tvacuum: 0,\n\tdeletable:false,\n\tinsertable:false,\n\tupdateable:false,\n\tupsertable:true,\n\tkeys:['Carrier_Visit_Key','Facility_Id'],\n\tumask: 0022,\n\tpreCommands: [],\n\tpostCommands: [],\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\tmapColumn(\n\t\tCarrier_Visit_Key,\n\t\tFacility_Id,\n\t\tCarrier_Visit_Id,\n\t\tPhase,\n\t\tVisit_Nbr,\n\t\tCarrier_Mode,\n\t\tATA,\n\t\tATD,\n\t\tTime_First_Availabilty,\n\t\tTime_Discharge_Complete,\n\t\tService_Id,\n\t\tService_Name,\n\t\tVessel_Id,\n\t\tIB_VYG,\n\t\tOB_VYG,\n\t\tCarrier_Name,\n\t\tVessel_Class,\n\t\tPublished_ETA,\n\t\tPublished_ETD,\n\t\tStart_Work,\n\t\tEnd_Work,\n\t\tTimeFirstAvailabilty,\n\t\tStartWork,\n\t\tTimeDischargeComplete,\n\t\tEndWork,\n\t\tWeek,\n\t\tYear,\n\t\tMonth\n\t)) ~> sink1"
+		}
+	}
+}

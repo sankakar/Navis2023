@@ -1,0 +1,93 @@
+{
+	"name": "YardBlocks_gpa",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"linkedService": {
+						"referenceName": "linkedService1",
+						"type": "LinkedServiceReference"
+					},
+					"name": "source1"
+				}
+			],
+			"sinks": [
+				{
+					"linkedService": {
+						"referenceName": "linkedService1",
+						"type": "LinkedServiceReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "filter1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          Complex_Id as string,",
+				"          Facility_Id as string,",
+				"          Yard_Id as string,",
+				"          mdl_bin_subclass as string,",
+				"          mdl_bin_level as short,",
+				"          mdl_status as string,",
+				"          mdl_pos_name as string,",
+				"          mdl_pos_gkey as long,",
+				"          blk_bin_subclass as string,",
+				"          blk_bin_level as short,",
+				"          blk_status as string,",
+				"          blk_block_type as string,",
+				"          label_scheme_full_position as string,",
+				"          blk_pos_name as string,",
+				"          blk_pos_gkey as long,",
+				"          sect_bin_subclass as string,",
+				"          sect_bin_level as short,",
+				"          sect_status as string,",
+				"          sect_pos_name as string,",
+				"          sect_pos_gkey as long,",
+				"          stk_bin_subclass as string,",
+				"          stk_bin_level as short,",
+				"          stk_status as string,",
+				"          stk_pos_name as string,",
+				"          stk_pos_gkey as long,",
+				"          bin_type as string,",
+				"          pos_gkey as long",
+				"     ),",
+				"     useSchema: false,",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     format: 'delimited',",
+				"     fileSystem: 'gpa',",
+				"     folderPath: 'bronze/yardblock',",
+				"     columnDelimiter: ',',",
+				"     escapeChar: '\\\\',",
+				"     quoteChar: '\\\"',",
+				"     columnNamesAsHeader: true) ~> source1",
+				"source1 filter(Facility_Id=='GCT' && blk_status=='ACT') ~> filter1",
+				"filter1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'delta',",
+				"     fileSystem: 'gpa',",
+				"     folderPath: 'silver/yardblock',",
+				"     truncate:true,",
+				"     mergeSchema: false,",
+				"     autoCompact: false,",
+				"     optimizedWrite: false,",
+				"     vacuum: 0,",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> sink1"
+			]
+		}
+	}
+}

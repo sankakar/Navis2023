@@ -1,0 +1,38 @@
+{
+	"name": "VesselVisits_GTI",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"linkedService": {
+						"referenceName": "linkedService1",
+						"type": "LinkedServiceReference"
+					},
+					"name": "source1"
+				}
+			],
+			"sinks": [
+				{
+					"linkedService": {
+						"referenceName": "linkedService1",
+						"type": "LinkedServiceReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "DerivedColumn1"
+				},
+				{
+					"name": "ColumnNameSpace"
+				},
+				{
+					"name": "AlterRow1"
+				}
+			],
+			"script": "parameters{\n\tcustomer as string ('gti')\n}\nsource(output(\n\t\t{Complex Id} as string,\n\t\t{Facility Id} as string,\n\t\t{Carrier Visit Id} as string,\n\t\tPhase as string,\n\t\t{Visit Nbr} as string,\n\t\t{Carrier Mode} as string,\n\t\tATA as string,\n\t\tATD as string,\n\t\tETA as string,\n\t\tETD as string,\n\t\t{Operator Line Id} as string,\n\t\t{Operator Line Role} as string,\n\t\t{Operator Line Name} as string,\n\t\t{Time First Availabilty} as string,\n\t\t{Time Discharge Complete} as string,\n\t\t{Service Id} as string,\n\t\t{Service Name} as string,\n\t\t{Vessel Id} as string,\n\t\t{IB VYG} as string,\n\t\t{OB VYG} as string,\n\t\t{Carrier Name} as string,\n\t\t{Vessel Class} as string,\n\t\t{Published ETA} as string,\n\t\t{Published ETD} as string,\n\t\t{Start Work} as string,\n\t\t{End Work} as string,\n\t\t{Begin Receive_Date} as string,\n\t\t{Cargo Cutoff Date} as string,\n\t\t{Hazard Cutoff Date} as string,\n\t\t{Reefer Cutoff Date} as string,\n\t\t{Labor On Board Date} as string,\n\t\t{Labor Off Board Date} as string,\n\t\t{Off Port Arrival Date} as string,\n\t\t{Off Port Departure} as string,\n\t\t{Pilot On Board Date} as string,\n\t\t{Pilot Off Board Date} as string,\n\t\t{Est BBK Discharge} as string,\n\t\t{Est BBK Load} as string,\n\t\t{Est Load} as string,\n\t\t{Est Discharge} as string,\n\t\t{Est Restow} as string,\n\t\t{Est Shift} as string,\n\t\tvvFlexString01 as string,\n\t\tvvFlexString02 as string,\n\t\tvvFlexString03 as string,\n\t\tvvFlexString04 as string,\n\t\tvvFlexString05 as string,\n\t\tvvFlexString06 as string,\n\t\tvvFlexString07 as string,\n\t\tvvFlexString08 as string,\n\t\tvvFlexDate01 as string,\n\t\tvvFlexDate02 as string,\n\t\tvvFlexDate03 as string,\n\t\tvvFlexDate04 as string,\n\t\tvvFlexDate05 as string,\n\t\tvvFlexDate06 as string,\n\t\tvvFlexDate07 as string,\n\t\tvvFlexDate08 as string,\n\t\t{Carrier Visit Key} as integer,\n\t\t{Vessel Classification} as string,\n\t\t{Vessel Class Length Overall cm} as integer,\n\t\t{Vessel Class Beam cm} as short,\n\t\t{Vessel TEU Capacity} as string,\n\t\t{Lloyds Code} as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tmoveFiles: ['/bronze/vessel_visits','bronze/vessel_visits/archive'],\n\tformat: 'delimited',\n\tfileSystem: 'gti',\n\tfolderPath: 'bronze/vessel_visits',\n\tcolumnDelimiter: ',',\n\tescapeChar: '\\\\',\n\tquoteChar: '\\\"',\n\tcolumnNamesAsHeader: true) ~> source1\nColumnNameSpace derive(ATA = coalesce(toTimestamp(ATA,'dd.MM.yy HH:mm:ss,SSS'),toTimestamp(ATA,'dd-MM-yy HH:mm:ss'),toTimestamp(ATA,'dd.MM.yy HH:mm:ss'),toTimestamp(ATA,'dd/MM/yyyy\\'T\\'HH:mm:ss'), toTimestamp(ATA,'yyyy-MM-dd HH:mm:ss.SSS'),toTimestamp(ATA,'dd/MM/yyyy HH:mm:ss'),toTimestamp(ATA,'dd-MM-yyyy HH:mm:ss')),\n\t\tETA = coalesce(toTimestamp(ETA,'dd.MM.yy HH:mm:ss,SSS'),toTimestamp(ETA,'dd-MM-yy HH:mm:ss'),toTimestamp(ETA,'dd.MM.yy HH:mm:ss'),toTimestamp(ETA,'dd/MM/yyyy\\'T\\'HH:mm:ss')),\n\t\tETD = coalesce(toTimestamp(ETD,'dd.MM.yy HH:mm:ss,SSS'),toTimestamp(ETD,'dd-MM-yy HH:mm:ss'),toTimestamp(ETD,'dd.MM.yy HH:mm:ss'),toTimestamp(ETD,'dd/MM/yyyy\\'T\\'HH:mm:ss'), toTimestamp(ETD,'yyyy-MM-dd HH:mm:ss.SSS'),toTimestamp(ETD,'dd/MM/yyyy HH:mm:ss'),toTimestamp(ETD,'dd-MM-yyyy HH:mm:ss')),\n\t\tATD = coalesce(toTimestamp(ATD,'dd.MM.yy HH:mm:ss,SSS'),toTimestamp(ATD,'dd-MM-yy HH:mm:ss'),toTimestamp(ATD,'dd.MM.yy HH:mm:ss'),toTimestamp(ATD,'dd/MM/yyyy\\'T\\'HH:mm:ss'), toTimestamp(ATD,'yyyy-MM-dd HH:mm:ss.SSS'),toTimestamp(ATD,'dd/MM/yyyy HH:mm:ss'),toTimestamp(ATD,'dd-MM-yyyy HH:mm:ss')),\n\t\tTimeFirstAvailabilty = coalesce(toTimestamp(Time_First_Availabilty,'dd.MM.yy HH:mm:ss,SSS'),toTimestamp(Time_First_Availabilty,'dd-MM-yy HH:mm:ss'),toTimestamp(Time_First_Availabilty,'dd.MM.yy HH:mm:ss'),toTimestamp(Time_First_Availabilty,'dd/MM/yyyy\\'T\\'HH:mm:ss')),\n\t\tStartWork = coalesce(toTimestamp(Start_Work,'dd.MM.yy HH:mm:ss,SSS'),toTimestamp(Start_Work,'dd-MM-yy HH:mm:ss'),toTimestamp(Start_Work,'dd.MM.yy HH:mm:ss'),toTimestamp(Start_Work,'dd/MM/yyyy\\'T\\'HH:mm:ss')),\n\t\tTimeDischargeComplete = coalesce(toTimestamp(Time_Discharge_Complete,'dd.MM.yy HH:mm:ss,SSS'),toTimestamp(Time_Discharge_Complete,'dd-MM-yy HH:mm:ss'),toTimestamp(Time_Discharge_Complete,'dd.MM.yy HH:mm:ss'),toTimestamp(Time_Discharge_Complete,'dd/MM/yyyy\\'T\\'HH:mm:ss')),\n\t\tEndWork = coalesce(toTimestamp(End_Work,'dd.MM.yy HH:mm:ss,SSS'),toTimestamp(End_Work,'dd-MM-yy HH:mm:ss'),toTimestamp(End_Work,'dd.MM.yy HH:mm:ss'),toTimestamp(End_Work,'dd/MM/yyyy\\'T\\'HH:mm:ss')),\n\t\tWeek = weekOfYear(iifNull(coalesce(toTimestamp(ATA,'dd.MM.yy HH:mm:ss,SSS'),toTimestamp(ATA,'dd-MM-yy HH:mm:ss'),toTimestamp(ATA,'dd.MM.yy HH:mm:ss'),toTimestamp(ATA,'dd/MM/yyyy HH:mm:ss')),coalesce(currentTimestamp(),toTimestamp(ETA,'dd-MM-yy HH:mm:ss'),toTimestamp(ETA,'dd.MM.yy HH:mm:ss'),toTimestamp(ETA,'dd/MM/yyyy\\'T\\'HH:mm:ss')))),\n\t\tYear = year(iifNull(coalesce(toTimestamp(ATA,'dd.MM.yy HH:mm:ss,SSS'),toTimestamp(ATA,'dd-MM-yy HH:mm:ss'),toTimestamp(ATA,'dd.MM.yy HH:mm:ss'),toTimestamp(ATA,'dd/MM/yyyy HH:mm:ss')),coalesce(currentTimestamp(),toTimestamp(ETA,'dd-MM-yy HH:mm:ss'),toTimestamp(ETA,'dd.MM.yy HH:mm:ss'),toTimestamp(ETA,'dd/MM/yyyy\\'T\\'HH:mm:ss')))),\n\t\tMonth = month(iifNull(coalesce(toTimestamp(ATA,'dd.MM.yy HH:mm:ss,SSS'),toTimestamp(ATA,'dd-MM-yy HH:mm:ss'),toTimestamp(ATA,'dd.MM.yy HH:mm:ss'),toTimestamp(ATA,'dd/MM/yyyy HH:mm:ss')),coalesce(currentTimestamp(),toTimestamp(ETA,'dd-MM-yy HH:mm:ss'),toTimestamp(ETA,'dd.MM.yy HH:mm:ss'),toTimestamp(ETA,'dd/MM/yyyy\\'T\\'HH:mm:ss'))))) ~> DerivedColumn1\nsource1 select(mapColumn(\n\t\teach(match(true()),\n\t\t\tregexReplace($$,' ','_') = $$)\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> ColumnNameSpace\nDerivedColumn1 alterRow(upsertIf(true())) ~> AlterRow1\nAlterRow1 sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'delta',\n\tfileSystem: 'gti',\n\tfolderPath: 'silver/vesselvisits',\n\tmergeSchema: true,\n\tautoCompact: true,\n\toptimizedWrite: true,\n\tvacuum: 0,\n\tdeletable:false,\n\tinsertable:false,\n\tupdateable:false,\n\tupsertable:true,\n\tkeys:['Carrier_Visit_Key'],\n\tumask: 0022,\n\tpreCommands: [],\n\tpostCommands: [],\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\tpartitionBy('key',\n\t\t0,\n\t\tYear,\n\t\tMonth,\n\t\tWeek\n\t)) ~> sink1"
+		}
+	}
+}

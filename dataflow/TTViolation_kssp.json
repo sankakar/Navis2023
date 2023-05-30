@@ -1,0 +1,128 @@
+{
+	"name": "TTViolation_kssp",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"linkedService": {
+						"referenceName": "linkedService1",
+						"type": "LinkedServiceReference"
+					},
+					"name": "source1"
+				}
+			],
+			"sinks": [
+				{
+					"linkedService": {
+						"referenceName": "linkedService1",
+						"type": "LinkedServiceReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "window1"
+				},
+				{
+					"name": "derivedColumn1"
+				},
+				{
+					"name": "filter1"
+				},
+				{
+					"name": "AlterRow1"
+				},
+				{
+					"name": "filter2"
+				},
+				{
+					"name": "aggregate1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          ecEventGkey as long,",
+				"          yardGkey as string,",
+				"          YardID as string,",
+				"          FcyID as string,",
+				"          cheKind as string,",
+				"          cheName as string,",
+				"          cheID as long,",
+				"          EcEventTime as timestamp,",
+				"          type as short,",
+				"          subType as short,",
+				"          typeDescription as string,",
+				"          fromCheIdName as string,",
+				"          ToCheIdName as string,",
+				"          unitIdName as string,",
+				"          powName as string,",
+				"          poolName as string,",
+				"          workQueue as string,",
+				"          travelDistance as short,",
+				"          moveKind as string,",
+				"          isTwinMove as string,",
+				"          startDistance as short,",
+				"          workAssignmentId as double,",
+				"          unitReference as string,",
+				"          tranId as string,",
+				"          locType as string,",
+				"          locId as string,",
+				"          locSlot as string,",
+				"          opsPosId as string,",
+				"          unladenLoctype as string,",
+				"          unladenLocid as string,",
+				"          unladenLocSlot as string,",
+				"          ladenLoctype as string,",
+				"          ladenLocid as string,",
+				"          ladenLocSlot as string,",
+				"          lastEstMoveTime as string,",
+				"          Year as integer,",
+				"          Month as integer,",
+				"          Week as integer",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     format: 'delta',",
+				"     fileSystem: 'kssp',",
+				"     folderPath: 'silver/ecevents') ~> source1",
+				"aggregate1 window(asc(cheID, true),",
+				"     asc(EcEventTime, true),",
+				"     startRowOffset: 1L,",
+				"     endRowOffset: 1L,",
+				"     typeDescription_nxt = lead(typeDescription),",
+				"          cheID_nxt = lead(cheID),",
+				"          powName_nxt = lead(powName),",
+				"          moveKind_nxt = lead(moveKind)) ~> window1",
+				"window1 derive(Violation1 = iif(cheID==cheID_nxt && typeDescription=='TVCO' && typeDescription_nxt=='TYDR' && moveKind=='DSCH' && moveKind_nxt=='DSCH' && powName!=powName_nxt,1,0),",
+				"          Violation2 = iif(cheID==cheID_nxt && typeDescription=='TVCO' && typeDescription_nxt=='TVDR' && moveKind=='DSCH' && moveKind_nxt=='LOAD',1,0)) ~> derivedColumn1",
+				"source1 filter(cheKind=='ITV') ~> filter1",
+				"filter2 alterRow(upsertIf(true())) ~> AlterRow1",
+				"derivedColumn1 filter(Violation1==1 || Violation2==1) ~> filter2",
+				"filter1 aggregate(groupBy(ecEventGkey),",
+				"     each(match(name!='ecEventGkey'), $$ = first($$))) ~> aggregate1",
+				"AlterRow1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'delta',",
+				"     fileSystem: 'kssp',",
+				"     folderPath: 'gold/ttviolation',",
+				"     mergeSchema: true,",
+				"     autoCompact: true,",
+				"     optimizedWrite: true,",
+				"     vacuum: 0,",
+				"     deletable:false,",
+				"     insertable:false,",
+				"     updateable:false,",
+				"     upsertable:true,",
+				"     keys:['ecEventGkey'],",
+				"     umask: 0777,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> sink1"
+			]
+		}
+	}
+}
