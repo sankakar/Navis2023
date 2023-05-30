@@ -1,0 +1,12 @@
+{
+	"name": "Congo RVM",
+	"type": "Microsoft.Synapse/workspaces/linkedservices",
+	"properties": {
+		"annotations": [],
+		"type": "PowerBIWorkspace",
+		"typeProperties": {
+			"workspaceID": "e7ebb428-b726-46e9-b50f-5da90c81c2a1",
+			"tenantID": "b354a388-081f-4fa2-a05b-33a065dbfc75"
+		}
+	}
+}
