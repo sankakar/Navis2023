@@ -1,0 +1,253 @@
+{
+	"name": "congo_movesrc_csv",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "powerbianalyticsdata-WorkspaceDefaultStorage",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"folderPath": "bronze/movesrc",
+				"fileSystem": "congo"
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": [
+			{
+				"name": "UnitNbr",
+				"type": "String"
+			},
+			{
+				"name": "FacilityId",
+				"type": "String"
+			},
+			{
+				"name": "ComplexId",
+				"type": "String"
+			},
+			{
+				"name": "YardId",
+				"type": "String"
+			},
+			{
+				"name": "CarrierVisitKey",
+				"type": "String"
+			},
+			{
+				"name": "EventTypeId",
+				"type": "String"
+			},
+			{
+				"name": "MoveKind",
+				"type": "String"
+			},
+			{
+				"name": "FromLocation",
+				"type": "String"
+			},
+			{
+				"name": "ToLocation",
+				"type": "String"
+			},
+			{
+				"name": "FromPositionName",
+				"type": "String"
+			},
+			{
+				"name": "ToPositionName",
+				"type": "String"
+			},
+			{
+				"name": "CarryCHEOperatorId",
+				"type": "String"
+			},
+			{
+				"name": "FetchCHEOperatorId",
+				"type": "String"
+			},
+			{
+				"name": "PutCHEOperatorId",
+				"type": "String"
+			},
+			{
+				"name": "FetchCHEId",
+				"type": "String"
+			},
+			{
+				"name": "FetchCHEKind",
+				"type": "String"
+			},
+			{
+				"name": "CarryCHEId",
+				"type": "String"
+			},
+			{
+				"name": "CarryCHEKind",
+				"type": "String"
+			},
+			{
+				"name": "PutCHEId",
+				"type": "String"
+			},
+			{
+				"name": "PutCHEKind",
+				"type": "String"
+			},
+			{
+				"name": "QCCHEId",
+				"type": "String"
+			},
+			{
+				"name": "QCCHEKind",
+				"type": "String"
+			},
+			{
+				"name": "t_carry_complete",
+				"type": "String"
+			},
+			{
+				"name": "t_put",
+				"type": "String"
+			},
+			{
+				"name": "t_fetch",
+				"type": "String"
+			},
+			{
+				"name": "t_dispatch",
+				"type": "String"
+			},
+			{
+				"name": "t_discharge",
+				"type": "String"
+			},
+			{
+				"name": "t_carry_dispatch",
+				"type": "String"
+			},
+			{
+				"name": "t_carry_fetch_ready",
+				"type": "String"
+			},
+			{
+				"name": "t_carry_put_ready",
+				"type": "String"
+			},
+			{
+				"name": "dist_carry",
+				"type": "String"
+			},
+			{
+				"name": "dist_start",
+				"type": "String"
+			},
+			{
+				"name": "TwinFetch",
+				"type": "String"
+			},
+			{
+				"name": "TwinCarry",
+				"type": "String"
+			},
+			{
+				"name": "TwinPut",
+				"type": "String"
+			},
+			{
+				"name": "CategoryId",
+				"type": "String"
+			},
+			{
+				"name": "FreightKindId",
+				"type": "String"
+			},
+			{
+				"name": "to_pos_gkey",
+				"type": "String"
+			},
+			{
+				"name": "fm_pos_gkey",
+				"type": "String"
+			},
+			{
+				"name": "RestowReason",
+				"type": "String"
+			},
+			{
+				"name": "ContainerLineId",
+				"type": "String"
+			},
+			{
+				"name": "ContainerLineRole",
+				"type": "String"
+			},
+			{
+				"name": "pow",
+				"type": "String"
+			},
+			{
+				"name": "mve_gkey",
+				"type": "String"
+			},
+			{
+				"name": "ufv_gkey",
+				"type": "String"
+			},
+			{
+				"name": "BerthId",
+				"type": "String"
+			},
+			{
+				"name": "GoodsAndCtrWtKg",
+				"type": "String"
+			},
+			{
+				"name": "active_ufv",
+				"type": "String"
+			},
+			{
+				"name": "RequiresPowerFlag",
+				"type": "String"
+			},
+			{
+				"name": "OOGFlag",
+				"type": "String"
+			},
+			{
+				"name": "ShipperId",
+				"type": "String"
+			},
+			{
+				"name": "ConsigneeId",
+				"type": "String"
+			},
+			{
+				"name": "CommodityId",
+				"type": "String"
+			},
+			{
+				"name": "ATD",
+				"type": "String"
+			},
+			{
+				"name": "Rehandles",
+				"type": "String"
+			},
+			{
+				"name": "CarrierVisitId",
+				"type": "String"
+			},
+			{
+				"name": "ATA",
+				"type": "String"
+			}
+		]
+	},
+	"type": "Microsoft.Synapse/workspaces/datasets"
+}
