@@ -1,0 +1,75 @@
+{
+	"name": "EcEvents_railCycleTime_gpa",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"linkedService": {
+						"referenceName": "linkedService1",
+						"type": "LinkedServiceReference"
+					},
+					"name": "events"
+				},
+				{
+					"linkedService": {
+						"referenceName": "linkedService1",
+						"type": "LinkedServiceReference"
+					},
+					"name": "rdscMoves"
+				}
+			],
+			"sinks": [
+				{
+					"linkedService": {
+						"referenceName": "linkedService1",
+						"type": "LinkedServiceReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "Filter5"
+				},
+				{
+					"name": "Aggregate3"
+				},
+				{
+					"name": "DerivedColumn3"
+				},
+				{
+					"name": "Window1"
+				},
+				{
+					"name": "DerivedColumn4"
+				},
+				{
+					"name": "Sort1"
+				},
+				{
+					"name": "Filter7"
+				},
+				{
+					"name": "alterRow2"
+				},
+				{
+					"name": "select1"
+				},
+				{
+					"name": "filterRDSC"
+				},
+				{
+					"name": "join1"
+				},
+				{
+					"name": "select2"
+				},
+				{
+					"name": "derivedColumn1"
+				}
+			],
+			"script": "source(output(\n\t\tecEventGkey as long,\n\t\tyardGkey as string,\n\t\tYardID as string,\n\t\tFcyID as string,\n\t\tcheKind as string,\n\t\tcheName as string,\n\t\tcheID as long,\n\t\tEcEventTime as timestamp,\n\t\ttype as short,\n\t\tsubType as short,\n\t\ttypeDescription as string,\n\t\tfromCheIdName as string,\n\t\tToCheIdName as string,\n\t\tunitIdName as string,\n\t\tpowName as string,\n\t\tpoolName as string,\n\t\tworkQueue as string,\n\t\ttravelDistance as short,\n\t\tmoveKind as string,\n\t\tisTwinMove as string,\n\t\tstartDistance as short,\n\t\tworkAssignmentId as double,\n\t\tunitReference as string,\n\t\ttranId as string,\n\t\tlocType as string,\n\t\tlocId as string,\n\t\tlocSlot as string,\n\t\topsPosId as string,\n\t\tunladenLoctype as string,\n\t\tunladenLocid as string,\n\t\tunladenLocSlot as string,\n\t\tladenLoctype as string,\n\t\tladenLocid as string,\n\t\tladenLocSlot as string,\n\t\tlastEstMoveTime as string,\n\t\tYear as integer,\n\t\tMonth as integer,\n\t\tWeek as integer\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tformat: 'delta',\n\tfileSystem: 'gpa',\n\tfolderPath: 'silver/ecevents') ~> events\nsource(output(\n\t\tmve_gkey as long,\n\t\tUnit_Nbr as string,\n\t\tFacility_Id as string,\n\t\tYard_Id as string,\n\t\tCarrier_Visit_Key as long,\n\t\tEvent_Type_Id as string,\n\t\tMove_Kind as string,\n\t\tFrom_Location as string,\n\t\tTo_Location as string,\n\t\tFrom_Position_Name as string,\n\t\tTo_Position_Name as string,\n\t\tCarry_CHE_Operator_Id as string,\n\t\tFetch_CHE_Operator_Id as string,\n\t\tPut_CHE_Operator_Id as string,\n\t\tFetch_CHE_Id as long,\n\t\tFetch_CHE_Kind as string,\n\t\tCarry_CHE_Id as long,\n\t\tCarry_CHE_Kind as string,\n\t\tPut_CHE_Id as long,\n\t\tPut_CHE_Kind as string,\n\t\tQC_CHE_Id as long,\n\t\tQC_CHE_Kind as string,\n\t\tt_carry_complete as timestamp,\n\t\tt_put as timestamp,\n\t\tt_fetch as timestamp,\n\t\tt_dispatch as timestamp,\n\t\tt_discharge as timestamp,\n\t\tt_carry_dispatch as timestamp,\n\t\tt_carry_fetch_ready as timestamp,\n\t\tt_carry_put_ready as timestamp,\n\t\tdist_carry as long,\n\t\tdist_start as long,\n\t\tTwin_Fetch as boolean,\n\t\tTwin_Carry as boolean,\n\t\tTwin_Put as boolean,\n\t\tCategory_Id as string,\n\t\tFreight_Kind_Id as string,\n\t\tRestow_Reason as string,\n\t\tPOW as string,\n\t\tufv_gkey as string,\n\t\tGoods_And_Ctr_Wt_Kg as double,\n\t\tRequires_Power_Flag as boolean,\n\t\tOOG_Flag as boolean,\n\t\tATA as timestamp,\n\t\tATD as timestamp,\n\t\tRehandles as long,\n\t\tComplex_Id as string,\n\t\tCarrier_Visit_Id as string,\n\t\tPhase as string,\n\t\tVisit_Nbr as string,\n\t\tCarrier_Mode as string,\n\t\tETA as string,\n\t\tETD as string,\n\t\tOperator_Line_Id as string,\n\t\tOperator_Line_Role as string,\n\t\tOperator_Line_Name as string,\n\t\tTime_First_Availabilty as string,\n\t\tTime_Discharge_Complete as string,\n\t\tService_Id as string,\n\t\tService_Name as string,\n\t\tVessel_Id as string,\n\t\tIB_VYG as string,\n\t\tOB_VYG as string,\n\t\tCarrier_Name as string,\n\t\tVessel_Class as string,\n\t\tPublished_ETA as string,\n\t\tPublished_ETD as string,\n\t\tStart_Work as string,\n\t\tEnd_Work as string,\n\t\tBegin_Receive_Date as string,\n\t\tCargo_Cutoff_Date as string,\n\t\tHazard_Cutoff_Date as string,\n\t\tReefer_Cutoff_Date as string,\n\t\tLabor_On_Board_Date as string,\n\t\tLabor_Off_Board_Date as string,\n\t\tOff_Port_Arrival_Date as string,\n\t\tOff_Port_Departure as string,\n\t\tPilot_On_Board_Date as string,\n\t\tPilot_Off_Board_Date as string,\n\t\tEst_BBK_Discharge as string,\n\t\tEst_BBK_Load as string,\n\t\tEst_Load as string,\n\t\tEst_Discharge as string,\n\t\tEst_Restow as string,\n\t\tEst_Shift as string,\n\t\tvvFlexString01 as string,\n\t\tvvFlexString02 as string,\n\t\tvvFlexString03 as string,\n\t\tvvFlexString04 as string,\n\t\tvvFlexString05 as string,\n\t\tvvFlexString06 as string,\n\t\tvvFlexString07 as string,\n\t\tvvFlexString08 as string,\n\t\tvvFlexDate01 as string,\n\t\tvvFlexDate02 as string,\n\t\tvvFlexDate03 as string,\n\t\tvvFlexDate04 as string,\n\t\tvvFlexDate05 as string,\n\t\tvvFlexDate06 as string,\n\t\tvvFlexDate07 as string,\n\t\tvvFlexDate08 as string,\n\t\tVessel_Classification as string,\n\t\tVessel_Class_Length_Overall_cm as integer,\n\t\tVessel_Class_Beam_cm as string,\n\t\tVessel_TEU_Capacity as string,\n\t\tLloyds_Code as string,\n\t\tYear as integer,\n\t\tMonth as integer,\n\t\tWeek as integer\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tformat: 'delta',\n\tfileSystem: 'gpa',\n\tfolderPath: 'silver/moves') ~> rdscMoves\nevents filter((FcyID=='GCT' && ( (cheKind =='ITV' && moveKind=='YARD' && typeDescription =='TYDR') || ( cheKind =='RTG' && (moveKind=='YARD' || moveKind=='DLVR') && (typeDescription =='LIFT' || typeDescription =='CMPL'||typeDescription =='DROP') ) ) )) ~> Filter5\nFilter5 aggregate(groupBy(ecEventGkey),\n\teach(match(name!='ecEventGkey'), $$ = first($$))) ~> Aggregate3\nAggregate3 derive(EcEventDate = toDate(toString(EcEventTime,'yyyy-MM-dd')),\n\t\tEcEventTimeStr = toString(EcEventTime,'HH:mm:ss'),\n\t\tBlock = left(locSlot,3),\n\t\tunitIdName = rtrim(ltrim(unitIdName))) ~> DerivedColumn3\nSort1 window(asc(unitIdName, true),\n\tasc(EcEventTime, true),\n\tCHE_ID_PREV = lag(cheID),\n\t\tCHE_ID_NXT = lead(cheID),\n\t\tTimeStamp_PREV = lag(EcEventTime),\n\t\tTimeStamp_NXT = lead(EcEventTime),\n\t\teventTypeDescription_PREV = lag(typeDescription),\n\t\teventTypeDescription_NXT = lead(typeDescription),\n\t\tunit_PREV = lag(unitIdName),\n\t\tunit_NXT = lead(unitIdName),\n\t\tcheKind_PREV = lag(cheKind),\n\t\tcheKind_NXT = lead(cheKind),\n\t\teventTypeDescription_NXT2 = lead(typeDescription,2),\n\t\tcheKind_NXT2 = lead(cheKind,2),\n\t\tunit_NXT2 = lead(unitIdName,2),\n\t\tTimestamp_NXT2 = lead(EcEventTime,2),\n\t\tCHE_ID_NXT2 = lead(cheID,2)) ~> Window1\nWindow1 derive(Cycle_Time = toDouble(case( (unitIdName==unit_NXT) && (typeDescription=='TYDR') && (cheKind_NXT=='RTG') && (eventTypeDescription_NXT=='DROP'||eventTypeDescription_NXT=='CMPL'), TimeStamp_NXT-EcEventTime,toLong(0)) /3600000 ),\n\t\tCycleTime2 = case( (unitIdName==unit_NXT) && (typeDescription=='TYDR') && (cheKind_NXT=='RTG') && (eventTypeDescription_NXT=='DROP'||eventTypeDescription_NXT=='CMPL'), TimeStamp_NXT-EcEventTime,toLong(0)),\n\t\tCycleTime_Minute = toDouble(case( (unitIdName==unit_NXT) && (typeDescription=='TYDR') && (cheKind_NXT=='RTG') && (eventTypeDescription_NXT=='DROP'||eventTypeDescription_NXT=='CMPL'), TimeStamp_NXT-EcEventTime,toLong(0)) /60000 )) ~> DerivedColumn4\nselect2 sort(asc(unitIdName, true),\n\tasc(EcEventTime, true)) ~> Sort1\nDerivedColumn4 filter(CycleTime2>0) ~> Filter7\nFilter7 alterRow(upsertIf(true())) ~> alterRow2\nrdscMoves select(mapColumn(\n\t\tmve_gkey,\n\t\tUnit_Nbr,\n\t\tFacility_Id,\n\t\tCarrier_Visit_Key,\n\t\tEvent_Type_Id,\n\t\tMove_Kind,\n\t\tFrom_Position_Name,\n\t\tTo_Position_Name,\n\t\tCarry_CHE_Id,\n\t\tCarry_CHE_Kind,\n\t\tt_put,\n\t\tCategory_Id,\n\t\tFreight_Kind_Id,\n\t\tufv_gkey,\n\t\tRequires_Power_Flag,\n\t\tOOG_Flag,\n\t\tCarrier_Visit_Id,\n\t\tCarrier_Mode,\n\t\tService_Id,\n\t\tt_fetch\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> select1\nselect1 filter((Facility_Id=='GCT' && Move_Kind=='RDSC' && Category_Id=='EXPRT' && Freight_Kind_Id=='FCL' && (Unit_Nbr=='MRKU7614004' || Unit_Nbr=='CAIU7987177' || Unit_Nbr=='TRHU4433395' || Unit_Nbr=='GLDU7308510')  )) ~> filterRDSC\nDerivedColumn3, derivedColumn1 join(unitIdName == Unit_Nbr\n\t&& EcEventTime >= eventStartTime\n\t&& EcEventTime <= maxEventTime,\n\tjoinType:'inner',\n\tmatchType:'exact',\n\tignoreSpaces: false,\n\tbroadcast: 'right')~> join1\njoin1 select(mapColumn(\n\t\tecEventGkey,\n\t\tFcyID,\n\t\tcheKind,\n\t\tcheName,\n\t\tcheID,\n\t\tEcEventTime,\n\t\tsubType,\n\t\ttypeDescription,\n\t\tunitIdName,\n\t\tmoveKind,\n\t\tlocSlot,\n\t\tYear,\n\t\tMonth,\n\t\tWeek,\n\t\tEcEventDate,\n\t\tEcEventTimeStr,\n\t\tBlock,\n\t\tmve_gkey,\n\t\tUnit_Nbr,\n\t\tCarrier_Visit_Key,\n\t\tMove_Kind,\n\t\tFrom_Position_Name,\n\t\tTo_Position_Name,\n\t\tt_put,\n\t\tCategory_Id,\n\t\tFreight_Kind_Id,\n\t\tufv_gkey,\n\t\tOOG_Flag,\n\t\tCarrier_Visit_Id,\n\t\tCarrier_Mode,\n\t\tService_Id,\n\t\tt_fetch,\n\t\tmaxEventTime,\n\t\teventStartTime\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> select2\nfilterRDSC derive(maxEventTime = addDays(t_put,1),\n\t\teventStartTime = iif(isNull(t_fetch),t_put,t_fetch),\n\t\tufv_gkey = toLong(ufv_gkey),\n\t\tUnit_Nbr = ltrim(rtrim(Unit_Nbr))) ~> derivedColumn1\nalterRow2 sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'delta',\n\tfileSystem: 'gpa',\n\tfolderPath: 'gold/rdsc_cycle_time_test',\n\ttruncate:true,\n\tmergeSchema: false,\n\tautoCompact: true,\n\toptimizedWrite: true,\n\tvacuum: 0,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tumask: 0022,\n\tpreCommands: [],\n\tpostCommands: [],\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\tmapColumn(\n\t\tecEventGkey,\n\t\tFcyID,\n\t\tcheKind = cheKind_NXT2,\n\t\tcheName,\n\t\tcheID,\n\t\tEcEventTime,\n\t\tsubType,\n\t\ttypeDescription,\n\t\tunitIdName,\n\t\tmoveKind,\n\t\tlocSlot,\n\t\tYear,\n\t\tMonth,\n\t\tWeek,\n\t\tEcEventDate,\n\t\tEcEventTimeStr,\n\t\tBlock,\n\t\tmve_gkey,\n\t\tUnit_Nbr,\n\t\tCarrier_Visit_Key,\n\t\tMove_Kind,\n\t\tFrom_Position_Name,\n\t\tTo_Position_Name,\n\t\tt_put,\n\t\tCategory_Id,\n\t\tFreight_Kind_Id,\n\t\tufv_gkey,\n\t\tOOG_Flag,\n\t\tCarrier_Visit_Id,\n\t\tCarrier_Mode,\n\t\tService_Id,\n\t\tt_fetch,\n\t\tmaxEventTime,\n\t\teventStartTime,\n\t\tCHE_ID_PREV,\n\t\tCHE_ID_NXT,\n\t\tTimeStamp_PREV,\n\t\tTimeStamp_NXT,\n\t\teventTypeDescription_PREV,\n\t\teventTypeDescription_NXT,\n\t\tunit_PREV,\n\t\tunit_NXT,\n\t\tcheKind_PREV,\n\t\tcheKind_NXT,\n\t\tCycle_Time,\n\t\tCycleTime2,\n\t\tCycleTime_Minute\n\t)) ~> sink1"
+		}
+	}
+}

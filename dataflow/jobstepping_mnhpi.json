@@ -1,0 +1,131 @@
+{
+	"name": "jobstepping_mnhpi",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"linkedService": {
+						"referenceName": "linkedService1",
+						"type": "LinkedServiceReference"
+					},
+					"name": "source1"
+				}
+			],
+			"sinks": [
+				{
+					"linkedService": {
+						"referenceName": "linkedService1",
+						"type": "LinkedServiceReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "filter1"
+				},
+				{
+					"name": "window1"
+				},
+				{
+					"name": "sort1"
+				},
+				{
+					"name": "derivedColumn1"
+				},
+				{
+					"name": "AlterRow1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          ecEventGkey as long,",
+				"          yardGkey as short,",
+				"          YardID as string,",
+				"          FcyID as string,",
+				"          cheKind as string,",
+				"          cheName as string,",
+				"          cheID as long,",
+				"          EcEventTime as timestamp,",
+				"          type as short,",
+				"          subType as short,",
+				"          typeDescription as string,",
+				"          fromCheIdName as boolean,",
+				"          ToCheIdName as boolean,",
+				"          unitIdName as string,",
+				"          powName as string,",
+				"          poolName as string,",
+				"          workQueue as string,",
+				"          travelDistance as short,",
+				"          moveKind as string,",
+				"          isTwinMove as boolean,",
+				"          startDistance as short,",
+				"          workAssignmentId as double,",
+				"          unitReference as string,",
+				"          tranId as string,",
+				"          locType as string,",
+				"          locId as string,",
+				"          locSlot as string,",
+				"          opsPosId as string,",
+				"          unladenLoctype as string,",
+				"          unladenLocid as string,",
+				"          unladenLocSlot as string,",
+				"          ladenLoctype as string,",
+				"          ladenLocid as string,",
+				"          ladenLocSlot as string,",
+				"          lastEstMoveTime as string,",
+				"          Year as integer,",
+				"          Month as integer,",
+				"          Week as integer",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     format: 'delta',",
+				"     fileSystem: 'mnhpi',",
+				"     folderPath: 'silver/ecevents') ~> source1",
+				"source1 filter(cheKind==\"ITV\" && (typeDescription==\"AYDR\" || typeDescription==\"TYDR\" || typeDescription==\"AYCO\" || typeDescription==\"TYCO\" || typeDescription==\"AVDR\" || typeDescription==\"TVDR\" || typeDescription==\"AVCO\" || typeDescription==\"TVCO\") && (moveKind==\"DSCH\"||moveKind==\"LOAD\")) ~> filter1",
+				"sort1 window(asc(cheID, true),",
+				"     asc(EcEventTime, true),",
+				"     asc(ecEventGkey, true),",
+				"     startRowOffset: 1L,",
+				"     endRowOffset: 1L,",
+				"     typeDescription_nxt = lead(typeDescription),",
+				"          unitIdName_nxt = lead(unitIdName),",
+				"          cheID_nxt = lead(cheID),",
+				"          EcEventTime_nxt = lead(EcEventTime)) ~> window1",
+				"filter1 sort(asc(cheID, true),",
+				"     asc(EcEventTime, true),",
+				"     asc(ecEventGkey, true)) ~> sort1",
+				"window1 derive(jobStep = iif(cheID==cheID_nxt && unitIdName==unitIdName_nxt && typeDescription=='TYCO' && typeDescription_nxt=='AYCO', 1,iif(cheID==cheID_nxt && unitIdName==unitIdName_nxt && typeDescription=='TVDR' && typeDescription_nxt=='AVDR',1,iif(cheID==cheID_nxt && unitIdName==unitIdName_nxt && typeDescription=='TYDR' && typeDescription_nxt=='AYDR',1,iif(cheID==cheID_nxt && unitIdName==unitIdName_nxt && typeDescription=='TVCO' && typeDescription_nxt=='AVCO',1,0))))) ~> derivedColumn1",
+				"derivedColumn1 alterRow(upsertIf(true())) ~> AlterRow1",
+				"AlterRow1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'delta',",
+				"     fileSystem: 'mnhpi',",
+				"     folderPath: 'gold/jobstep',",
+				"     mergeSchema: true,",
+				"     autoCompact: true,",
+				"     optimizedWrite: true,",
+				"     vacuum: 0,",
+				"     deletable:false,",
+				"     insertable:false,",
+				"     updateable:false,",
+				"     upsertable:true,",
+				"     keys:['ecEventGkey'],",
+				"     umask: 0777,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     partitionBy('key',",
+				"          0,",
+				"          Year,",
+				"          Month,",
+				"          Week",
+				"     )) ~> sink1"
+			]
+		}
+	}
+}

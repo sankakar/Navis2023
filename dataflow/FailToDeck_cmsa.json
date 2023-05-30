@@ -1,0 +1,41 @@
+{
+	"name": "FailToDeck_cmsa",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"linkedService": {
+						"referenceName": "linkedService2",
+						"type": "LinkedServiceReference"
+					},
+					"name": "CSV"
+				}
+			],
+			"sinks": [
+				{
+					"linkedService": {
+						"referenceName": "linkedService2",
+						"type": "LinkedServiceReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "DerivedColumn1"
+				},
+				{
+					"name": "AlterRow1"
+				},
+				{
+					"name": "aggregate1"
+				},
+				{
+					"name": "select1"
+				}
+			],
+			"script": "parameters{\n\tcustomer as string ('cmsa')\n}\nsource(output(\n\t\tcategory as string,\n\t\tfreight_Kind as string,\n\t\tbasic_length as string,\n\t\tEquipment_Type_Id as string,\n\t\tiso_group as string,\n\t\tgkey as integer,\n\t\tunit_id as string,\n\t\ttime_stamp as string,\n\t\tdecking_type as string,\n\t\tnode_id as string,\n\t\tyard as short,\n\t\tfrom_pos_loctype as string,\n\t\tfrom_pos_locid as string,\n\t\tfrom_pos_loc_gkey as integer,\n\t\tfrom_pos_slot as string,\n\t\tfrom_pos_name as string,\n\t\tfrom_pos_bin as string,\n\t\tfrom_pos_tier as short,\n\t\tto_pos_loctype as string,\n\t\tto_pos_locid as string,\n\t\tto_pos_loc_gkey as integer,\n\t\tto_pos_slot as string,\n\t\tto_pos_name as string,\n\t\tto_pos_bin as string,\n\t\tto_pos_tier as short,\n\t\ttotal_score as short,\n\t\texecution_time as short,\n\t\tphase as string,\n\t\trequires_power as short,\n\t\tufv_gkey as integer,\n\t\tis_oog as short,\n\t\tHazardous_Flag as string\n\t),\n\tuseSchema: false,\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tmoveFiles: ['bronze/failtodeck/load','bronze/failtodeck/archive'],\n\tformat: 'delimited',\n\tfileSystem: ($customer),\n\tfolderPath: 'bronze/failtodeck/load',\n\tcolumnDelimiter: ',',\n\tescapeChar: '\\\\',\n\tquoteChar: '\\\"',\n\tcolumnNamesAsHeader: true) ~> CSV\nCSV derive(time_stamp = toTimestamp(time_stamp,'yyyy-MM-dd HH:mm:ss.SSS'),\n\t\tYear = year(toTimestamp(time_stamp,'yyyy-MM-dd HH:mm:ss.SSS')),\n\t\tMonth = month(toTimestamp(time_stamp,'yyyy-MM-dd HH:mm:ss.SSS')),\n\t\tWeek = weekOfYear(toTimestamp(time_stamp,'yyyy-MM-dd HH:mm:ss.SSS')),\n\t\tgkey = toLong(gkey),\n\t\tufv_gkey = toLong(ufv_gkey)) ~> DerivedColumn1\naggregate1 alterRow(upsertIf(true())) ~> AlterRow1\nselect1 aggregate(groupBy(gkey),\n\teach(match(name!='gkey'), $$ = first($$))) ~> aggregate1\nDerivedColumn1 select(mapColumn(\n\t\tcategory,\n\t\tfreight_Kind,\n\t\tbasic_length,\n\t\tEquipment_Type_Id,\n\t\tiso_group,\n\t\tgkey,\n\t\tunit_id,\n\t\ttime_stamp,\n\t\tdecking_type,\n\t\tnode_id,\n\t\tyard,\n\t\tfrom_pos_loctype,\n\t\tfrom_pos_locid,\n\t\tfrom_pos_loc_gkey,\n\t\tfrom_pos_slot,\n\t\tfrom_pos_name,\n\t\tfrom_pos_bin,\n\t\tfrom_pos_tier,\n\t\tto_pos_loctype,\n\t\tto_pos_locid,\n\t\tto_pos_loc_gkey,\n\t\tto_pos_slot,\n\t\tto_pos_name,\n\t\tto_pos_bin,\n\t\tto_pos_tier,\n\t\ttotal_score,\n\t\texecution_time,\n\t\tphase,\n\t\trequires_power,\n\t\tufv_gkey,\n\t\tis_oog,\n\t\tHazardous_Flag,\n\t\tYear,\n\t\tMonth,\n\t\tWeek\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> select1\nAlterRow1 sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'delta',\n\tfileSystem: 'cmsa',\n\tfolderPath: 'silver/failtodeck',\n\tmergeSchema: false,\n\tautoCompact: false,\n\toptimizedWrite: false,\n\tvacuum: 0,\n\tdeletable:false,\n\tinsertable:false,\n\tupdateable:false,\n\tupsertable:true,\n\tkeys:['gkey'],\n\tumask: 0777,\n\tpreCommands: [],\n\tpostCommands: [],\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\tmapColumn(\n\t\tgkey,\n\t\tcategory,\n\t\tfreight_Kind,\n\t\tbasic_length,\n\t\tEquipment_Type_Id,\n\t\tiso_group,\n\t\tunit_id,\n\t\ttime_stamp,\n\t\tdecking_type,\n\t\tnode_id,\n\t\tyard,\n\t\tfrom_pos_loctype,\n\t\tfrom_pos_locid,\n\t\tfrom_pos_loc_gkey,\n\t\tfrom_pos_slot,\n\t\tfrom_pos_name,\n\t\tfrom_pos_bin,\n\t\tfrom_pos_tier,\n\t\tto_pos_loctype,\n\t\tto_pos_locid,\n\t\tto_pos_loc_gkey,\n\t\tto_pos_slot,\n\t\tto_pos_name,\n\t\tto_pos_bin,\n\t\tto_pos_tier,\n\t\ttotal_score,\n\t\texecution_time,\n\t\tphase,\n\t\trequires_power,\n\t\tufv_gkey,\n\t\tis_oog,\n\t\tHazardous_Flag,\n\t\tYear,\n\t\tMonth,\n\t\tWeek\n\t)) ~> sink1"
+		}
+	}
+}

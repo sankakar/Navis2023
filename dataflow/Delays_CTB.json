@@ -1,0 +1,38 @@
+{
+	"name": "Delays_CTB",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"linkedService": {
+						"referenceName": "linkedService1",
+						"type": "LinkedServiceReference"
+					},
+					"name": "source1"
+				}
+			],
+			"sinks": [
+				{
+					"linkedService": {
+						"referenceName": "linkedService1",
+						"type": "LinkedServiceReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "DerivedColumn1"
+				},
+				{
+					"name": "Select1"
+				},
+				{
+					"name": "Select2"
+				}
+			],
+			"script": "source(output(\n\t\t{date of gang} as string,\n\t\t{gang (1st/2nd/3rd/4th)} as short,\n\t\t{Call Sign} as string,\n\t\t{Vessel name} as string,\n\t\t{Imp Voy} as string,\n\t\t{Exp Voy} as string,\n\t\t{Quay Crane} as short,\n\t\t{vessel Ops} as string,\n\t\tZeile as short,\n\t\tCategory as string,\n\t\t{Category description} as string,\n\t\tSite as string,\n\t\tID as integer,\n\t\t{von Call Sign} as string,\n\t\t{von Brücke} as short,\n\t\tTeam as string,\n\t\tCode as string,\n\t\tStart as string,\n\t\tStop as string,\n\t\tAccounting as string,\n\t\t{Aktiv Stunden} as double,\n\t\tZeitsteuerung as string,\n\t\tVerz as string,\n\t\t{Labour No} as integer,\n\t\tDuration as double,\n\t\tTDR as string,\n\t\t{Operation Report} as integer,\n\t\tSystem as string,\n\t\tReise as integer,\n\t\t{aktiv von} as string,\n\t\t{aktiv bis} as string,\n\t\tStatus as string,\n\t\t{Stapler B} as boolean,\n\t\t{Std Stapler B} as boolean,\n\t\t{Letzte Änderung} as string,\n\t\tVA as short,\n\t\tAR as short,\n\t\tCB as boolean,\n\t\tVC as short,\n\t\tZM as boolean,\n\t\tST as boolean,\n\t\tRS as boolean,\n\t\tSpr as short,\n\t\t{Std VA} as double,\n\t\t{Std AR} as double,\n\t\t{Std CB} as double,\n\t\t{Std VC} as double,\n\t\t{Std ZM} as boolean,\n\t\t{Std RS} as boolean,\n\t\t{ST Std} as boolean,\n\t\t{Std Spr} as double,\n\t\tBemerkung as string,\n\t\t{Brutto Zeit} as short,\n\t\t{Netto Zeit} as boolean,\n\t\tStammcode as string,\n\t\tTerminal as string,\n\t\t{Dokument Nr} as boolean,\n\t\t{new category} as string,\n\t\t{desription of activity} as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tformat: 'delimited',\n\tfileSystem: 'eurogatectb',\n\tfolderPath: 'bronze/delays',\n\tcolumnDelimiter: ',',\n\tescapeChar: '\\\\',\n\tquoteChar: '\\\"',\n\tcolumnNamesAsHeader: true) ~> source1\nSelect2 derive(Start = toString(toTimestamp(Start,'HH:mm'),'HH:mm:ss'),\n\t\tStop = toString(toTimestamp(Stop,'HH:mm'),'HH:mm:ss'),\n\t\tYear = year(toDate(date_of_gang, 'dd.MM.yyyy')),\n\t\tMonth = month(toDate(date_of_gang, 'dd.MM.yyyy')),\n\t\tWeek = weekOfYear(toDate(date_of_gang, 'dd.MM.yyyy')),\n\t\tdate_of_gang = toDate(date_of_gang, 'dd.MM.yyyy')) ~> DerivedColumn1\nsource1 select(mapColumn(\n\t\teach(match(true()),\n\t\t\tregexReplace($$,' ','_') = $$)\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> Select1\nSelect1 select(mapColumn(\n\t\tdate_of_gang,\n\t\tGang = {gang_(1st/2nd/3rd/4th)},\n\t\tCall_Sign,\n\t\tVessel_name,\n\t\tImp_Voy,\n\t\tExp_Voy,\n\t\tQuay_Crane,\n\t\tvessel_Ops,\n\t\tZeile,\n\t\tCategory,\n\t\tCategory_description,\n\t\tSite,\n\t\tID,\n\t\tvon_Call_Sign,\n\t\t{von_Brücke},\n\t\tTeam,\n\t\tCode,\n\t\tStart,\n\t\tStop,\n\t\tAccounting,\n\t\tAktiv_Stunden,\n\t\tZeitsteuerung,\n\t\tVerz,\n\t\tLabour_No,\n\t\tDuration,\n\t\tTDR,\n\t\tOperation_Report,\n\t\tSystem,\n\t\tReise,\n\t\taktiv_von,\n\t\taktiv_bis,\n\t\tStatus,\n\t\tStapler_B,\n\t\tStd_Stapler_B,\n\t\t{Letzte_Änderung},\n\t\tVA,\n\t\tAR,\n\t\tCB,\n\t\tVC,\n\t\tZM,\n\t\tST,\n\t\tRS,\n\t\tSpr,\n\t\tStd_VA,\n\t\tStd_AR,\n\t\tStd_CB,\n\t\tStd_VC,\n\t\tStd_ZM,\n\t\tStd_RS,\n\t\tST_Std,\n\t\tStd_Spr,\n\t\tBemerkung,\n\t\tBrutto_Zeit,\n\t\tNetto_Zeit,\n\t\tStammcode,\n\t\tTerminal,\n\t\tDokument_Nr,\n\t\tnew_category,\n\t\tdesription_of_activity\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> Select2\nDerivedColumn1 sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'delta',\n\tfileSystem: 'eurogatectb',\n\tfolderPath: 'silver/delays',\n\ttruncate:true,\n\tmergeSchema: true,\n\tautoCompact: true,\n\toptimizedWrite: true,\n\tvacuum: 0,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tumask: 0777,\n\tpreCommands: [],\n\tpostCommands: [],\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> sink1"
+		}
+	}
+}

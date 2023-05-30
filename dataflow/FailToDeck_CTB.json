@@ -1,0 +1,38 @@
+{
+	"name": "FailToDeck_CTB",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"linkedService": {
+						"referenceName": "linkedService1",
+						"type": "LinkedServiceReference"
+					},
+					"name": "CSV"
+				}
+			],
+			"sinks": [
+				{
+					"linkedService": {
+						"referenceName": "linkedService1",
+						"type": "LinkedServiceReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "DerivedColumn1"
+				},
+				{
+					"name": "AlterRow1"
+				},
+				{
+					"name": "aggregate1"
+				}
+			],
+			"script": "parameters{\n\tcustomer as string ('eurogatectb')\n}\nsource(output(\n\t\tGKEY as long,\n\t\tUYV_GKEY as long,\n\t\tUNIT_ID as string,\n\t\tTIME_STAMP as string,\n\t\tDECKING_TYPE as string,\n\t\tNODE_ID as string,\n\t\tYARD as short,\n\t\tFROM_POS_LOCTYPE as string,\n\t\tFROM_POS_LOCID as string,\n\t\tFROM_POS_LOC_GKEY as long,\n\t\tFROM_POS_SLOT as string,\n\t\tFROM_POS_NAME as string,\n\t\tFROM_POS_BIN as integer,\n\t\tFROM_POS_TIER as short,\n\t\tTO_POS_LOCTYPE as string,\n\t\tTO_POS_LOCID as string,\n\t\tTO_POS_LOC_GKEY as short,\n\t\tTO_POS_SLOT as string,\n\t\tTO_POS_NAME as string,\n\t\tTO_POS_BIN as short,\n\t\tTO_POS_TIER as boolean,\n\t\tTOTAL_SCORE as short,\n\t\tEXECUTION_TIME as short,\n\t\tDETAILS as string,\n\t\tPHASE as string\n\t),\n\tuseSchema: false,\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tmoveFiles: ['bronze/failtodeck/load','bronze/failtodeck/archive'],\n\tformat: 'delimited',\n\tfileSystem: ($customer),\n\tfolderPath: 'bronze/failtodeck/load',\n\tcolumnDelimiter: ';',\n\tescapeChar: '\\\\',\n\tquoteChar: '\\\"',\n\tcolumnNamesAsHeader: true) ~> CSV\nCSV derive(TIME_STAMP = toTimestamp(TIME_STAMP,'dd.MM.yy HH:mm:ss'),\n\t\tYear = year(toTimestamp(TIME_STAMP,'dd.MM.yy HH:mm:ss')),\n\t\tMonth = month(toTimestamp(TIME_STAMP,'dd.MM.yy HH:mm:ss')),\n\t\tWeek = weekOfYear(toTimestamp(TIME_STAMP,'dd.MM.yy HH:mm:ss'))) ~> DerivedColumn1\naggregate1 alterRow(upsertIf(true())) ~> AlterRow1\nDerivedColumn1 aggregate(groupBy(GKEY),\n\teach(match(name!='GKEY'), $$ = first($$))) ~> aggregate1\nAlterRow1 sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'delta',\n\tfileSystem: 'eurogatectb',\n\tfolderPath: 'silver/failtodeck',\n\tmergeSchema: true,\n\tautoCompact: true,\n\toptimizedWrite: true,\n\tvacuum: 0,\n\tdeletable:false,\n\tinsertable:false,\n\tupdateable:false,\n\tupsertable:true,\n\tkeys:['GKEY'],\n\tumask: 0777,\n\tpreCommands: [],\n\tpostCommands: [],\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> sink1"
+		}
+	}
+}

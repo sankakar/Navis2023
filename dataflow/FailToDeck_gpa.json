@@ -1,0 +1,41 @@
+{
+	"name": "FailToDeck_gpa",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"linkedService": {
+						"referenceName": "linkedService1",
+						"type": "LinkedServiceReference"
+					},
+					"name": "CSV"
+				}
+			],
+			"sinks": [
+				{
+					"linkedService": {
+						"referenceName": "linkedService1",
+						"type": "LinkedServiceReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "DerivedColumn1"
+				},
+				{
+					"name": "AlterRow1"
+				},
+				{
+					"name": "aggregate1"
+				},
+				{
+					"name": "select1"
+				}
+			],
+			"script": "parameters{\n\tcustomer as string ('gpa')\n}\nsource(output(\n\t\tCATEGORY as string,\n\t\tFREIGHT_KIND as string,\n\t\tBASIC_LENGHT as string,\n\t\tEQUIPMENT_TYPE_ID as string,\n\t\tISO_GROUP as string,\n\t\tGKEY as long,\n\t\tUNIT_ID as string,\n\t\tTIME_STAMP as string,\n\t\tDECKING_TYPE as string,\n\t\tNODE_ID as string,\n\t\tYARD as integer,\n\t\tFROM_POS_LOCTYPE as string,\n\t\tFROM_POS_LOCID as string,\n\t\tFROM_POS_LOC_GKEY as long,\n\t\tFROM_POS_SLOT as string,\n\t\tFROM_POS_NAME as string,\n\t\tFROM_POS_BIN as long,\n\t\tFROM_POS_TIER as short,\n\t\tTO_POS_LOCTYPE as string,\n\t\tTO_POS_LOCID as string,\n\t\tTO_POS_LOC_GKEY as integer,\n\t\tTO_POS_SLOT as string,\n\t\tTO_POS_NAME as string,\n\t\tTO_POS_BIN as string,\n\t\tTO_POS_TIER as string,\n\t\tTOTAL_SCORE as short,\n\t\tEXECUTION_TIME as short,\n\t\tDETAILS as string,\n\t\tPHASE as string,\n\t\tREQUIRES_POWER as short\n\t),\n\tuseSchema: false,\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tmoveFiles: ['bronze/failtodeck/load','bronze/failtodeck/archive'],\n\tformat: 'delimited',\n\tfileSystem: ($customer),\n\tfolderPath: 'bronze/failtodeck/load',\n\tcolumnDelimiter: ',',\n\tescapeChar: '\\\\',\n\tquoteChar: '\\\"',\n\tcolumnNamesAsHeader: true) ~> CSV\nCSV derive(TIME_STAMP = toTimestamp(TIME_STAMP,'MM/dd/yyyy HH:mm'),\n\t\tYear = year(toTimestamp(TIME_STAMP,'MM/dd/yyyy HH:mm')),\n\t\tMonth = month(toTimestamp(TIME_STAMP,'MM/dd/yyyy HH:mm')),\n\t\tWeek = weekOfYear(toTimestamp(TIME_STAMP,'MM/dd/yyyy HH:mm'))) ~> DerivedColumn1\naggregate1 alterRow(upsertIf(true())) ~> AlterRow1\nselect1 aggregate(groupBy(GKEY),\n\teach(match(name!='GKEY'), $$ = first($$))) ~> aggregate1\nDerivedColumn1 select(mapColumn(\n\t\tCATEGORY,\n\t\tFREIGHT_KIND,\n\t\tBASIC_LENGTH = BASIC_LENGHT,\n\t\tEQUIPMENT_TYPE_ID,\n\t\tISO_GROUP,\n\t\tGKEY,\n\t\tUNIT_ID,\n\t\tTIME_STAMP,\n\t\tDECKING_TYPE,\n\t\tNODE_ID,\n\t\tYARD,\n\t\tFROM_POS_LOCTYPE,\n\t\tFROM_POS_LOCID,\n\t\tFROM_POS_LOC_GKEY,\n\t\tFROM_POS_SLOT,\n\t\tFROM_POS_NAME,\n\t\tFROM_POS_BIN,\n\t\tFROM_POS_TIER,\n\t\tTO_POS_LOCTYPE,\n\t\tTO_POS_LOCID,\n\t\tTO_POS_LOC_GKEY,\n\t\tTO_POS_SLOT,\n\t\tTO_POS_NAME,\n\t\tTO_POS_BIN,\n\t\tTO_POS_TIER,\n\t\tTOTAL_SCORE,\n\t\tEXECUTION_TIME,\n\t\tDETAILS,\n\t\tPHASE,\n\t\tREQUIRES_POWER,\n\t\tYear,\n\t\tMonth,\n\t\tWeek\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> select1\nAlterRow1 sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'delta',\n\tfileSystem: 'gpa',\n\tfolderPath: 'silver/failtodeck',\n\tmergeSchema: false,\n\tautoCompact: false,\n\toptimizedWrite: false,\n\tvacuum: 0,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:true,\n\tkeys:['GKEY'],\n\tumask: 0777,\n\tpreCommands: [],\n\tpostCommands: [],\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\tmapColumn(\n\t\tGKEY,\n\t\tCATEGORY,\n\t\tFREIGHT_KIND,\n\t\tBASIC_LENGTH,\n\t\tEQUIPMENT_TYPE_ID,\n\t\tISO_GROUP,\n\t\tUNIT_ID,\n\t\tTIME_STAMP,\n\t\tDECKING_TYPE,\n\t\tNODE_ID,\n\t\tYARD,\n\t\tFROM_POS_LOCTYPE,\n\t\tFROM_POS_LOCID,\n\t\tFROM_POS_LOC_GKEY,\n\t\tFROM_POS_SLOT,\n\t\tFROM_POS_NAME,\n\t\tFROM_POS_BIN,\n\t\tFROM_POS_TIER,\n\t\tTO_POS_LOCTYPE,\n\t\tTO_POS_LOCID,\n\t\tTO_POS_LOC_GKEY,\n\t\tTO_POS_SLOT,\n\t\tTO_POS_NAME,\n\t\tTO_POS_BIN,\n\t\tTO_POS_TIER,\n\t\tTOTAL_SCORE,\n\t\tEXECUTION_TIME,\n\t\tDETAILS,\n\t\tPHASE,\n\t\tREQUIRES_POWER,\n\t\tYear,\n\t\tMonth,\n\t\tWeek\n\t)) ~> sink1"
+		}
+	}
+}

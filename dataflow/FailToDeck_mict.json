@@ -1,0 +1,38 @@
+{
+	"name": "FailToDeck_mict",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"linkedService": {
+						"referenceName": "linkedService1",
+						"type": "LinkedServiceReference"
+					},
+					"name": "CSV"
+				}
+			],
+			"sinks": [
+				{
+					"linkedService": {
+						"referenceName": "linkedService1",
+						"type": "LinkedServiceReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "DerivedColumn1"
+				},
+				{
+					"name": "AlterRow1"
+				},
+				{
+					"name": "aggregate1"
+				}
+			],
+			"script": "parameters{\n\tcustomer as string ('mict')\n}\nsource(output(\n\t\tgkey as integer,\n\t\tuyv_gkey as integer,\n\t\tunit_id as string,\n\t\ttime_stamp as string,\n\t\tdecking_type as string,\n\t\tnode_id as string,\n\t\tyard as string,\n\t\tfrom_pos_loctype as string,\n\t\tfrom_pos_locid as string,\n\t\tfrom_pos_loc_gkey as integer,\n\t\tfrom_pos_slot as string,\n\t\tfrom_pos_name as string,\n\t\tfrom_pos_bin as string,\n\t\tfrom_pos_tier as short,\n\t\tto_pos_loctype as string,\n\t\tto_pos_locid as string,\n\t\tto_pos_loc_gkey as string,\n\t\tto_pos_slot as string,\n\t\tto_pos_name as string,\n\t\tto_pos_bin as string,\n\t\tto_pos_tier as string,\n\t\ttotal_score as short,\n\t\texecution_time as short,\n\t\tdetails as string,\n\t\tphase as string\n\t),\n\tuseSchema: false,\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tmoveFiles: ['bronze/failtodeck','bronze/failtodeck/archive'],\n\tformat: 'delimited',\n\tfileSystem: ($customer),\n\tfolderPath: 'bronze/failtodeck',\n\tcolumnDelimiter: ',',\n\tescapeChar: '\\\\',\n\tquoteChar: '\\\"',\n\tcolumnNamesAsHeader: true) ~> CSV\nCSV derive(time_stamp = toTimestamp(time_stamp,'M/d/yyyy hh:mm:ss a'),\n\t\tYear = year(toTimestamp(time_stamp,'M/d/yyyy hh:mm:ss a')),\n\t\tMonth = month(toTimestamp(time_stamp,'M/d/yyyy hh:mm:ss a')),\n\t\tWeek = weekOfYear(toTimestamp(time_stamp,'M/d/yyyy hh:mm:ss a'))) ~> DerivedColumn1\naggregate1 alterRow(upsertIf(true())) ~> AlterRow1\nDerivedColumn1 aggregate(groupBy(gkey),\n\teach(match(name!='gkey'), $$ = first($$))) ~> aggregate1\nAlterRow1 sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tinput(\n\t\tgkey as integer,\n\t\tuyv_gkey as integer,\n\t\tunit_id as string,\n\t\ttime_stamp as timestamp,\n\t\tdecking_type as string,\n\t\tnode_id as string,\n\t\tyard as string,\n\t\tfrom_pos_loctype as string,\n\t\tfrom_pos_locid as string,\n\t\tfrom_pos_loc_gkey as integer,\n\t\tfrom_pos_slot as string,\n\t\tfrom_pos_name as string,\n\t\tfrom_pos_bin as string,\n\t\tfrom_pos_tier as short,\n\t\tto_pos_loctype as string,\n\t\tto_pos_locid as string,\n\t\tto_pos_loc_gkey as string,\n\t\tto_pos_slot as string,\n\t\tto_pos_name as string,\n\t\tto_pos_bin as string,\n\t\tto_pos_tier as string,\n\t\ttotal_score as short,\n\t\texecution_time as short,\n\t\tdetails as string,\n\t\tphase as string,\n\t\tYear as integer,\n\t\tMonth as integer,\n\t\tWeek as integer\n\t),\n\tformat: 'delta',\n\tfileSystem: 'mict',\n\tfolderPath: 'silver/failtodeck',\n\tmergeSchema: true,\n\tautoCompact: true,\n\toptimizedWrite: true,\n\tvacuum: 0,\n\tdeletable:false,\n\tinsertable:false,\n\tupdateable:false,\n\tupsertable:true,\n\tkeys:['gkey'],\n\tumask: 0777,\n\tpreCommands: [],\n\tpostCommands: [],\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\tmapColumn(\n\t\tgkey,\n\t\tuyv_gkey,\n\t\tunit_id,\n\t\ttime_stamp,\n\t\tdecking_type,\n\t\tnode_id,\n\t\tyard,\n\t\tfrom_pos_loctype,\n\t\tfrom_pos_locid,\n\t\tfrom_pos_loc_gkey,\n\t\tfrom_pos_slot,\n\t\tfrom_pos_name,\n\t\tfrom_pos_bin,\n\t\tfrom_pos_tier,\n\t\tto_pos_loctype,\n\t\tto_pos_locid,\n\t\tto_pos_loc_gkey,\n\t\tto_pos_slot,\n\t\tto_pos_name,\n\t\tto_pos_bin,\n\t\tto_pos_tier,\n\t\ttotal_score,\n\t\texecution_time,\n\t\tdetails,\n\t\tphase,\n\t\tYear,\n\t\tMonth,\n\t\tWeek\n\t)) ~> sink1"
+		}
+	}
+}

@@ -1,0 +1,145 @@
+{
+	"name": "Dwell_mnhpi",
+	"properties": {
+		"description": "dwell time of import full cntrs",
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"linkedService": {
+						"referenceName": "linkedService1",
+						"type": "LinkedServiceReference"
+					},
+					"name": "source1"
+				}
+			],
+			"sinks": [
+				{
+					"linkedService": {
+						"referenceName": "linkedService1",
+						"type": "LinkedServiceReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "filter1"
+				},
+				{
+					"name": "window1"
+				},
+				{
+					"name": "derivedColumn1"
+				},
+				{
+					"name": "derivedColumn2"
+				},
+				{
+					"name": "filter3"
+				},
+				{
+					"name": "AlterRow1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          mve_gkey as integer,",
+				"          Unit_Nbr as string,",
+				"          Facility_Id as string,",
+				"          Complex_Id as string,",
+				"          Yard_Id as string,",
+				"          Carrier_Visit_Key as integer,",
+				"          Event_Type_Id as string,",
+				"          Move_Kind as string,",
+				"          From_Location as string,",
+				"          To_Location as string,",
+				"          From_Position_Name as string,",
+				"          To_Position_Name as string,",
+				"          Carry_CHE_Operator_Id as short,",
+				"          Fetch_CHE_Operator_Id as string,",
+				"          Put_CHE_Operator_Id as string,",
+				"          Fetch_CHE_Id as long,",
+				"          Fetch_CHE_Kind as string,",
+				"          Carry_CHE_Id as long,",
+				"          Carry_CHE_Kind as string,",
+				"          Put_CHE_Id as long,",
+				"          Put_CHE_Kind as string,",
+				"          QC_CHE_Id as long,",
+				"          QC_CHE_Kind as string,",
+				"          t_carry_complete as timestamp,",
+				"          t_put as timestamp,",
+				"          t_fetch as timestamp,",
+				"          t_dispatch as timestamp,",
+				"          t_discharge as timestamp,",
+				"          t_carry_dispatch as timestamp,",
+				"          t_carry_fetch_ready as timestamp,",
+				"          t_carry_put_ready as timestamp,",
+				"          dist_carry as integer,",
+				"          dist_start as short,",
+				"          Twin_Fetch as string,",
+				"          Twin_Carry as string,",
+				"          Twin_Put as string,",
+				"          Category_Id as string,",
+				"          Freight_Kind_Id as string,",
+				"          to_pos_gkey as integer,",
+				"          fm_pos_gkey as integer,",
+				"          Restow_Reason as string,",
+				"          Container_Line_Id as string,",
+				"          Container_Line_Role as string,",
+				"          pow as string,",
+				"          ufv_gkey as integer,",
+				"          Berth_Id as string,",
+				"          Goods_And_Ctr_Wt_Kg as double,",
+				"          active_ufv as integer,",
+				"          Requires_Power_Flag as string,",
+				"          OOG_Flag as string,",
+				"          Shipper_Id as string,",
+				"          Consignee_Id as string,",
+				"          Commodity_Id as string,",
+				"          ATA as timestamp,",
+				"          ATD as timestamp,",
+				"          Rehandles as string,",
+				"          Year as integer,",
+				"          Month as integer,",
+				"          Week as integer",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     format: 'delta',",
+				"     fileSystem: 'mnhpi',",
+				"     folderPath: 'silver/moves') ~> source1",
+				"source1 filter(Category_Id=='IMPRT'&&Freight_Kind_Id=='FCL'&&(Event_Type_Id=='UNIT_DISCH' || Event_Type_Id=='UNIT_DELIVER')) ~> filter1",
+				"filter1 window(asc(Unit_Nbr, true),",
+				"     asc(t_put, true),",
+				"     Unit_Nbr_prev = lag(Unit_Nbr),",
+				"          Event_Type_Id_prev = lag(Event_Type_Id),",
+				"          t_put_prev = lag(t_put)) ~> window1",
+				"window1 derive(Dwell_Time = iif(Unit_Nbr==Unit_Nbr_prev && Event_Type_Id=='UNIT_DELIVER' && Event_Type_Id_prev=='UNIT_DISCH',dayOfYear(t_put)-dayOfYear(t_put_prev),toInteger(null()))) ~> derivedColumn1",
+				"filter3 derive(Dwell_Range = iif(Dwell_Time<=6, '0 to 6 Days', '> 6 Days')) ~> derivedColumn2",
+				"derivedColumn1 filter(isNull(Dwell_Time)==false()) ~> filter3",
+				"derivedColumn2 alterRow(upsertIf(true())) ~> AlterRow1",
+				"AlterRow1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'delta',",
+				"     fileSystem: 'mnhpi',",
+				"     folderPath: 'gold/dwell',",
+				"     mergeSchema: true,",
+				"     autoCompact: true,",
+				"     optimizedWrite: true,",
+				"     vacuum: 0,",
+				"     deletable:false,",
+				"     insertable:false,",
+				"     updateable:false,",
+				"     upsertable:true,",
+				"     keys:['mve_gkey'],",
+				"     umask: 0777,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> sink1"
+			]
+		}
+	}
+}

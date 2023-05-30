@@ -1,0 +1,38 @@
+{
+	"name": "FailToDeck_MTY_gpa",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"linkedService": {
+						"referenceName": "linkedService1",
+						"type": "LinkedServiceReference"
+					},
+					"name": "CSV"
+				}
+			],
+			"sinks": [
+				{
+					"linkedService": {
+						"referenceName": "linkedService1",
+						"type": "LinkedServiceReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "AlterRow1"
+				},
+				{
+					"name": "select1"
+				},
+				{
+					"name": "filter1"
+				}
+			],
+			"script": "parameters{\n\tcustomer as string ('gpa')\n}\nsource(output(\n\t\tGKEY as long,\n\t\tCATEGORY as string,\n\t\tFREIGHT_KIND as string,\n\t\tBASIC_LENGTH as string,\n\t\tEQUIPMENT_TYPE_ID as string,\n\t\tISO_GROUP as string,\n\t\tUNIT_ID as string,\n\t\tTIME_STAMP as timestamp,\n\t\tDECKING_TYPE as string,\n\t\tNODE_ID as string,\n\t\tYARD as string,\n\t\tFROM_POS_LOCTYPE as string,\n\t\tFROM_POS_LOCID as string,\n\t\tFROM_POS_LOC_GKEY as string,\n\t\tFROM_POS_SLOT as string,\n\t\tFROM_POS_NAME as string,\n\t\tFROM_POS_BIN as integer,\n\t\tFROM_POS_TIER as string,\n\t\tTO_POS_LOCTYPE as string,\n\t\tTO_POS_LOCID as string,\n\t\tTO_POS_LOC_GKEY as string,\n\t\tTO_POS_SLOT as string,\n\t\tTO_POS_NAME as string,\n\t\tTO_POS_BIN as string,\n\t\tTO_POS_TIER as string,\n\t\tTOTAL_SCORE as short,\n\t\tEXECUTION_TIME as short,\n\t\tDETAILS as string,\n\t\tPHASE as string,\n\t\tYear as integer,\n\t\tMonth as integer,\n\t\tWeek as integer\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tformat: 'delta',\n\tfileSystem: 'gpa',\n\tfolderPath: 'silver/failtodeck') ~> CSV\nselect1 alterRow(upsertIf(true())) ~> AlterRow1\nfilter1 select(skipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> select1\nCSV filter(FREIGHT_KIND=='MTY') ~> filter1\nAlterRow1 sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'delta',\n\tfileSystem: 'gpa',\n\tfolderPath: 'silver/failtodeck_mty',\n\tmergeSchema: true,\n\tautoCompact: true,\n\toptimizedWrite: true,\n\tvacuum: 0,\n\tdeletable:false,\n\tinsertable:false,\n\tupdateable:false,\n\tupsertable:true,\n\tkeys:['gkey'],\n\tumask: 0777,\n\tpreCommands: [],\n\tpostCommands: [],\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> sink1"
+		}
+	}
+}

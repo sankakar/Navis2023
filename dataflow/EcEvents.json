@@ -1,0 +1,41 @@
+{
+	"name": "EcEvents",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"linkedService": {
+						"referenceName": "powerbianalyticsdata-WorkspaceDefaultStorage",
+						"type": "LinkedServiceReference"
+					},
+					"name": "CSV"
+				}
+			],
+			"sinks": [
+				{
+					"linkedService": {
+						"referenceName": "powerbianalyticsdata-WorkspaceDefaultStorage",
+						"type": "LinkedServiceReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "DataTypeConversion"
+				},
+				{
+					"name": "AlterRow1"
+				},
+				{
+					"name": "Select1"
+				},
+				{
+					"name": "Filter1"
+				}
+			],
+			"script": "source(output(\n\t\tecEventGkey as long,\n\t\tyardGkey as integer,\n\t\tYARDID as string,\n\t\tFCYID as string,\n\t\tcheKind as string,\n\t\tCHE_Name as string,\n\t\tCHE_ID as short,\n\t\tTimeStamp as string,\n\t\teventType as short,\n\t\teventSubType as short,\n\t\teventTypeDescription as string,\n\t\tfromCheIdName as string,\n\t\tToCheIdName as string,\n\t\tunit as string,\n\t\tpow as string,\n\t\tpool as string,\n\t\tworkQueue as string,\n\t\ttravelDistance as short,\n\t\tmoveKind as string,\n\t\tisTwin as string,\n\t\tstartDistance as short,\n\t\tworkAssignment as long,\n\t\tunitRef as string,\n\t\ttran_ID as string,\n\t\tlocType as string,\n\t\tlocID as string,\n\t\tlocSlot as string,\n\t\topsPosID as string,\n\t\tunladenLoctype as string,\n\t\tunladenLocID as string,\n\t\tunladenLocSlot as string,\n\t\tladenLoctype as string,\n\t\tladenLocID as string,\n\t\tladen_LocSlot as string\n\t),\n\tallowSchemaDrift: false,\n\tvalidateSchema: true,\n\tignoreNoFilesFound: false,\n\tmoveFiles: ['bronze/ecevents','bronze/ecevents/archive'],\n\tformat: 'delimited',\n\tfileSystem: 'malta',\n\tfolderPath: 'bronze/ecevents',\n\tcolumnDelimiter: ',',\n\tescapeChar: '\\\\',\n\tquoteChar: '\\\"',\n\tcolumnNamesAsHeader: true,\n\tdateFormats: ['dd-MM-yyyy'],\n\ttimestampFormats: ['yyyy-MM-dd\\'T\\'HH:mm:ss.SSS\\'Z\\'','yyyy-MM-dd\\'T\\'HH:mm:ss\\'Z\\'']) ~> CSV\nCSV derive(EcEventTime = coalesce(toTimestamp(TimeStamp,'dd-MM-yy HH:mm:ss'),toTimestamp(TimeStamp,'dd.MM.yy HH:mm:ss'),toTimestamp(TimeStamp,'dd-MM-yyyy HH:mm'),toTimestamp(TimeStamp,'dd/MM/yyyy\\'T\\'HH:mm:ss'), toTimestamp(TimeStamp,'yyyy-MM-dd HH:mm:ss'),toTimestamp(TimeStamp,'dd/MM/yyyy HH:mm:ss'),toTimestamp(TimeStamp,'dd-MM-yyyy HH:mm:ss')),\n\t\tecEventGkey = toLong(ecEventGkey),\n\t\tcheID = toLong(CHE_ID),\n\t\tYear = iifNull(year(coalesce(toTimestamp(TimeStamp,'dd-MM-yy HH:mm:ss'),toTimestamp(TimeStamp,'dd.MM.yy HH:mm:ss'),toTimestamp(TimeStamp,'dd-MM-yyyy HH:mm'),toTimestamp(TimeStamp,'dd/MM/yyyy\\'T\\'HH:mm:ss'), toTimestamp(TimeStamp,'yyyy-MM-dd HH:mm:ss'),toTimestamp(TimeStamp,'dd/MM/yyyy HH:mm:ss'),toTimestamp(TimeStamp,'dd-MM-yyyy HH:mm:ss'))),0),\n\t\tMonth = iifNull(month(coalesce(toTimestamp(TimeStamp,'dd-MM-yy HH:mm:ss'),toTimestamp(TimeStamp,'dd.MM.yy HH:mm:ss'),toTimestamp(TimeStamp,'dd-MM-yyyy HH:mm'),toTimestamp(TimeStamp,'dd/MM/yyyy\\'T\\'HH:mm:ss'), toTimestamp(TimeStamp,'yyyy-MM-dd HH:mm:ss'),toTimestamp(TimeStamp,'dd/MM/yyyy HH:mm:ss'),toTimestamp(TimeStamp,'dd-MM-yyyy HH:mm:ss'))),0),\n\t\tWeek = iifNull(weekOfYear(coalesce(toTimestamp(TimeStamp,'dd-MM-yy HH:mm:ss'),toTimestamp(TimeStamp,'dd.MM.yy HH:mm:ss'),toTimestamp(TimeStamp,'dd-MM-yyyy HH:mm'),toTimestamp(TimeStamp,'dd/MM/yyyy\\'T\\'HH:mm:ss'), toTimestamp(TimeStamp,'yyyy-MM-dd HH:mm:ss'),toTimestamp(TimeStamp,'dd/MM/yyyy HH:mm:ss'),toTimestamp(TimeStamp,'dd-MM-yyyy HH:mm:ss'))),0)) ~> DataTypeConversion\nFilter1 alterRow(upsertIf(true()),\n\tinsertIf(true())) ~> AlterRow1\nDataTypeConversion select(mapColumn(\n\t\tecEventGkey,\n\t\tyardGkey,\n\t\tYARDID,\n\t\tFCYID,\n\t\tcheKind,\n\t\tCHE_Name,\n\t\tCHE_ID,\n\t\tTimeStamp,\n\t\teventType,\n\t\teventSubType,\n\t\teventTypeDescription,\n\t\tfromCheIdName,\n\t\tToCheIdName,\n\t\tunit,\n\t\tpow,\n\t\tpool,\n\t\tworkQueue,\n\t\ttravelDistance,\n\t\tmoveKind,\n\t\tisTwin,\n\t\tstartDistance,\n\t\tworkAssignment,\n\t\tunitRef,\n\t\ttran_ID,\n\t\tlocType,\n\t\tlocID,\n\t\tlocSlot,\n\t\topsPosID,\n\t\tunladenLoctype,\n\t\tunladenLocID,\n\t\tunladenLocSlot,\n\t\tladenLoctype,\n\t\tladenLocID,\n\t\tladen_LocSlot,\n\t\tEcEventTime,\n\t\tcheID,\n\t\tYear,\n\t\tMonth,\n\t\tWeek\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> Select1\nSelect1 filter(isNull(ecEventGkey)==false()) ~> Filter1\nAlterRow1 sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tinput(\n\t\tecEventGkey as long,\n\t\tyardGkey as short,\n\t\tYardID as string,\n\t\tFcyID as string,\n\t\tcheKind as string,\n\t\tcheName as string,\n\t\tcheID as long,\n\t\tEcEventTime as timestamp,\n\t\ttype as short,\n\t\tsubType as short,\n\t\ttypeDescription as string,\n\t\tfromCheIdName as boolean,\n\t\tToCheIdName as boolean,\n\t\tunitIdName as string,\n\t\tpowName as string,\n\t\tpoolName as string,\n\t\tworkQueue as string,\n\t\ttravelDistance as short,\n\t\tmoveKind as string,\n\t\tisTwinMove as boolean,\n\t\tstartDistance as short,\n\t\tworkAssignmentId as double,\n\t\tunitReference as string,\n\t\ttranId as string,\n\t\tlocType as string,\n\t\tlocId as string,\n\t\tlocSlot as string,\n\t\topsPosId as string,\n\t\tunladenLoctype as string,\n\t\tunladenLocid as string,\n\t\tunladenLocSlot as string,\n\t\tladenLoctype as string,\n\t\tladenLocid as string,\n\t\tladenLocSlot as string,\n\t\tlastEstMoveTime as string,\n\t\tYear as integer,\n\t\tMonth as integer,\n\t\tWeek as integer\n\t),\n\tformat: 'delta',\n\tfileSystem: 'malta',\n\tfolderPath: 'silver/ecevents',\n\tmergeSchema: true,\n\tautoCompact: true,\n\toptimizedWrite: true,\n\tvacuum: 0,\n\tdeletable:false,\n\tinsertable:false,\n\tupdateable:false,\n\tupsertable:true,\n\tkeys:['ecEventGkey'],\n\tumask: 0777,\n\tpreCommands: [],\n\tpostCommands: [],\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\tmapColumn(\n\t\tecEventGkey,\n\t\tyardGkey,\n\t\tYardID = YARDID,\n\t\tFcyID = FCYID,\n\t\tcheKind,\n\t\tcheName = CHE_Name,\n\t\tcheID,\n\t\tEcEventTime,\n\t\ttype = eventType,\n\t\tsubType = eventSubType,\n\t\ttypeDescription = eventTypeDescription,\n\t\tfromCheIdName,\n\t\tToCheIdName,\n\t\tunitIdName = unit,\n\t\tpowName = pow,\n\t\tpoolName = pool,\n\t\tworkQueue,\n\t\ttravelDistance,\n\t\tmoveKind,\n\t\tisTwinMove = isTwin,\n\t\tstartDistance,\n\t\tworkAssignmentId = workAssignment,\n\t\tunitReference = unitRef,\n\t\ttranId = tran_ID,\n\t\tlocType,\n\t\tlocId = locID,\n\t\tlocSlot,\n\t\topsPosId = opsPosID,\n\t\tunladenLoctype,\n\t\tunladenLocid = unladenLocID,\n\t\tunladenLocSlot,\n\t\tladenLoctype,\n\t\tladenLocid = ladenLocID,\n\t\tladenLocSlot = laden_LocSlot,\n\t\tYear,\n\t\tMonth,\n\t\tWeek\n\t)) ~> sink1"
+		}
+	}
+}
