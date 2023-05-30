@@ -1,0 +1,17 @@
+{
+	"name": "Create View",
+	"properties": {
+		"content": {
+			"query": "create view MoveSrc\nAS\nSELECT\n    *\nFROM\n    OPENROWSET(\n        BULK 'https://powerbianalyticsdata.dfs.core.windows.net/ptpbianalyticsdata/RawData/MoveSrc/2021/202110/',\n        FORMAT='PARQUET'\n    ) AS [result]\n\nCREATE DATABASE \"PTP\"",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "PTP",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

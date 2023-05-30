@@ -1,0 +1,17 @@
+{
+	"name": "Aarhus views",
+	"properties": {
+		"content": {
+			"query": "SELECT count([ecEventGkey])   \n --, min([EcEventTime])  ,  max(EcEventTime)\n FROM [dbo].[ecevents]\n where  [moveKind] = 'LOAD' and typeDescription='CMPL' \n \n SELECT count(distinct [unitIdName])   \n FROM [dbo].[ecevents]\n where  [moveKind] = 'LOAD' and typeDescription='CMPL' \n \n\n\nselect  Top 20 *   FROM [dbo].[ecevents] where  [moveKind] = 'LOAD'\n\n SELECT   count([ecEventGkey]) \n FROM [dbo].[ecevents] where [Event_Type_Id] IN ( 'UNIT_LOAD' ,'UNIT_PAYLOAD_LOAD' ) \n group by [Event_Type_Id]\n order by 2",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "aarhus",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

@@ -1,0 +1,17 @@
+{
+	"name": "SQL script 2",
+	"properties": {
+		"content": {
+			"query": "CREATE OR ALTER VIEW vesselvisits_t\nAS SELECT *\nFROM  \n    OPENROWSET(\n        BULK 'silver/vessel_visits',\n        data_source='eurogatectb',\n        FORMAT='DELTA'\n    ) vesselvisits_t\n\n\n    select * from vesselvisits_t\n\n    CREATE EXTERNAL DATA SOURCE [eurogatectb] \n\tWITH (\n\t\tLOCATION   = 'https://navispowerbidatastorage1.dfs.core.windows.net/eurogatectb', \n\t)",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "eurogatectb",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

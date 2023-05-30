@@ -1,0 +1,17 @@
+{
+	"name": "External Table",
+	"properties": {
+		"content": {
+			"query": "IF NOT EXISTS (SELECT * FROM sys.external_file_formats WHERE name = 'SynapseParquetFormat') \n\tCREATE EXTERNAL FILE FORMAT [SynapseParquetFormat] \n\tWITH ( FORMAT_TYPE = PARQUET)\nGO\n\nIF NOT EXISTS (SELECT * FROM sys.external_data_sources WHERE name = 'pdports') \n\tCREATE EXTERNAL DATA SOURCE [pdports] \n\tWITH (\n\t\tLOCATION   = 'https://navispowerbidatastorage1.dfs.core.windows.net/pdports', \n\t)\nGo\n\nCREATE EXTERNAL TABLE EcEvents (\n\t[ecEventGkey] varchar(8000),\n\t[yardGkey] varchar(8000),\n\t[pKey] varchar(8000),\n\t[TimeStamp] varchar(8000),\n\t[eventType] varchar(8000),\n\t[CHE_ID] varchar(8000),\n\t[CHE_Name] varchar(8000),\n\t[Operator] varchar(8000),\n\t[eventSubType] varchar(8000),\n\t[eventTypeDescription] varchar(8000),\n\t[fromCheIdName] varchar(8000),\n\t[toCheIdName] varchar(8000),\n\t[unit] varchar(8000),\n\t[Pow] varchar(8000),\n\t[Pool] varchar(8000),\n\t[workQueue] varchar(8000),\n\t[travelDistance] varchar(8000),\n\t[moveKind] varchar(8000),\n\t[isTwin] varchar(8000),\n\t[startDistance] varchar(8000),\n\t[waGkey] varchar(8000),\n\t[workAssignment] varchar(8000),\n\t[unitRef] varchar(8000),\n\t[train_ID] varchar(8000),\n\t[locType] varchar(8000),\n\t[LocID] varchar(8000),\n\t[locSlot] varchar(8000),\n\t[opsPosID] varchar(8000),\n\t[unladenLocType] varchar(8000),\n\t[unladenLocID] varchar(8000),\n\t[unladenLocSlot] varchar(8000),\n\t[ladenLocType] varchar(8000),\n\t[ladenLocID] varchar(8000),\n\t[laden_LocSlot] varchar(8000),\n\t[lastEstMoveTime] varchar(8000),\n\t[waMovePurpose] varchar(8000),\n\t[waError_details] varchar(8000)\n\t)\n\tWITH (\n\tLOCATION = 'RawData/EcEvents/2021/202110/EcEvents_1.parquet',\n\tDATA_SOURCE = [ptpbianalyticsdata_powerbianalyticsdata_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t)\nGO\n\nCREATE EXTERNAL TABLE EcEvents_Final  \nWITH (  \n       LOCATION = 'RawData/EcEvents/2021/202110/EcEvents_1.parquet',\n\tDATA_SOURCE = [ptpbianalyticsdata_powerbianalyticsdata_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]  \n) AS SELECT DISTINCT(ecEventGkey),[yardGkey]\n,[TimeStamp]\n,[eventType]\n,[CHE_ID]\n,[CHE_Name]\n,[eventTypeDescription]\n,[unit]\n,[moveKind]\n,[locSlot]\n,[unladenLocSlot]\n,[laden_LocSlot] FROM dbo.EcEvents;  \n\nselec\n\nSELECT TOP 100 * FROM EcEvents_Final\nGO\n\n",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "pdports",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

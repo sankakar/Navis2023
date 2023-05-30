@@ -1,0 +1,17 @@
+{
+	"name": "Moves_EcEvents View Creation Script",
+	"properties": {
+		"content": {
+			"query": "if db_name() = 'master'\n    throw 50001, 'This script cannot be executed in master database. Create new database and run the script there.', 1;\n\nif SERVERPROPERTY('EngineEdition') <> 11\n    throw 50001, 'This script must be executed on Azure Synapse - SQL serverless endpoint.', 1;\n\n\nIF NOT EXISTS (SELECT * FROM sys.external_file_formats WHERE name = 'SynapseDeltaFormat') \n\tCREATE EXTERNAL FILE FORMAT [SynapseDeltaFormat] \n\tWITH ( FORMAT_TYPE = DELTA)\nGO\n\nIF NOT EXISTS (SELECT * FROM sys.external_data_sources WHERE name = 'congo_powerbianalyticsdata_dfs_core_windows_net') \n\tCREATE EXTERNAL DATA SOURCE [congo_powerbianalyticsdata_dfs_core_windows_net] \n\tWITH (\n\t\tLOCATION   = 'https://powerbianalyticsdata.dfs.core.windows.net/congo', \n\t)\nGo\n\n\ncreate or alter view Moves\nas\nselect *\nfrom openrowset(\n           bulk 'silver/movesrc',\n           data_source = 'congo_powerbianalyticsdata_dfs_core_windows_net',\n           FORMAT = 'DELTA'\n    ) as moves\n\ncreate or alter view EcEvents\nas\nselect *\nfrom openrowset(\n           bulk 'silver/ecevents',\n           data_source = 'congo_powerbianalyticsdata_dfs_core_windows_net',\n           FORMAT = 'DELTA'\n    ) as ecevents\n\n\nSELECT TOP 100 * FROM Moves\n\nSELECT TOP 100 * FROM EcEvents\nGO\n\n",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "Congo",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

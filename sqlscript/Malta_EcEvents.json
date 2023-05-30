@@ -1,0 +1,17 @@
+{
+	"name": "Malta_EcEvents",
+	"properties": {
+		"content": {
+			"query": "IF NOT EXISTS (SELECT * FROM sys.external_file_formats WHERE name = 'SynapseParquetFormat') \n\tCREATE EXTERNAL FILE FORMAT [SynapseParquetFormat] \n\tWITH ( FORMAT_TYPE = PARQUET)\nGO\n\nIF NOT EXISTS (SELECT * FROM sys.external_data_sources WHERE name = 'malta_powerbianalyticsdata_dfs_core_windows_net') \n\tCREATE EXTERNAL DATA SOURCE [malta_powerbianalyticsdata_dfs_core_windows_net] \n\tWITH (\n\t\tLOCATION   = 'https://powerbianalyticsdata.dfs.core.windows.net/malta', \n\t)\nGo\n\nCREATE EXTERNAL TABLE EcEvents (\n\t[ecEventGkey] bigint,\n\t[yardGkey] varchar(8000),\n\t[YARDID] varchar(8000),\n\t[FCYID] varchar(8000),\n\t[cheKind] varchar(8000),\n\t[cheShortName] varchar(8000),\n\t[cheID] bigint,\n\t[EcEventTime] datetime2(7),\n\t[type] varchar(8000),\n\t[subType] varchar(8000),\n\t[typeDescription] varchar(8000),\n\t[fromCheIdName] varchar(8000),\n\t[ToCheIdName] varchar(8000),\n\t[unitIdName] varchar(8000),\n\t[powName] varchar(8000),\n\t[poolName] varchar(8000),\n\t[workQueue] varchar(8000),\n\t[travelDistance] varchar(8000),\n\t[moveKind] varchar(8000),\n\t[isTwinMove] varchar(8000),\n\t[startDistance] varchar(8000),\n\t[workAssignmentId] varchar(8000),\n\t[unitReference] varchar(8000),\n\t[tranId] varchar(8000),\n\t[locType] varchar(8000),\n\t[locId] varchar(8000),\n\t[locSlot] varchar(8000),\n\t[opsPosId] varchar(8000),\n\t[unladenLoctype] varchar(8000),\n\t[unladenLocid] varchar(8000),\n\t[unladenLocSlot] varchar(8000),\n\t[ladenLoctype] varchar(8000),\n\t[ladenLocid] varchar(8000),\n\t[ladenLocSlot] varchar(8000),\n\t[lastEstMoveTime] varchar(8000)\n\t)\n\tWITH (\n\tLOCATION = 'EcEvents/2021/202110/*.snappy.parquet',\n\tDATA_SOURCE = [malta_powerbianalyticsdata_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t)\nGO\n\nSELECT TOP 100 * FROM EcEvents\nGO\n\n",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "Malta",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

@@ -1,0 +1,17 @@
+{
+	"name": "ITV",
+	"properties": {
+		"content": {
+			"query": "-- This is auto-generated code\ndrop view RTG_EcEvents\n\ncreate view RTG_EcEvents\nas \n\nSELECT\n DISTINCT Week\nFROM\n    OPENROWSET(\n        BULK 'PTP/silver/EcEvents',\n        FORMAT = 'DELTA',\n        data_source='ptpbianalyticsdata_powerbianalyticsdata_dfs_core_windows_net'\n    ) AS [result]\nWHERE [cheKind]='ITV'\nAND [moveKind] = 'DSCH'\nAND ([eventTypeDescription] = 'AYDR' or [eventTypeDescription] = 'CMPL')\nand [Week] in (47,46,45,44)\nGROUP by [ecEventGkey]\nhaving count(*)>1\n\nselect \n--top 10 *\nmax(([TimeStamp])),MIN((TimeStamp))\nfrom OPENROWSET(\n        BULK 'https://powerbianalyticsdata.dfs.core.windows.net/ptpbianalyticsdata/PTP/silver/EcEvents/Year=2021/Month=10/Week=43/*.parquet',\n        FORMAT = 'PARQUET'\n    ) AS [result]\nWHERE [cheKind]='RTG'",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "PTP",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

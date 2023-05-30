@@ -1,0 +1,17 @@
+{
+	"name": "test",
+	"properties": {
+		"content": {
+			"query": "create or alter view vessel_visits\n AS \nselect *\nfrom \n    OPENROWSET(\n        BULK 'silver/vessel_visits',\n        data_source = 'arica_powerbianalyticsdata_dfs_core_windows_net',\n        FORMAT = 'DELTA'\n    ) AS [vessel_visits]\nGROUP by carrier_visit_key\nhaving count(*)>1\n\n    where carrier_visit_key=null\n    order by date_of_gang\nwhere \nEcEventTime>'2021-07-01T00:00:00.0000000'\n\n--and \nWeek=49\nand event_type_id='UNIT_DISCH'\n\n    group by ecEventGkey\n    having count(*)>1\n\n\n    where year=2022 and Week=1\n    where move_kind<>'DSCH' and EVENT_TYPE_ID='UNIT_LOAD'\n    \nselect mve_gkey,count(*) from dbo.moves\ngroup by mve_gkey\nhaving count(*)>1\n2396477\n\n\nDual Cycle\n2021-11-16T12:59:47.0000000\n2021-01-19T03:38:45.0000000",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "ARICA",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

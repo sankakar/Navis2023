@@ -1,0 +1,17 @@
+{
+	"name": "Malta_MoveSrc",
+	"properties": {
+		"content": {
+			"query": "IF NOT EXISTS (SELECT * FROM sys.external_file_formats WHERE name = 'SynapseParquetFormat') \n\tCREATE EXTERNAL FILE FORMAT [SynapseParquetFormat] \n\tWITH ( FORMAT_TYPE = PARQUET)\nGO\n\nIF NOT EXISTS (SELECT * FROM sys.external_data_sources WHERE name = 'malta_powerbianalyticsdata_dfs_core_windows_net') \n\tCREATE EXTERNAL DATA SOURCE [malta_powerbianalyticsdata_dfs_core_windows_net] \n\tWITH (\n\t\tLOCATION   = 'https://powerbianalyticsdata.dfs.core.windows.net/malta', \n\t)\nGo\n\nCREATE EXTERNAL TABLE MoveSrc (\n\t[UnitNbr] varchar(8000),\n\t[FacilityId] varchar(8000),\n\t[ComplexId] varchar(8000),\n\t[YardId] varchar(8000),\n\t[CarrierVisitKey] varchar(8000),\n\t[EventTypeId] varchar(8000),\n\t[MoveKind] varchar(8000),\n\t[FromLocation] varchar(8000),\n\t[ToLocation] varchar(8000),\n\t[FromPositionName] varchar(8000),\n\t[ToPositionName] varchar(8000),\n\t[CarryCHEOperatorId] varchar(8000),\n\t[FetchCHEOperatorId] varchar(8000),\n\t[PutCHEOperatorId] varchar(8000),\n\t[FetchCHEId] bigint,\n\t[FetchCHEKind] varchar(8000),\n\t[CarryCHEId] bigint,\n\t[CarryCHEKind] varchar(8000),\n\t[PutCHEId] bigint,\n\t[PutCHEKind] varchar(8000),\n\t[QCCHEId] bigint,\n\t[QCCHEKind] varchar(8000),\n\t[t_carry_complete] datetime2(7),\n\t[t_put] datetime2(7),\n\t[t_fetch] datetime2(7),\n\t[t_dispatch] varchar(8000),\n\t[t_discharge] datetime2(7),\n\t[t_carry_dispatch] varchar(8000),\n\t[t_carry_fetch_ready] varchar(8000),\n\t[t_carry_put_ready] varchar(8000),\n\t[dist_carry] varchar(8000),\n\t[dist_start] varchar(8000),\n\t[TwinFetch] varchar(8000),\n\t[TwinCarry] varchar(8000),\n\t[TwinPut] varchar(8000),\n\t[CategoryId] varchar(8000),\n\t[FreightKindId] varchar(8000),\n\t[to_pos_gkey] varchar(8000),\n\t[fm_pos_gkey] varchar(8000),\n\t[RestowReason] varchar(8000),\n\t[ContainerLineId] varchar(8000),\n\t[ContainerLineRole] varchar(8000),\n\t[pow] varchar(8000),\n\t[mve_gkey] varchar(8000),\n\t[ufv_gkey] varchar(8000),\n\t[BerthId] varchar(8000),\n\t[GoodsAndCtrWtKg] varchar(8000),\n\t[active_ufv] varchar(8000),\n\t[RequiresPowerFlag] varchar(8000),\n\t[OOGFlag] varchar(8000),\n\t[ShipperId] varchar(8000),\n\t[ConsigneeId] varchar(8000),\n\t[CommodityId] varchar(8000),\n\t[ATD] varchar(8000),\n\t[Rehandles] varchar(8000)\n\t)\n\tWITH (\n\tLOCATION = 'MoveSrc/2021/202110/*.snappy.parquet',\n\tDATA_SOURCE = [malta_powerbianalyticsdata_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t)\nGO\n\nSELECT TOP 100 * FROM MoveSrc\nGO\n\n",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "Malta",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

@@ -1,0 +1,17 @@
+{
+	"name": "PTP_RTG",
+	"properties": {
+		"content": {
+			"query": "-- This is auto-generated code\ncreate or alter view rtg_ecevents\nas\nselect max(Week)\nFROM\n    OPENROWSET(\n        BULK 'PTP/gold/rtg_ecevents_v2',\n        data_source = 'ptpbianalyticsdata_powerbianalyticsdata_dfs_core_windows_net',\n        FORMAT = 'DELTA'\n    ) AS [rtg_ecevents]\n\nselect top 10* from rtg_ecevents\n\ncreate or alter view rtg_workhours\nas\nselect *\nfrom openrowset(\n           bulk 'PTP/gold/rtg_workhours_v2',\n           data_source = 'ptpbianalyticsdata_powerbianalyticsdata_dfs_core_windows_net',\n           FORMAT = 'DELTA'\n    ) as rtg_workhours\n\nselect top 10 * from rtg_workhours\n",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "PTP",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

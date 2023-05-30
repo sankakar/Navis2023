@@ -1,0 +1,17 @@
+{
+	"name": "External Table Creation",
+	"properties": {
+		"content": {
+			"query": "IF NOT EXISTS (SELECT * FROM sys.external_file_formats WHERE name = 'SynapseDeltaFormat') \n\tCREATE EXTERNAL FILE FORMAT [SynapseDeltaFormat] \n\tWITH ( FORMAT_TYPE = DELTA)\nGO\n\nIF NOT EXISTS (SELECT * FROM sys.external_data_sources WHERE name = 'congo_powerbianalyticsdata_dfs_core_windows_net') \n\tCREATE EXTERNAL DATA SOURCE [congo_powerbianalyticsdata_dfs_core_windows_net] \n\tWITH (\n\t\tLOCATION = 'abfss://congo@powerbianalyticsdata.dfs.core.windows.net' \n\t)\nGO\n\ndrop EXTERNAL table EcEvents_t\n\nCREATE EXTERNAL TABLE EcEvents_t (\n\t[ecEventGkey] bigint,\n\t[yardGkey] nvarchar(4000),\n\t[YardID] nvarchar(4000),\n\t[FcyID] nvarchar(4000),\n\t[cheKind] nvarchar(4000),\n\t[cheShortName] nvarchar(4000),\n\t[cheID] bigint,\n\t[EcEventTime] datetime2(7),\n\t[type] smallint,\n\t[subType] smallint,\n\t[typeDescription] nvarchar(4000),\n\t[fromCheIdName] nvarchar(4000),\n\t[ToCheIdName] nvarchar(4000),\n\t[unitIdName] nvarchar(4000),\n\t[powName] nvarchar(4000),\n\t[poolName] nvarchar(4000),\n\t[workQueue] nvarchar(4000),\n\t[travelDistance] nvarchar(4000),\n\t[moveKind] nvarchar(4000),\n\t[isTwinMove] nvarchar(4000),\n\t[startDistance] nvarchar(4000),\n\t[workAssignmentGkey] nvarchar(4000),\n\t[workAssignmentId] float,\n\t[unitReference] nvarchar(4000),\n\t[tranId] nvarchar(4000),\n\t[locType] nvarchar(4000),\n\t[locId] nvarchar(4000),\n\t[locSlot] nvarchar(4000),\n\t[opsPosId] nvarchar(4000),\n\t[unladenLoctype] nvarchar(4000),\n\t[unladenLocid] nvarchar(4000),\n\t[unladenLocSlot] nvarchar(4000),\n\t[ladenLoctype] nvarchar(4000),\n\t[ladenLocid] nvarchar(4000),\n\t[ladenLocSlot] nvarchar(4000),\n\t[lastEstMoveTime] nvarchar(4000),\n\t[waMovePurpose] nvarchar(4000),\n\t[waErrorDetails] nvarchar(4000)\n\t)\n\tWITH (\n\tLOCATION = 'silver/ecevents',\n\tDATA_SOURCE = [congo_powerbianalyticsdata_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseDeltaFormat]\n\t)\nGO\n\n\nSELECT TOP 100 * FROM dbo.EcEvents_t\nGO",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "Congo",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}
