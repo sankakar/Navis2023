@@ -1,0 +1,137 @@
+{
+	"name": "GPA_rehandle",
+	"properties": {
+		"activities": [
+			{
+				"name": "Rehandle_export_gpa",
+				"type": "ExecuteDataFlow",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataflow": {
+						"referenceName": "Rehandle_export_gpa",
+						"type": "DataFlowReference",
+						"parameters": {
+							"customer": "'gpa'"
+						}
+					},
+					"compute": {
+						"coreCount": 8,
+						"computeType": "General"
+					},
+					"traceLevel": "Fine"
+				}
+			},
+			{
+				"name": "Rehandle_rdsc_export_gpa",
+				"type": "ExecuteDataFlow",
+				"dependsOn": [
+					{
+						"activity": "Rehandle_export_gpa",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataflow": {
+						"referenceName": "Rehandle_rdsc_export_gpa",
+						"type": "DataFlowReference",
+						"parameters": {
+							"customer": "'gpa'"
+						}
+					},
+					"compute": {
+						"coreCount": 8,
+						"computeType": "General"
+					},
+					"traceLevel": "Fine"
+				}
+			},
+			{
+				"name": "Rehandle_within_stack_rdsc_export_gpa",
+				"type": "ExecuteDataFlow",
+				"dependsOn": [
+					{
+						"activity": "Rehandle_rdsc_export_gpa",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataflow": {
+						"referenceName": "Rehandle_within_stack_rdsc_export_gpa",
+						"type": "DataFlowReference",
+						"parameters": {
+							"customer": "'gpa'"
+						}
+					},
+					"compute": {
+						"coreCount": 8,
+						"computeType": "General"
+					},
+					"traceLevel": "Fine"
+				}
+			},
+			{
+				"name": "Rehandle_within_stack_recv_export_gpa",
+				"type": "ExecuteDataFlow",
+				"dependsOn": [
+					{
+						"activity": "Rehandle_within_stack_rdsc_export_gpa",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataflow": {
+						"referenceName": "Rehandle_within_stack_recv_export_gpa",
+						"type": "DataFlowReference",
+						"parameters": {
+							"customer": "'gpa'"
+						}
+					},
+					"compute": {
+						"coreCount": 8,
+						"computeType": "General"
+					},
+					"traceLevel": "Fine"
+				}
+			}
+		],
+		"annotations": []
+	}
+}
