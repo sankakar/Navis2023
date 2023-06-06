@@ -1,0 +1,146 @@
+{
+	"name": "moves_cmsa",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"linkedService": {
+						"referenceName": "navispowerbidata2-WorkspaceDefaultStorage",
+						"type": "LinkedServiceReference"
+					},
+					"name": "source1"
+				}
+			],
+			"sinks": [
+				{
+					"linkedService": {
+						"referenceName": "navispowerbidata2-WorkspaceDefaultStorage",
+						"type": "LinkedServiceReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "select1"
+				},
+				{
+					"name": "derivedColumn1"
+				},
+				{
+					"name": "aggregate1"
+				},
+				{
+					"name": "alterRow1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          Unit_Nbr as string,",
+				"          Facility_Id as string,",
+				"          Complex_Id as string,",
+				"          Yard_Id as string,",
+				"          Carrier_Visit_Key as string,",
+				"          Event_Type_Id as string,",
+				"          Move_Kind as string,",
+				"          From_Location as string,",
+				"          To_Location as string,",
+				"          From_Position_Name as string,",
+				"          To_Position_Name as string,",
+				"          Carry_CHE_Operator_Id as string,",
+				"          Fetch_CHE_Operator_Id as string,",
+				"          Put_CHE_Operator_Id as string,",
+				"          Fetch_CHE_Id as string,",
+				"          Fetch_CHE_Kind as string,",
+				"          Carry_CHE_Id as string,",
+				"          Carry_CHE_Kind as string,",
+				"          Put_CHE_Id as string,",
+				"          Put_CHE_Kind as string,",
+				"          QC_CHE_Id as string,",
+				"          QC_CHE_Kind as string,",
+				"          t_carry_complete as string,",
+				"          t_put as string,",
+				"          t_fetch as string,",
+				"          t_dispatch as string,",
+				"          t_discharge as string,",
+				"          t_carry_dispatch as string,",
+				"          t_carry_fetch_ready as string,",
+				"          t_carry_put_ready as string,",
+				"          dist_carry as short,",
+				"          dist_start as short,",
+				"          Twin_Fetch as boolean,",
+				"          Twin_Carry as boolean,",
+				"          Twin_Put as boolean,",
+				"          Category_Id as string,",
+				"          Freight_Kind_Id as string,",
+				"          to_pos_gkey as string,",
+				"          fm_pos_gkey as string,",
+				"          pow as string,",
+				"          mve_gkey as string,",
+				"          ufv_gkey as string,",
+				"          Goods_And_Ctr_Wt_Kg as double,",
+				"          active_ufv as integer,",
+				"          Requires_Power_Flag as string,",
+				"          OOG_Flag as string,",
+				"          Hazardous_Flag as string,",
+				"          ATA as string,",
+				"          ATD as string",
+				"     ),",
+				"     useSchema: false,",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     format: 'delimited',",
+				"     fileSystem: 'cmsa',",
+				"     folderPath: 'bronze/moves/load',",
+				"     columnDelimiter: ',',",
+				"     escapeChar: '\\\\',",
+				"     quoteChar: '\\\"',",
+				"     columnNamesAsHeader: true) ~> source1",
+				"derivedColumn1 select(mapColumn(",
+				"          each(match(/* All input columns */true()),",
+				"               /* Input name */$$ = $$)",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select1",
+				"source1 derive(Carrier_Visit_Key = toLong(Carrier_Visit_Key),",
+				"          mve_gkey = toLong(mve_gkey),",
+				"          ufv_gkey = toLong(ufv_gkey),",
+				"          t_put = coalesce(toTimestamp(t_put,'yyyy-MM-dd HH:mm:ss.SSS'),toTimestamp(t_put,'yyyy/MM/dd HH:mm:ss.SSS'), toTimestamp(t_put,'MM/dd/yyyy HH:mm:ss'),toTimestamp(t_put,'dd-MM-yy HH:mm:ss'),toTimestamp(t_put,'dd.MM.yy HH:mm:ss'),toTimestamp(t_put,'dd/MM/yyyy\\'T\\'HH:mm:ss'), toTimestamp(t_put,'dd/MM/yyyy HH:mm:ss'),toTimestamp(t_put,'dd-MM-yyyy HH:mm:ss')),",
+				"          t_fetch = coalesce(toTimestamp(t_fetch,'yyyy-MM-dd HH:mm:ss.SSS'), toTimestamp(t_fetch,'MM/dd/yyyy HH:mm:ss'),toTimestamp(t_fetch,'dd.MM.yy HH:mm:ss'),toTimestamp(t_fetch,'dd-MM-yyyy HH:mm:ss')),",
+				"          ATD = coalesce(toTimestamp(ATD,'yyyy-MM-dd HH:mm:ss.SSS'),toTimestamp(ATD,'yyyy/MM/dd HH:mm:ss.SSS'), toTimestamp(ATD,'MM/dd/yyyy HH:mm:ss'),toTimestamp(ATD,'dd-MM-yy HH:mm:ss'),toTimestamp(ATD,'dd.MM.yy HH:mm:ss'),toTimestamp(ATD,'dd/MM/yyyy\\'T\\'HH:mm:ss')),",
+				"          ATA = coalesce(toTimestamp(ATA,'yyyy-MM-dd HH:mm:ss.SSS'),toTimestamp(ATA,'yyyy/MM/dd HH:mm:ss.SSS'), toTimestamp(ATA,'MM/dd/yyyy HH:mm:ss'),toTimestamp(ATA,'dd-MM-yy HH:mm:ss'),toTimestamp(ATA,'dd.MM.yy HH:mm:ss'),toTimestamp(ATA,'dd/MM/yyyy\\'T\\'HH:mm:ss'), toTimestamp(ATA,'dd/MM/yyyy HH:mm:ss'),toTimestamp(ATA,'dd-MM-yyyy HH:mm:ss')),",
+				"          Year = year(coalesce(toTimestamp(t_put,'yyyy-MM-dd HH:mm:ss.SSS'),toTimestamp(t_put,'yyyy/MM/dd HH:mm:ss.SSS'), toTimestamp(t_put,'MM/dd/yyyy HH:mm:ss'),toTimestamp(t_put,'dd-MM-yy HH:mm:ss'),toTimestamp(t_put,'dd.MM.yy HH:mm:ss'),toTimestamp(t_put,'dd/MM/yyyy\\'T\\'HH:mm:ss'), toTimestamp(t_put,'dd/MM/yyyy HH:mm:ss'),toTimestamp(t_put,'dd-MM-yyyy HH:mm:ss'))),",
+				"          Month = month(coalesce(toTimestamp(t_put,'yyyy-MM-dd HH:mm:ss.SSS'),toTimestamp(t_put,'yyyy/MM/dd HH:mm:ss.SSS'), toTimestamp(t_put,'MM/dd/yyyy HH:mm:ss'),toTimestamp(t_put,'dd-MM-yy HH:mm:ss'),toTimestamp(t_put,'dd.MM.yy HH:mm:ss'),toTimestamp(t_put,'dd/MM/yyyy\\'T\\'HH:mm:ss'), toTimestamp(t_put,'dd/MM/yyyy HH:mm:ss'),toTimestamp(t_put,'dd-MM-yyyy HH:mm:ss'))),",
+				"          Week = weekOfYear(coalesce(toTimestamp(t_put,'yyyy-MM-dd HH:mm:ss.SSS'),toTimestamp(t_put,'yyyy/MM/dd HH:mm:ss.SSS'), toTimestamp(t_put,'MM/dd/yyyy HH:mm:ss'),toTimestamp(t_put,'dd-MM-yy HH:mm:ss'),toTimestamp(t_put,'dd.MM.yy HH:mm:ss'),toTimestamp(t_put,'dd/MM/yyyy\\'T\\'HH:mm:ss'), toTimestamp(t_put,'dd/MM/yyyy HH:mm:ss'),toTimestamp(t_put,'dd-MM-yyyy HH:mm:ss'))),",
+				"          QC_CHE_Id = toShort(QC_CHE_Id),",
+				"          Fetch_CHE_Id = toShort(Fetch_CHE_Id),",
+				"          Put_CHE_Id = toShort(Put_CHE_Id),",
+				"          Carry_CHE_Id = toShort(Carry_CHE_Id)) ~> derivedColumn1",
+				"select1 aggregate(groupBy(mve_gkey),",
+				"     each(match(name!='mve_gkey'), $$ = first($$))) ~> aggregate1",
+				"aggregate1 alterRow(upsertIf(true())) ~> alterRow1",
+				"alterRow1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'delta',",
+				"     fileSystem: 'cmsa',",
+				"     folderPath: 'silver/moves',",
+				"     mergeSchema: false,",
+				"     autoCompact: false,",
+				"     optimizedWrite: false,",
+				"     vacuum: 0,",
+				"     deletable:false,",
+				"     insertable:false,",
+				"     updateable:false,",
+				"     upsertable:true,",
+				"     keys:['mve_gkey'],",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> sink1"
+			]
+		}
+	}
+}

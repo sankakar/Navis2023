@@ -2,12 +2,12 @@
 	"name": "SQL script 1",
 	"properties": {
 		"content": {
-			"query": "SELECT TOP (100) [UnitNbr]\n,[FacilityId]\n,[ComplexId]\n,[YardId]\n,[CarrierVisitKey]\n,[EventTypeId]\n,[Rehandles]\n,[RequiresPowerFlag]\n,[OOGFlag]\n,[ShipperId]\n,[ConsigneeId]\n,[CommodityId]\n,[ATD]\n,[pow]\n,[mve_gkey]\n,[ufv_gkey]\n,[BerthId]\n,[GoodsAndCtrWtKg]\n,[active_ufv]\n,[FreightKindId]\n,[to_pos_gkey]\n,[fm_pos_gkey]\n,[RestowReason]\n,[ContainerLineId]\n,[ContainerLineRole]\n,[dist_carry]\n,[dist_start]\n,[TwinFetch]\n,[TwinCarry]\n,[TwinPut]\n,[CategoryId]\n,[t_fetch]\n,[t_dispatch]\n,[t_discharge]\n,[t_carry_dispatch]\n,[t_carry_fetch_ready]\n,[t_carry_put_ready]\n,[PutCHEId]\n,[PutCHEKind]\n,[QCCHEId]\n,[QCCHEKind]\n,[t_carry_complete]\n,[t_put]\n,[FetchCHEOperatorId]\n,[PutCHEOperatorId]\n,[FetchCHEId]\n,[FetchCHEKind]\n,[CarryCHEId]\n,[CarryCHEKind]\n,[MoveKind]\n,[FromLocation]\n,[ToLocation]\n,[FromPositionName]\n,[ToPositionName]\n,[CarryCHEOperatorId]\n FROM [dbo].[MoveSrc]",
+			"query": " create or alter view  moves\nas\nselect *\nFROM\n    OPENROWSET(\n        BULK 'silver/moves',\n        data_source = 'cmsa',\n        FORMAT = 'DELTA'\n    ) AS [moves]\n\nselect * from moves     ",
 			"metadata": {
 				"language": "sql"
 			},
 			"currentConnection": {
-				"databaseName": "PTP",
+				"databaseName": "cmsa",
 				"poolName": "Built-in"
 			},
 			"resultLimit": 5000
