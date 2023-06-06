@@ -7,7 +7,7 @@
 				"language": "sql"
 			},
 			"currentConnection": {
-				"databaseName": "gpa",
+				"databaseName": "cmsa",
 				"poolName": "Built-in"
 			},
 			"resultLimit": 5000
