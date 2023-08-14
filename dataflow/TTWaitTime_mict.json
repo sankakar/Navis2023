@@ -6,7 +6,7 @@
 			"sources": [
 				{
 					"linkedService": {
-						"referenceName": "linkedService1",
+						"referenceName": "linkedService2",
 						"type": "LinkedServiceReference"
 					},
 					"name": "source1"
@@ -15,7 +15,7 @@
 			"sinks": [
 				{
 					"linkedService": {
-						"referenceName": "linkedService1",
+						"referenceName": "linkedService2",
 						"type": "LinkedServiceReference"
 					},
 					"name": "sink1"
@@ -115,10 +115,10 @@
 				"     autoCompact: true,",
 				"     optimizedWrite: true,",
 				"     vacuum: 0,",
-				"     deletable:false,",
-				"     insertable:false,",
-				"     updateable:false,",
-				"     upsertable:true,",
+				"     deletable: false,",
+				"     insertable: false,",
+				"     updateable: false,",
+				"     upsertable: true,",
 				"     keys:['ecEventGkey'],",
 				"     umask: 0777,",
 				"     preCommands: [],",
