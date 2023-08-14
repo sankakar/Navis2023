@@ -103,6 +103,7 @@
 				"AlterRow1 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     format: 'delta',",
+				"     fileSystem: 'mict',",
 				"     folderPath: 'gold/jobstep',",
 				"     mergeSchema: true,",
 				"     autoCompact: true,",
