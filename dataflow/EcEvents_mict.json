@@ -9,7 +9,8 @@
 						"referenceName": "linkedService2",
 						"type": "LinkedServiceReference"
 					},
-					"name": "CSV"
+					"name": "CSV",
+					"description": "Import data from linkedService2"
 				}
 			],
 			"sinks": [
