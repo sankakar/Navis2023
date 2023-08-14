@@ -93,7 +93,7 @@
 				"type": "ExecuteDataFlow",
 				"dependsOn": [
 					{
-						"activity": "VesselVisits_mict",
+						"activity": "FailToDeck_mict",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -124,7 +124,7 @@
 				"type": "ExecuteDataFlow",
 				"dependsOn": [
 					{
-						"activity": "FailToDeck_mict",
+						"activity": "Dual Cycling_mict",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -217,7 +217,7 @@
 				"type": "ExecuteDataFlow",
 				"dependsOn": [
 					{
-						"activity": "Dual Cycling_mict",
+						"activity": "VesselVisits_mict",
 						"dependencyConditions": [
 							"Succeeded"
 						]
