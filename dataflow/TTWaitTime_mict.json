@@ -36,6 +36,9 @@
 				},
 				{
 					"name": "AlterRow1"
+				},
+				{
+					"name": "aggregate1"
 				}
 			],
 			"scriptLines": [
@@ -97,7 +100,7 @@
 				"          typeDescription_nxt2 = lead(typeDescription,2),",
 				"          EcEventTime_nxt2 = lead(EcEventTime,2),",
 				"          unitIdName_nxt2 = lead(unitIdName,2)) ~> window1",
-				"filter1 sort(asc(cheID, true),",
+				"aggregate1 sort(asc(cheID, true),",
 				"     asc(EcEventTime, true),",
 				"     asc(ecEventGkey, true)) ~> sort1",
 				"window1 derive(TTWaitTime = iif(cheID==cheID_nxt && cheID_nxt2==cheID_nxt && unitIdName==unitIdName_nxt \r",
@@ -106,6 +109,8 @@
 				"iif(cheID==cheID_nxt && unitIdName==unitIdName_nxt && (typeDescription=='TYDR'||typeDescription=='TVDR') \r",
 				"&& typeDescription_nxt=='CMPL',(minus(EcEventTime_nxt,(EcEventTime+toInteger((travelDistance/(1000*20))*3600000)))/60000),toLong(0)))) ~> derivedColumn1",
 				"derivedColumn1 alterRow(upsertIf(true())) ~> AlterRow1",
+				"filter1 aggregate(groupBy(ecEventGkey),",
+				"     each(match(name!='ecEventGkey'), $$ = first($$))) ~> aggregate1",
 				"AlterRow1 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     format: 'delta',",
