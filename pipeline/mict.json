@@ -186,7 +186,7 @@
 				"type": "ExecuteDataFlow",
 				"dependsOn": [
 					{
-						"activity": "Rehandle_within_Vessel_mict",
+						"activity": "Dwell_mict",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -251,7 +251,7 @@
 				"type": "ExecuteDataFlow",
 				"dependsOn": [
 					{
-						"activity": "TTWaitTime_mict",
+						"activity": "Rehandle_within_Vessel_mict",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -282,7 +282,7 @@
 				"type": "ExecuteDataFlow",
 				"dependsOn": [
 					{
-						"activity": "Dwell_mict",
+						"activity": "TTWaitTime_mict",
 						"dependencyConditions": [
 							"Succeeded"
 						]
