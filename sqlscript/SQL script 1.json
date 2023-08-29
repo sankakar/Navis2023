@@ -2,12 +2,12 @@
 	"name": "SQL script 1",
 	"properties": {
 		"content": {
-			"query": " create or alter view  moves\nas\nselect *\nFROM\n    OPENROWSET(\n        BULK 'silver/moves',\n        data_source = 'cmsa',\n        FORMAT = 'DELTA'\n    ) AS [moves]\n\nselect * from moves     ",
+			"query": " create or alter view  moves\nas\nselect *\nFROM\n    OPENROWSET(\n        BULK 'silver/moves',\n        data_source = 'cmsa',\n        FORMAT = 'DELTA'\n    ) AS [moves]\n\n26078\nselect DATEPART(Day,Move_Time) as date$,  sum(BayChange) from rtg_baychange where DATEPART( year, move_time)=2023 and DATEPART(week,Move_Time) in (8 )\n and datepart(month,Move_Time)=2 and Category_Id in ('EXPRT','IMPRT')\nand (Prev_Position not like 'T-%' or Position_Name not LIKE 'T-%') and Move_Time is not null  group by DATEPART(Day,Move_Time)\norder by 1 ",
 			"metadata": {
 				"language": "sql"
 			},
 			"currentConnection": {
-				"databaseName": "cmsa",
+				"databaseName": "mict",
 				"poolName": "Built-in"
 			},
 			"resultLimit": 5000
