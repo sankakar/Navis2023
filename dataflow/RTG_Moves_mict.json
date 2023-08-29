@@ -13,7 +13,15 @@
 					"name": "source1"
 				}
 			],
-			"sinks": [],
+			"sinks": [
+				{
+					"linkedService": {
+						"referenceName": "linkedService2",
+						"type": "LinkedServiceReference"
+					},
+					"name": "sink1"
+				}
+			],
 			"transformations": [
 				{
 					"name": "filter1"
@@ -44,6 +52,18 @@
 				},
 				{
 					"name": "window1"
+				},
+				{
+					"name": "derivedColumn1"
+				},
+				{
+					"name": "derivedColumn2"
+				},
+				{
+					"name": "removefirstRow"
+				},
+				{
+					"name": "alterRow1"
 				}
 			],
 			"scriptLines": [
@@ -196,7 +216,7 @@
 				"     skipDuplicateMapOutputs: true) ~> removeFetchCheDetails",
 				"union1 aggregate(groupBy(mve_gkey),",
 				"     each(match(name!='mve_gkey'), $$ = first($$))) ~> aggregate1",
-				"aggregate1 sort(asc(mve_gkey, true)) ~> sort1",
+				"derivedColumn2 sort(asc(mve_gkey, true)) ~> sort1",
 				"sort1 window(asc(CHE_Id, true),",
 				"     asc(mve_gkey, true),",
 				"     Prev_CheID = lag(CHE_Id, 1) ,",
@@ -204,7 +224,34 @@
 				"          Prev_Position = lag(Position_Name,1),",
 				"          Next_Position = lead(Position_Name, 1),",
 				"          Prev_MoveTime = lag(Move_Time,1),",
-				"          Next_MoveTime = lead(Move_Time, 1) ) ~> window1"
+				"          Next_MoveTime = lead(Move_Time, 1) ,",
+				"          Prev_BlockBay = lag(BlockBay, 1),",
+				"          Next_BlockBay = lead(BlockBay,1)) ~> window1",
+				"removefirstRow derive(BayChange = iif( ( (Prev_CheID==CHE_Id)&& (Prev_BlockBay!=BlockBay)&&(((Move_Time-Prev_MoveTime)/3600000)<3)) ,1,0 ),",
+				"          TimeDiffHrsForBayChange = iif( ( (Prev_CheID==CHE_Id)&& (Prev_BlockBay!=BlockBay)) ,((Move_Time-Prev_MoveTime)/3600000) ,toLong(0) )) ~> derivedColumn1",
+				"aggregate1 derive(BlockBay = right(left(Position_Name, 11),4),",
+				"          Bay = right(left(Position_Name,11),2)) ~> derivedColumn2",
+				"window1 filter(isNull(Prev_CheID)==false()) ~> removefirstRow",
+				"derivedColumn1 alterRow(upsertIf(true())) ~> alterRow1",
+				"alterRow1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'delta',",
+				"     fileSystem: 'mict',",
+				"     folderPath: 'gold/rtg_baychange',",
+				"     deltaTruncate: true,",
+				"     mergeSchema: false,",
+				"     autoCompact: false,",
+				"     optimizedWrite: false,",
+				"     vacuum: 0,",
+				"     deletable: false,",
+				"     insertable: true,",
+				"     updateable: false,",
+				"     upsertable: false,",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> sink1"
 			]
 		}
 	}
