@@ -16,19 +16,28 @@
 			"sinks": [],
 			"transformations": [
 				{
-					"name": "select5"
-				},
-				{
 					"name": "filter1"
 				},
 				{
 					"name": "select6"
 				},
 				{
+					"name": "FetchCheIsRTG"
+				},
+				{
+					"name": "union1"
+				},
+				{
 					"name": "PutCheIsRTG"
 				},
 				{
-					"name": "FetchCheIsRTG"
+					"name": "removePutCheDetails"
+				},
+				{
+					"name": "removeFetchCheDetails"
+				},
+				{
+					"name": "aggregate1"
 				}
 			],
 			"scriptLines": [
@@ -99,13 +108,90 @@
 				"     format: 'delta',",
 				"     fileSystem: 'mict',",
 				"     folderPath: 'silver/moves') ~> source1",
-				"source1 select(skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> select5",
 				" filter(put_che_kind=='RTG') ~> filter1",
-				"source1 select(skipDuplicateMapInputs: true,",
+				"source1 select(mapColumn(",
+				"          mve_gkey,",
+				"          Unit_Nbr,",
+				"          Facility_Id,",
+				"          Complex_Id,",
+				"          Yard_Id,",
+				"          Carrier_Visit_Key,",
+				"          Event_Type_Id,",
+				"          Move_Kind,",
+				"          From_Location,",
+				"          To_Location,",
+				"          From_Position_Name,",
+				"          To_Position_Name,",
+				"          Fetch_CHE_Id,",
+				"          Fetch_CHE_Kind,",
+				"          Put_CHE_Id,",
+				"          Put_CHE_Kind,",
+				"          t_fetch,",
+				"          t_put,",
+				"          Category_Id,",
+				"          Freight_Kind_Id,",
+				"          pow,",
+				"          Year,",
+				"          Month,",
+				"          Week",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> select6",
-				"select5 filter(Put_CHE_Kind=='RTG') ~> PutCheIsRTG",
-				"select6 filter(Fetch_CHE_Kind=='RTG') ~> FetchCheIsRTG"
+				"select6 filter(Fetch_CHE_Kind=='RTG') ~> FetchCheIsRTG",
+				"removePutCheDetails, removeFetchCheDetails union(byName: false)~> union1",
+				"select6 filter(Put_CHE_Kind=='RTG') ~> PutCheIsRTG",
+				"FetchCheIsRTG select(mapColumn(",
+				"          mve_gkey,",
+				"          Unit_Nbr,",
+				"          Facility_Id,",
+				"          Complex_Id,",
+				"          Yard_Id,",
+				"          Carrier_Visit_Key,",
+				"          Event_Type_Id,",
+				"          Move_Kind,",
+				"          From_Location,",
+				"          To_Location,",
+				"          From_Position_Name,",
+				"          To_Position_Name,",
+				"          Fetch_CHE_Id,",
+				"          Fetch_CHE_Kind,",
+				"          t_fetch,",
+				"          Category_Id,",
+				"          Freight_Kind_Id,",
+				"          pow,",
+				"          Year,",
+				"          Month,",
+				"          Week",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> removePutCheDetails",
+				"PutCheIsRTG select(mapColumn(",
+				"          mve_gkey,",
+				"          Unit_Nbr,",
+				"          Facility_Id,",
+				"          Complex_Id,",
+				"          Yard_Id,",
+				"          Carrier_Visit_Key,",
+				"          Event_Type_Id,",
+				"          Move_Kind,",
+				"          From_Location,",
+				"          To_Location,",
+				"          From_Position_Name,",
+				"          To_Position_Name,",
+				"          Put_CHE_Id,",
+				"          Put_CHE_Kind,",
+				"          t_put,",
+				"          Category_Id,",
+				"          Freight_Kind_Id,",
+				"          pow,",
+				"          Year,",
+				"          Month,",
+				"          Week",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> removeFetchCheDetails",
+				"union1 aggregate(groupBy(mve_gkey),",
+				"     each(match(name!='mve_gkey'), $$ = first($$))) ~> aggregate1"
 			]
 		}
 	}
