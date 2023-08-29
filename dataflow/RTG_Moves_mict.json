@@ -197,12 +197,14 @@
 				"union1 aggregate(groupBy(mve_gkey),",
 				"     each(match(name!='mve_gkey'), $$ = first($$))) ~> aggregate1",
 				"aggregate1 sort(asc(mve_gkey, true)) ~> sort1",
-				"sort1 window(asc(Fetch_CHE_Id, true),",
+				"sort1 window(asc(CHE_Id, true),",
 				"     asc(mve_gkey, true),",
-				"     Prev_CheID = lag(Fetch_CHE_Id, 1) ,",
-				"          Next_CheID = lead(Fetch_CHE_Id, 1),",
-				"          Prev_Position = lag(From_Position_Name,1),",
-				"          Next_Position = lead(From_Position_Name, 1)) ~> window1"
+				"     Prev_CheID = lag(CHE_Id, 1) ,",
+				"          Next_CheID = lead(CHE_Id, 1),",
+				"          Prev_Position = lag(Position_Name,1),",
+				"          Next_Position = lead(Position_Name, 1),",
+				"          Prev_MoveTime = lag(Move_Time,1),",
+				"          Next_MoveTime = lead(Move_Time, 1) ) ~> window1"
 			]
 		}
 	}
