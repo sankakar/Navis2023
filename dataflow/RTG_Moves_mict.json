@@ -14,14 +14,37 @@
 				}
 			],
 			"sinks": [],
-			"transformations": [],
+			"transformations": [
+				{
+					"name": "select5"
+				},
+				{
+					"name": "filter1"
+				},
+				{
+					"name": "select6"
+				},
+				{
+					"name": "filter2"
+				},
+				{
+					"name": "filter3"
+				}
+			],
 			"scriptLines": [
 				"source(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     ignoreNoFilesFound: false,",
 				"     format: 'delta',",
 				"     fileSystem: 'mict',",
-				"     folderPath: 'silver/moves') ~> source1"
+				"     folderPath: 'silver/moves') ~> source1",
+				"source1 select(skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select5",
+				" filter(put_che_kind=='RTG') ~> filter1",
+				"source1 select(skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select6",
+				"select5 filter(put_che_kind=='RTG') ~> filter2",
+				"select6 filter(fetch_che_KIND =='RTG') ~> filter3"
 			]
 		}
 	}
