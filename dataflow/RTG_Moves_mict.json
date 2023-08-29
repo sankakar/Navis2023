@@ -24,9 +24,6 @@
 			],
 			"transformations": [
 				{
-					"name": "filter1"
-				},
-				{
 					"name": "select6"
 				},
 				{
@@ -134,7 +131,6 @@
 				"     format: 'delta',",
 				"     fileSystem: 'mict',",
 				"     folderPath: 'silver/moves') ~> source1",
-				" filter(put_che_kind=='RTG') ~> filter1",
 				"source1 select(mapColumn(",
 				"          mve_gkey,",
 				"          Unit_Nbr,",
@@ -219,12 +215,12 @@
 				"derivedColumn2 sort(asc(mve_gkey, true)) ~> sort1",
 				"sort1 window(asc(CHE_Id, true),",
 				"     asc(mve_gkey, true),",
-				"     Prev_CheID = lag(CHE_Id, 1) ,",
+				"     Prev_CheID = lag(CHE_Id, 1),",
 				"          Next_CheID = lead(CHE_Id, 1),",
 				"          Prev_Position = lag(Position_Name,1),",
 				"          Next_Position = lead(Position_Name, 1),",
 				"          Prev_MoveTime = lag(Move_Time,1),",
-				"          Next_MoveTime = lead(Move_Time, 1) ,",
+				"          Next_MoveTime = lead(Move_Time, 1),",
 				"          Prev_BlockBay = lag(BlockBay, 1),",
 				"          Next_BlockBay = lead(BlockBay,1)) ~> window1",
 				"removefirstRow derive(BayChange = iif( ( (Prev_CheID==CHE_Id)&& (Prev_BlockBay!=BlockBay)&&(((Move_Time-Prev_MoveTime)/3600000)<3)) ,1,0 ),",
