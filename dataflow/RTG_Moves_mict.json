@@ -1,0 +1,28 @@
+{
+	"name": "RTG_Moves_mict",
+	"properties": {
+		"description": "kpi bay change",
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"linkedService": {
+						"referenceName": "linkedService2",
+						"type": "LinkedServiceReference"
+					},
+					"name": "source1"
+				}
+			],
+			"sinks": [],
+			"transformations": [],
+			"scriptLines": [
+				"source(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     format: 'delta',",
+				"     fileSystem: 'mict',",
+				"     folderPath: 'silver/moves') ~> source1"
+			]
+		}
+	}
+}
