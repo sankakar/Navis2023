@@ -31,13 +31,19 @@
 					"name": "PutCheIsRTG"
 				},
 				{
-					"name": "removePutCheDetails"
+					"name": "removePutCheAndToPos"
 				},
 				{
 					"name": "removeFetchCheDetails"
 				},
 				{
 					"name": "aggregate1"
+				},
+				{
+					"name": "sort1"
+				},
+				{
+					"name": "window1"
 				}
 			],
 			"scriptLines": [
@@ -138,7 +144,7 @@
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> select6",
 				"select6 filter(Fetch_CHE_Kind=='RTG') ~> FetchCheIsRTG",
-				"removePutCheDetails, removeFetchCheDetails union(byName: false)~> union1",
+				"removePutCheAndToPos, removeFetchCheDetails union(byName: false)~> union1",
 				"select6 filter(Put_CHE_Kind=='RTG') ~> PutCheIsRTG",
 				"FetchCheIsRTG select(mapColumn(",
 				"          mve_gkey,",
@@ -152,7 +158,6 @@
 				"          From_Location,",
 				"          To_Location,",
 				"          From_Position_Name,",
-				"          To_Position_Name,",
 				"          Fetch_CHE_Id,",
 				"          Fetch_CHE_Kind,",
 				"          t_fetch,",
@@ -164,7 +169,7 @@
 				"          Week",
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> removePutCheDetails",
+				"     skipDuplicateMapOutputs: true) ~> removePutCheAndToPos",
 				"PutCheIsRTG select(mapColumn(",
 				"          mve_gkey,",
 				"          Unit_Nbr,",
@@ -176,7 +181,6 @@
 				"          Move_Kind,",
 				"          From_Location,",
 				"          To_Location,",
-				"          From_Position_Name,",
 				"          To_Position_Name,",
 				"          Put_CHE_Id,",
 				"          Put_CHE_Kind,",
@@ -191,7 +195,14 @@
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> removeFetchCheDetails",
 				"union1 aggregate(groupBy(mve_gkey),",
-				"     each(match(name!='mve_gkey'), $$ = first($$))) ~> aggregate1"
+				"     each(match(name!='mve_gkey'), $$ = first($$))) ~> aggregate1",
+				"aggregate1 sort(asc(mve_gkey, true)) ~> sort1",
+				"sort1 window(asc(Fetch_CHE_Id, true),",
+				"     asc(mve_gkey, true),",
+				"     Prev_CheID = lag(Fetch_CHE_Id, 1) ,",
+				"          Next_CheID = lead(Fetch_CHE_Id, 1),",
+				"          Prev_Position = lag(From_Position_Name,1),",
+				"          Next_Position = lead(From_Position_Name, 1)) ~> window1"
 			]
 		}
 	}
