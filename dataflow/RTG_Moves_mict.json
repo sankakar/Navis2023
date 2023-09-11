@@ -1,7 +1,7 @@
 {
 	"name": "RTG_Moves_mict",
 	"properties": {
-		"description": "kpi bay change",
+		"description": "kpi bay change; consider for bay change if time diff between 2 moves is <3hr",
 		"type": "MappingDataFlow",
 		"typeProperties": {
 			"sources": [
