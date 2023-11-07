@@ -10,6 +10,13 @@
 						"type": "LinkedServiceReference"
 					},
 					"name": "deckingfile"
+				},
+				{
+					"linkedService": {
+						"referenceName": "linkedService2",
+						"type": "LinkedServiceReference"
+					},
+					"name": "MoveHistory"
 				}
 			],
 			"sinks": [],
@@ -65,6 +72,18 @@
 				"     escapeChar: '\\\\',",
 				"     quoteChar: '\\\"',",
 				"     columnNamesAsHeader: true) ~> deckingfile",
+				"source(useSchema: false,",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     moveFiles: ['/bronze/violations-moves/load','bronze/violations-moves/archive'],",
+				"     format: 'delimited',",
+				"     fileSystem: 'cmsa-violations',",
+				"     folderPath: 'bronze/violations-moves/load',",
+				"     columnDelimiter: ',',",
+				"     escapeChar: '\\\\',",
+				"     quoteChar: '\\\"',",
+				"     columnNamesAsHeader: false) ~> MoveHistory",
 				"deckingfile select(mapColumn(",
 				"          gkey,",
 				"          unit_id,",
