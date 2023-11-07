@@ -61,7 +61,14 @@
 				"     escapeChar: '\\\\',",
 				"     quoteChar: '\\\"',",
 				"     columnNamesAsHeader: true) ~> deckingfile",
-				"deckingfile select(skipDuplicateMapInputs: true,",
+				"deckingfile select(mapColumn(",
+				"          gkey,",
+				"          unit_id,",
+				"          time_stamp,",
+				"          decking_type,",
+				"          to_pos_name",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> RemoveExtraColumns",
 				"RemoveExtraColumns derive() ~> DeckingPosName"
 			]
