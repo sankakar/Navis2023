@@ -70,7 +70,7 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> RemoveExtraColumns",
-				"RemoveExtraColumns derive() ~> DeckingPosName"
+				"RemoveExtraColumns derive(DeckingPosName = substring(to_pos_name,8)) ~> DeckingPosName"
 			]
 		}
 	}
