@@ -21,7 +21,8 @@
 					"name": "DeckingPosName"
 				},
 				{
-					"name": "RemoveTOPOSName"
+					"name": "RemoveTOPOSNameANDTimeStamp",
+					"description": "Remove TOPOSName\nand \nTimeStamp"
 				}
 			],
 			"scriptLines": [
@@ -78,12 +79,12 @@
 				"DeckingPosName select(mapColumn(",
 				"          gkey,",
 				"          unit_id,",
-				"          time_stamp,",
+				"          DeckingDateTime,",
 				"          decking_type,",
 				"          DeckingPosName",
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> RemoveTOPOSName"
+				"     skipDuplicateMapOutputs: true) ~> RemoveTOPOSNameANDTimeStamp"
 			]
 		}
 	}
