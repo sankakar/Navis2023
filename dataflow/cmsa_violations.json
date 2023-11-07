@@ -19,6 +19,9 @@
 				},
 				{
 					"name": "DeckingPosName"
+				},
+				{
+					"name": "RemoveTOPOSName"
 				}
 			],
 			"scriptLines": [
@@ -70,7 +73,16 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> RemoveExtraColumns",
-				"RemoveExtraColumns derive(DeckingPosName = substring(to_pos_name,8)) ~> DeckingPosName"
+				"RemoveExtraColumns derive(DeckingPosName = substring(to_pos_name,8)) ~> DeckingPosName",
+				"DeckingPosName select(mapColumn(",
+				"          gkey,",
+				"          unit_id,",
+				"          time_stamp,",
+				"          decking_type,",
+				"          DeckingPosName",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> RemoveTOPOSName"
 			]
 		}
 	}
