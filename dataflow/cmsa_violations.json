@@ -13,7 +13,14 @@
 				}
 			],
 			"sinks": [],
-			"transformations": [],
+			"transformations": [
+				{
+					"name": "RemoveExtraColumns"
+				},
+				{
+					"name": "DeckingPosName"
+				}
+			],
 			"scriptLines": [
 				"source(useSchema: false,",
 				"     allowSchemaDrift: true,",
@@ -26,7 +33,10 @@
 				"     columnDelimiter: ',',",
 				"     escapeChar: '\\\\',",
 				"     quoteChar: '\\\"',",
-				"     columnNamesAsHeader: true) ~> deckingfile"
+				"     columnNamesAsHeader: true) ~> deckingfile",
+				"deckingfile select(skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> RemoveExtraColumns",
+				"RemoveExtraColumns derive() ~> DeckingPosName"
 			]
 		}
 	}
