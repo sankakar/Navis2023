@@ -25,7 +25,7 @@
 					"name": "RemoveExtraColumns"
 				},
 				{
-					"name": "DeckingPosName"
+					"name": "DHDeckingPosName"
 				},
 				{
 					"name": "RemoveTOPOSNameANDTimeStamp",
@@ -39,6 +39,9 @@
 				},
 				{
 					"name": "SortUnitId"
+				},
+				{
+					"name": "MHDeckingPosName"
 				}
 			],
 			"scriptLines": [
@@ -161,8 +164,8 @@
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> RemoveExtraColumns",
 				"RemoveExtraColumns derive(DeckingPosName = substring(to_pos_name,8),",
-				"          DeckingDateTime = toTimestamp(time_stamp,'yyyy mm dd HH:mm:ss.SSS')) ~> DeckingPosName",
-				"DeckingPosName select(mapColumn(",
+				"          DeckingDateTime = toTimestamp(time_stamp,'yyyy mm dd HH:mm:ss.SSS')) ~> DHDeckingPosName",
+				"DHDeckingPosName select(mapColumn(",
 				"          gkey,",
 				"          unit_id,",
 				"          DeckingDateTime,",
@@ -183,7 +186,8 @@
 				"     skipDuplicateMapOutputs: true) ~> MERemoveExtraColumns",
 				"MERemoveExtraColumns derive(t_put = toTimestamp(t_put,'yyyy mm dd HH:mm:ss.SSS')) ~> TPutDateUpdate",
 				"TPutDateUpdate sort(asc({Unit Nbr}, true),",
-				"     asc(t_put, true)) ~> SortUnitId"
+				"     asc(t_put, true)) ~> SortUnitId",
+				"SortUnitId derive({To Position Name} = substring({To Position Name},8)) ~> MHDeckingPosName"
 			]
 		}
 	}
