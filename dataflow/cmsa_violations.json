@@ -33,6 +33,9 @@
 				},
 				{
 					"name": "MERemoveExtraColumns"
+				},
+				{
+					"name": "TPutDateUpdate"
 				}
 			],
 			"scriptLines": [
@@ -174,7 +177,8 @@
 				"          t_put",
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> MERemoveExtraColumns"
+				"     skipDuplicateMapOutputs: true) ~> MERemoveExtraColumns",
+				"MERemoveExtraColumns derive(t_put = toTimestamp(t_put,'yyyy mm dd HH:mm:ss.SSS')) ~> TPutDateUpdate"
 			]
 		}
 	}
