@@ -36,6 +36,9 @@
 				},
 				{
 					"name": "TPutDateUpdate"
+				},
+				{
+					"name": "SortUnitId"
 				}
 			],
 			"scriptLines": [
@@ -178,7 +181,9 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> MERemoveExtraColumns",
-				"MERemoveExtraColumns derive(t_put = toTimestamp(t_put,'yyyy mm dd HH:mm:ss.SSS')) ~> TPutDateUpdate"
+				"MERemoveExtraColumns derive(t_put = toTimestamp(t_put,'yyyy mm dd HH:mm:ss.SSS')) ~> TPutDateUpdate",
+				"TPutDateUpdate sort(asc({Unit Nbr}, true),",
+				"     asc(t_put, true)) ~> SortUnitId"
 			]
 		}
 	}
