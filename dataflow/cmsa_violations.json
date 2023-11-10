@@ -44,7 +44,7 @@
 					"name": "MHDeckingPosName"
 				},
 				{
-					"name": "DH6"
+					"name": "DH5"
 				}
 			],
 			"scriptLines": [
@@ -194,7 +194,7 @@
 				"RemoveTOPOSNameANDTimeStamp, MHDeckingPosName lookup(unit_id == {Unit Nbr},",
 				"     multiple: false,",
 				"     pickup: 'any',",
-				"     broadcast: 'auto')~> DH6"
+				"     broadcast: 'auto')~> DH5"
 			]
 		}
 	}
