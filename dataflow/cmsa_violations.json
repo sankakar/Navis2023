@@ -42,6 +42,9 @@
 				},
 				{
 					"name": "MHDeckingPosName"
+				},
+				{
+					"name": "DH6"
 				}
 			],
 			"scriptLines": [
@@ -187,7 +190,11 @@
 				"MERemoveExtraColumns derive(t_put = toTimestamp(t_put,'yyyy mm dd HH:mm:ss.SSS')) ~> TPutDate",
 				"TPutDate sort(asc({Unit Nbr}, true),",
 				"     asc(t_put, true)) ~> SortUnitId",
-				"SortUnitId derive({To Position Name} = substring({To Position Name},8)) ~> MHDeckingPosName"
+				"SortUnitId derive({To Position Name} = substring({To Position Name},8)) ~> MHDeckingPosName",
+				"RemoveTOPOSNameANDTimeStamp, MHDeckingPosName lookup(unit_id == {Unit Nbr},",
+				"     multiple: false,",
+				"     pickup: 'any',",
+				"     broadcast: 'auto')~> DH6"
 			]
 		}
 	}
