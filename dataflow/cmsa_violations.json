@@ -50,6 +50,9 @@
 				},
 				{
 					"name": "DH6"
+				},
+				{
+					"name": "DH7"
 				}
 			],
 			"scriptLines": [
@@ -211,7 +214,11 @@
 				"          {MH To POS Name} = {To Position Name}",
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> DH6"
+				"     skipDuplicateMapOutputs: true) ~> DH6",
+				"DH6 window(over({Unit Id}),",
+				"     asc({Unit Id}, true),",
+				"     asc({Decking Date Time}, true),",
+				"     {Previous Row Decking Date Time} = lag({Decking Date Time}, 1)) ~> DH7"
 			]
 		}
 	}
