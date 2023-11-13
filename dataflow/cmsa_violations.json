@@ -56,6 +56,9 @@
 				},
 				{
 					"name": "DH8"
+				},
+				{
+					"name": "DH71"
 				}
 			],
 			"scriptLines": [
@@ -222,10 +225,12 @@
 				"     asc({Unit Id}, true),",
 				"     asc({Decking Date Time}, true),",
 				"     {Previous Row Decking Date Time} = lag({Decking Date Time}, 1),",
-				"          {Unit Id Row Num} = rowNumber(),",
-				"          {Max Unit Id Row Num} = max(rowNumber())) ~> DH7",
-				"DH7 derive({Time Gap in Minutes} = round(({Decking Date Time}-{Previous Row Decking Date Time})/(1000*60),2),",
-				"          {Pass 01 POS Name Match} = iif({DH To Pos Name}=={MH To POS Name}, 'PASS', 'FAIL')) ~> DH8"
+				"          {Unit Id Row Num} = rowNumber()) ~> DH7",
+				"DH71 derive({Time Gap in Minutes} = round(({Decking Date Time}-{Previous Row Decking Date Time})/(1000*60),2),",
+				"          {Pass 01 POS Name Match} = iif({DH To Pos Name}=={MH To POS Name}, 'PASS', 'FAIL')) ~> DH8",
+				"DH7 window(over({Unit Id}),",
+				"     asc({Unit Id Row Num}, true),",
+				"     {Max Unit Id Row Num} = max({Unit Id Row Num})) ~> DH71"
 			]
 		}
 	}
