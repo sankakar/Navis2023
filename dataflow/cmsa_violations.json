@@ -251,6 +251,7 @@
 				"     insertable: false,",
 				"     updateable: false,",
 				"     upsertable: true,",
+				"     keys:['gkey'],",
 				"     umask: 0022,",
 				"     preCommands: [],",
 				"     postCommands: [],",
