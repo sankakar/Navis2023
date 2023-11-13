@@ -53,6 +53,9 @@
 				},
 				{
 					"name": "DH7"
+				},
+				{
+					"name": "DH8"
 				}
 			],
 			"scriptLines": [
@@ -218,7 +221,11 @@
 				"DH6 window(over({Unit Id}),",
 				"     asc({Unit Id}, true),",
 				"     asc({Decking Date Time}, true),",
-				"     {Previous Row Decking Date Time} = lag({Decking Date Time}, 1)) ~> DH7"
+				"     {Previous Row Decking Date Time} = lag({Decking Date Time}, 1),",
+				"          {Unit Id Row Num} = rowNumber()) ~> DH7",
+				"DH7 derive({Time Gap in Minutes} = round(({Decking Date Time}-{Previous Row Decking Date Time})/(1000*60),2),",
+				"          {Pass 01 POS Name Match} = iif({DH To Pos Name}=={MH To POS Name}, 'PASS', 'FAIL'),",
+				"          column1 = ERROR_FUNCTION('')) ~> DH8"
 			]
 		}
 	}
