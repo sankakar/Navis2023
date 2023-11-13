@@ -19,7 +19,15 @@
 					"name": "MoveHistory"
 				}
 			],
-			"sinks": [],
+			"sinks": [
+				{
+					"linkedService": {
+						"referenceName": "linkedService2",
+						"type": "LinkedServiceReference"
+					},
+					"name": "sink1"
+				}
+			],
 			"transformations": [
 				{
 					"name": "RemoveExtraColumns"
@@ -56,9 +64,6 @@
 				},
 				{
 					"name": "DH8"
-				},
-				{
-					"name": "DH71"
 				}
 			],
 			"scriptLines": [
@@ -226,11 +231,27 @@
 				"     asc({Decking Date Time}, true),",
 				"     {Previous Row Decking Date Time} = lag({Decking Date Time}, 1),",
 				"          {Unit Id Row Num} = rowNumber()) ~> DH7",
-				"DH71 derive({Time Gap in Minutes} = round(({Decking Date Time}-{Previous Row Decking Date Time})/(1000*60),2),",
-				"          {Pass 01 POS Name Match} = iif({DH To Pos Name}=={MH To POS Name}, 'PASS', 'FAIL')) ~> DH8",
-				"DH7 window(over({Unit Id}),",
-				"     asc({Unit Id Row Num}, true),",
-				"     {Max Unit Id Row Num} = max({Unit Id Row Num})) ~> DH71"
+				"DH7 derive({Time Gap in Minutes} = round(({Decking Date Time}-{Previous Row Decking Date Time})/(1000*60),2),",
+				"          {Pass 01 POS Name Match} = iif({DH To Pos Name}=={MH To POS Name}, 'PASS', 'FAIL'),",
+				"          {Decking Type To be Used or Not} = iif({Decking Type}=='Gate Receival Assign Position' && {MH Move Kind}=='RECV', 'PASS', 'FAIL')) ~> DH8",
+				"DH8 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'delta',",
+				"     fileSystem: 'cmsa-violations',",
+				"     folderPath: 'silver/cmsa-violations-output',",
+				"     mergeSchema: false,",
+				"     autoCompact: false,",
+				"     optimizedWrite: false,",
+				"     vacuum: 0,",
+				"     deletable: false,",
+				"     insertable: true,",
+				"     updateable: false,",
+				"     upsertable: false,",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> sink1"
 			]
 		}
 	}
