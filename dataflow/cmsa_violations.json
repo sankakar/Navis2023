@@ -47,6 +47,9 @@
 				},
 				{
 					"name": "DH5"
+				},
+				{
+					"name": "DH6"
 				}
 			],
 			"scriptLines": [
@@ -193,10 +196,22 @@
 				"TPutDate sort(asc({Unit Nbr}, true),",
 				"     asc(t_put, true)) ~> MH4",
 				"MH4 derive({To Position Name} = substring({To Position Name},8)) ~> MH5",
-				"DH4, MH5 lookup(unit_id == {Unit Nbr},",
-				"     multiple: false,",
-				"     pickup: 'any',",
-				"     broadcast: 'auto')~> DH5"
+				"DH4, MH5 join(unit_id == {Unit Nbr},",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> DH5",
+				"DH5 select(mapColumn(",
+				"          gkey,",
+				"          {Unit Id} = unit_id,",
+				"          DeckingDateTime,",
+				"          {Decking Type} = decking_type,",
+				"          DeckingPosName,",
+				"          {Move Kind},",
+				"          {MH To POS Name} = {To Position Name}",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> DH6"
 			]
 		}
 	}
