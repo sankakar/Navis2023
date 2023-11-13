@@ -38,10 +38,12 @@
 					"name": "TPutDate"
 				},
 				{
-					"name": "SortUnitId"
+					"name": "MH4",
+					"description": "SortUnitId\nSorting rows on columns 'Unit Nbr, t_put'"
 				},
 				{
-					"name": "MHDeckingPosName"
+					"name": "MH5",
+					"description": "MHDeckingPosName\nCreating/updating the columns 'Unit Nbr, t_put, Event Type Id, Move Kind, From Position Name, To Position Name'"
 				},
 				{
 					"name": "DH5"
@@ -189,9 +191,9 @@
 				"     skipDuplicateMapOutputs: true) ~> MERemoveExtraColumns",
 				"MERemoveExtraColumns derive(t_put = toTimestamp(t_put,'yyyy mm dd HH:mm:ss.SSS')) ~> TPutDate",
 				"TPutDate sort(asc({Unit Nbr}, true),",
-				"     asc(t_put, true)) ~> SortUnitId",
-				"SortUnitId derive({To Position Name} = substring({To Position Name},8)) ~> MHDeckingPosName",
-				"DH4, MHDeckingPosName lookup(unit_id == {Unit Nbr},",
+				"     asc(t_put, true)) ~> MH4",
+				"MH4 derive({To Position Name} = substring({To Position Name},8)) ~> MH5",
+				"DH4, MH5 lookup(unit_id == {Unit Nbr},",
 				"     multiple: false,",
 				"     pickup: 'any',",
 				"     broadcast: 'auto')~> DH5"
