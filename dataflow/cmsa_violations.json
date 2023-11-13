@@ -28,8 +28,8 @@
 					"name": "DHDeckingPos"
 				},
 				{
-					"name": "RemoveTOPOSNameANDTimeStamp",
-					"description": "Remove TOPOSName\nand \nTimeStamp"
+					"name": "DH4",
+					"description": "RemoveTOPOSNameANDTimeStamp\n\nRemove TOPOSName\nand \nTimeStamp"
 				},
 				{
 					"name": "MERemoveExtraColumns"
@@ -176,7 +176,7 @@
 				"          DeckingPosName",
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> RemoveTOPOSNameANDTimeStamp",
+				"     skipDuplicateMapOutputs: true) ~> DH4",
 				"MoveHistory select(mapColumn(",
 				"          {Unit Nbr},",
 				"          t_put,",
@@ -191,7 +191,7 @@
 				"TPutDate sort(asc({Unit Nbr}, true),",
 				"     asc(t_put, true)) ~> SortUnitId",
 				"SortUnitId derive({To Position Name} = substring({To Position Name},8)) ~> MHDeckingPosName",
-				"RemoveTOPOSNameANDTimeStamp, MHDeckingPosName lookup(unit_id == {Unit Nbr},",
+				"DH4, MHDeckingPosName lookup(unit_id == {Unit Nbr},",
 				"     multiple: false,",
 				"     pickup: 'any',",
 				"     broadcast: 'auto')~> DH5"
