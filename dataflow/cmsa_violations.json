@@ -64,6 +64,9 @@
 				},
 				{
 					"name": "DH8"
+				},
+				{
+					"name": "DH9"
 				}
 			],
 			"scriptLines": [
@@ -234,7 +237,8 @@
 				"DH7 derive({Time Gap in Minutes} = round(({Decking Date Time}-{Previous Row Decking Date Time})/(1000*60),2),",
 				"          {Pass 01 POS Name Match} = iif({DH To Pos Name}=={MH To POS Name}, 'PASS', 'FAIL'),",
 				"          {Decking Type To be Used or Not} = iif({Decking Type}=='Gate Receival Assign Position' && {MH Move Kind}=='RECV', 'PASS', 'FAIL')) ~> DH8",
-				"DH8 sink(allowSchemaDrift: true,",
+				"DH8 alterRow(upsertIf(true())) ~> DH9",
+				"DH9 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     format: 'delta',",
 				"     fileSystem: 'cmsa-violations',",
