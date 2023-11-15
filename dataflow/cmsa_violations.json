@@ -269,7 +269,21 @@
 				"     preCommands: [],",
 				"     postCommands: [],",
 				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> sink1"
+				"     skipDuplicateMapOutputs: true,",
+				"     mapColumn(",
+				"          gkey,",
+				"          Unit_Id = {Unit Id},",
+				"          Decking_Date_Time = {Decking Date Time},",
+				"          Decking_Type = {Decking Type},",
+				"          DH_To_Pos_Name = {DH To Pos Name},",
+				"          MH_Move_Kind = {MH Move Kind},",
+				"          MH_To_POS_Name = {MH To POS Name},",
+				"          Previous_Row_Decking_Date_Time = {Previous Row Decking Date Time},",
+				"          Unit_Id_Row_Num = {Unit Id Row Num},",
+				"          Time_Gap_in_Minutes = {Time Gap in Minutes},",
+				"          Pass_01_POS_Name_Match = {Pass 01 POS Name Match},",
+				"          Decking_Type_To_be_Used_or_Not = {Decking Type To be Used or Not}",
+				"     )) ~> sink1"
 			]
 		}
 	}
