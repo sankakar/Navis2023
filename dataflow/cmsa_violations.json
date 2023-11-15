@@ -112,7 +112,6 @@
 				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     ignoreNoFilesFound: false,",
-				"     moveFiles: ['/bronze/violations-decking/load','bronze/violations-decking/archive'],",
 				"     format: 'delimited',",
 				"     fileSystem: 'cmsa-violations',",
 				"     folderPath: 'bronze/violations-decking/load',",
