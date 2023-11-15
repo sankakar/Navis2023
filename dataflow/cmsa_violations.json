@@ -70,7 +70,7 @@
 				},
 				{
 					"name": "MH5",
-					"description": "Filter Move Kind to have only \nRECV and DSCH"
+					"description": "Filter Move Kind to have only \nRECV and DSCH\nNOT WORKING FOR BOTH, but only 1"
 				}
 			],
 			"scriptLines": [
