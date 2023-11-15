@@ -50,7 +50,7 @@
 					"description": "SortUnitId\nSorting rows on columns 'Unit Nbr, t_put'"
 				},
 				{
-					"name": "MH5",
+					"name": "MH6",
 					"description": "MHDeckingPosName\nCreating/updating the columns 'Unit Nbr, t_put, Event Type Id, Move Kind, From Position Name, To Position Name'"
 				},
 				{
@@ -67,6 +67,10 @@
 				},
 				{
 					"name": "DH9"
+				},
+				{
+					"name": "MH5",
+					"description": "Filter Move Kind to have only \nRECV and DSCH"
 				}
 			],
 			"scriptLines": [
@@ -212,8 +216,8 @@
 				"MERemoveExtraColumns derive(t_put = toTimestamp(t_put,'yyyy mm dd HH:mm:ss.SSS')) ~> TPutDate",
 				"TPutDate sort(asc({Unit Nbr}, true),",
 				"     asc(t_put, true)) ~> MH4",
-				"MH4 derive({To Position Name} = substring({To Position Name},8)) ~> MH5",
-				"DH4, MH5 join(unit_id == {Unit Nbr},",
+				"MH5 derive({To Position Name} = substring({To Position Name},8)) ~> MH6",
+				"DH4, MH6 join(unit_id == {Unit Nbr},",
 				"     joinType:'inner',",
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
@@ -238,6 +242,7 @@
 				"          {Pass 01 POS Name Match} = iif({DH To Pos Name}=={MH To POS Name}, 'PASS', 'FAIL'),",
 				"          {Decking Type To be Used or Not} = iif({Decking Type}=='Gate Receival Assign Position' && {MH Move Kind}=='RECV', 'PASS', 'FAIL')) ~> DH8",
 				"DH8 alterRow(upsertIf(true())) ~> DH9",
+				"MH4 filter({Move Kind} == 'RECV') ~> MH5",
 				"DH9 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     format: 'delta',",
