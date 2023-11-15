@@ -25,7 +25,11 @@
 						"referenceName": "linkedService2",
 						"type": "LinkedServiceReference"
 					},
-					"name": "sink1"
+					"name": "sink1",
+					"rejectedDataLinkedService": {
+						"referenceName": "linkedService2",
+						"type": "LinkedServiceReference"
+					}
 				}
 			],
 			"transformations": [
@@ -66,11 +70,14 @@
 					"name": "DH8"
 				},
 				{
-					"name": "DH9"
+					"name": "DH10"
 				},
 				{
 					"name": "MH5",
 					"description": "Filter Move Kind to have only \nRECV and DSCH\nNOT WORKING FOR BOTH, but only 1"
+				},
+				{
+					"name": "DH9"
 				}
 			],
 			"scriptLines": [
@@ -241,9 +248,10 @@
 				"DH7 derive({Time Gap in Minutes} = round(({Decking Date Time}-{Previous Row Decking Date Time})/(1000*60),2),",
 				"          {Pass 01 POS Name Match} = iif({DH To Pos Name}=={MH To POS Name}, 'PASS', 'FAIL'),",
 				"          {Decking Type To be Used or Not} = iif({Decking Type}=='Gate Receival Assign Position' && {MH Move Kind}=='RECV', 'PASS', 'FAIL')) ~> DH8",
-				"DH8 alterRow(upsertIf(true())) ~> DH9",
+				"DH9 alterRow(upsertIf(true())) ~> DH10",
 				"MH4 filter({Move Kind} == 'RECV') ~> MH5",
-				"DH9 sink(allowSchemaDrift: true,",
+				"DH8 filter({Time Gap in Minutes}<301) ~> DH9",
+				"DH10 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     format: 'delta',",
 				"     fileSystem: 'cmsa-violations',",
