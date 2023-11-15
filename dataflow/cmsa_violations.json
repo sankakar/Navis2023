@@ -249,7 +249,7 @@
 				"          {Pass 01 POS Name Match} = iif({DH To Pos Name}=={MH To POS Name}, 'PASS', 'FAIL'),",
 				"          {Decking Type To be Used or Not} = iif({Decking Type}=='Gate Receival Assign Position' && {MH Move Kind}=='RECV', 'PASS', 'FAIL')) ~> DH8",
 				"DH9 alterRow(upsertIf(true())) ~> DH10",
-				"MH4 filter({Move Kind} == 'RECV') ~> MH5",
+				"MH4 filter(({Move Kind} == 'RECV' || {Move Kind} == 'DSCH')) ~> MH5",
 				"DH8 filter({Time Gap in Minutes}<301) ~> DH9",
 				"DH10 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
