@@ -181,7 +181,6 @@
 				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     ignoreNoFilesFound: false,",
-				"     moveFiles: ['/bronze/violations-moves/load','bronze/violations-moves/archive'],",
 				"     format: 'delimited',",
 				"     fileSystem: 'cmsa-violations',",
 				"     folderPath: 'bronze/violations-moves/load',",
