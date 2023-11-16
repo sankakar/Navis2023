@@ -78,9 +78,6 @@
 					"name": "DH9"
 				},
 				{
-					"name": "MH5a"
-				},
-				{
 					"name": "MH3a"
 				}
 			],
@@ -225,7 +222,7 @@
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> MH2",
 				"MH3a derive(t_put = toTimestamp(t_put,'yyyy mm dd HH:mm:ss.SSS')) ~> MH4a",
-				"MH5a sort(asc({Unit Nbr}, true),",
+				"MH4a sort(asc({Unit Nbr}, true),",
 				"     asc(t_put, true)) ~> MH5",
 				"MH5 derive({To Position Name} = substring({To Position Name},8)) ~> MH6",
 				"DH4, MH6 join(unit_id == {Unit Nbr},",
@@ -296,7 +293,6 @@
 				"     )) ~> DH8",
 				"DH9 alterRow(upsertIf(true())) ~> DH10",
 				"DH8 filter({Time Gap in Minutes}<181) ~> DH9",
-				"MH4a filter(({Move Kind} == 'RECV' || {Move Kind} == 'DSCH')) ~> MH5a",
 				"MH2 filter(({Move Kind} == 'RECV' || {Move Kind} == 'DSCH')) ~> MH3a",
 				"DH10 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
