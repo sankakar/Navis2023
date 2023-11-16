@@ -237,7 +237,7 @@
 				"     joinType:'inner',",
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
-				"     broadcast: 'auto')~> DH6",
+				"     broadcast: 'left')~> DH6",
 				"DH6 select(mapColumn(",
 				"          Gkey,",
 				"          Unit_Id,",
