@@ -30,6 +30,13 @@
 						"referenceName": "linkedService2",
 						"type": "LinkedServiceReference"
 					}
+				},
+				{
+					"linkedService": {
+						"referenceName": "linkedService2",
+						"type": "LinkedServiceReference"
+					},
+					"name": "TestDH6Output"
 				}
 			],
 			"transformations": [
@@ -82,6 +89,9 @@
 				},
 				{
 					"name": "DH5"
+				},
+				{
+					"name": "alterRow1"
 				}
 			],
 			"scriptLines": [
@@ -302,6 +312,7 @@
 				"DH9a filter({Time Gap in Minutes}<181) ~> DH10a",
 				"MH2 filter(({Move Kind} == 'RECV' || {Move Kind} == 'DSCH')) ~> MH3",
 				"DH4 filter(Decking_Pos_Name!='FLD') ~> DH5",
+				"DH6 alterRow(insertIf(true())) ~> alterRow1",
 				"DH11 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     format: 'delta',",
@@ -334,7 +345,41 @@
 				"          Time_Gap_in_Minutes = {Time Gap in Minutes},",
 				"          Pass_01_POS_Name_Match = {Pass 01 POS Name Match},",
 				"          Decking_Type_To_be_Used_or_Not = {Decking Type To be Used or Not}",
-				"     )) ~> sink1"
+				"     )) ~> sink1",
+				"alterRow1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'delta',",
+				"     fileSystem: 'cmsa-violations',",
+				"     folderPath: 'silver/DH6Test',",
+				"     mergeSchema: false,",
+				"     autoCompact: false,",
+				"     optimizedWrite: false,",
+				"     vacuum: 0,",
+				"     deletable: false,",
+				"     insertable: true,",
+				"     updateable: false,",
+				"     upsertable: false,",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     mapColumn(",
+				"          Gkey,",
+				"          Unit_Id,",
+				"          Decking_Date_Time,",
+				"          Decking_Type,",
+				"          Decking_Pos_Name,",
+				"          Unit_Nbr = {Unit Nbr},",
+				"          t_put,",
+				"          Event_Type_Id = {Event Type Id},",
+				"          Move_Kind = {Move Kind},",
+				"          From_Position_Name = {From Position Name},",
+				"          To_Position_Name = {To Position Name},",
+				"          Put_CHE_Operator_Id = {Put CHE Operator Id},",
+				"          Put_CHE_Id = {Put CHE Id},",
+				"          MH_Date",
+				"     )) ~> TestDH6Output"
 			]
 		}
 	}
