@@ -82,6 +82,9 @@
 				},
 				{
 					"name": "DH5"
+				},
+				{
+					"name": "filter1"
 				}
 			],
 			"scriptLines": [
@@ -236,7 +239,7 @@
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
 				"     broadcast: 'right')~> DH6",
-				"DH6 select(mapColumn(",
+				"filter1 select(mapColumn(",
 				"          Gkey,",
 				"          Unit_Id,",
 				"          DH_Date_Time = Decking_Date_Time,",
@@ -305,6 +308,7 @@
 				"DH9a filter({Time Gap in Minutes}<181) ~> DH10a",
 				"MH2 filter((Move_Kind == 'RECV' || Move_Kind == 'DSCH')) ~> MH3",
 				"DH4 filter(Decking_Pos_Name!='FLD') ~> DH5",
+				"DH6 filter((Decking_Date_Time < MH_Date) && (Decking_Date_Time > MH_Date_Less_3_Hours)) ~> filter1",
 				"DH11 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     format: 'delta',",
