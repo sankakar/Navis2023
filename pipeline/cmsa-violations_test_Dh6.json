@@ -3,7 +3,7 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "cmsa_violations",
+				"name": "cmsa_violations_test_DH6",
 				"type": "ExecuteDataFlow",
 				"dependsOn": [],
 				"policy": {
@@ -16,7 +16,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"dataflow": {
-						"referenceName": "cmsa_violations",
+						"referenceName": "cmsa_violations_test_DH6",
 						"type": "DataFlowReference"
 					},
 					"compute": {
