@@ -283,25 +283,7 @@
 				"     preCommands: [],",
 				"     postCommands: [],",
 				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true,",
-				"     mapColumn(",
-				"          Gkey,",
-				"          Unit_Id,",
-				"          Decking_Date_Time,",
-				"          Decking_Type,",
-				"          Decking_Pos_Name,",
-				"          Decking_Time_Outer_Limit,",
-				"          Unit_Nbr,",
-				"          T_Put,",
-				"          Event_Type_Id,",
-				"          Move_Kind,",
-				"          From_Position_Name,",
-				"          To_Position_Name,",
-				"          Put_CHE_Operator_Id,",
-				"          Put_CHE_Id,",
-				"          MH_Date,",
-				"          MH_Date_Less_3_Hours",
-				"     )) ~> sink1"
+				"     skipDuplicateMapOutputs: true) ~> sink1"
 			]
 		}
 	}
