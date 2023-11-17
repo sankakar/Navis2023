@@ -332,10 +332,10 @@
 				"          MH_To_POS_Name,",
 				"          MH_CHE_Operator_Id,",
 				"          MH_CHE_Id,",
-				"          {Unit Id Row Num} = Unit_Id_Row_Num,",
+				"          Unit_Id_Row_Num,",
 				"          Time_Gap_in_Minutes,",
 				"          Pass_01_POS_Name_Match,",
-				"          {Decking Type To be Used or Not} = Decking_Type_To_be_Used_or_Not",
+				"          Decking_Type_To_be_Used_or_Not",
 				"     )) ~> sink1"
 			]
 		}
