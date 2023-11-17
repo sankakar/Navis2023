@@ -229,7 +229,7 @@
 				"     asc(MH_Date, true)) ~> MH5",
 				"MH5 derive(To_Position_Name = substring(To_Position_Name,8)) ~> MH6",
 				"DH5, MH6 join(Unit_Id == Unit_Nbr,",
-				"     joinType:'left',",
+				"     joinType:'inner',",
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
 				"     broadcast: 'right')~> DH6",
