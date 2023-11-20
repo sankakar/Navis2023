@@ -264,7 +264,7 @@
 				"DH7 alterRow(insertIf(true())) ~> DH11",
 				"MH2 filter((Move_Kind == 'RECV' || Move_Kind == 'DSCH')) ~> MH3",
 				"DH4 filter(Decking_Pos_Name!='FLD') ~> DH5",
-				"MH6 alterRow(insertIf(true())) ~> MH7Alter",
+				"MH6 alterRow(upsertIf(true())) ~> MH7Alter",
 				"DH11 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
