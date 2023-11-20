@@ -78,7 +78,7 @@
 					"name": "DH5"
 				},
 				{
-					"name": "alterRow1"
+					"name": "MH7Alter"
 				}
 			],
 			"scriptLines": [
@@ -256,7 +256,7 @@
 				"DH7 alterRow(insertIf(true())) ~> DH11",
 				"MH2 filter((Move_Kind == 'RECV' || Move_Kind == 'DSCH')) ~> MH3",
 				"DH4 filter(Decking_Pos_Name!='FLD') ~> DH5",
-				"MH6 alterRow(insertIf(true())) ~> alterRow1",
+				"MH6 alterRow(insertIf(true())) ~> MH7Alter",
 				"DH11 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
@@ -291,7 +291,7 @@
 				"     postCommands: [],",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> sink1",
-				"alterRow1 sink(allowSchemaDrift: true,",
+				"MH7Alter sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> sink2"
