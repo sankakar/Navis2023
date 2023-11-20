@@ -30,6 +30,9 @@
 						"referenceName": "linkedService2",
 						"type": "LinkedServiceReference"
 					}
+				},
+				{
+					"name": "sink2"
 				}
 			],
 			"transformations": [
@@ -73,6 +76,9 @@
 				},
 				{
 					"name": "DH5"
+				},
+				{
+					"name": "alterRow1"
 				}
 			],
 			"scriptLines": [
@@ -250,6 +256,7 @@
 				"DH7 alterRow(insertIf(true())) ~> DH11",
 				"MH2 filter((Move_Kind == 'RECV' || Move_Kind == 'DSCH')) ~> MH3",
 				"DH4 filter(Decking_Pos_Name!='FLD') ~> DH5",
+				"MH6 alterRow(insertIf(true())) ~> alterRow1",
 				"DH11 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
@@ -283,7 +290,11 @@
 				"     preCommands: [],",
 				"     postCommands: [],",
 				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> sink1"
+				"     skipDuplicateMapOutputs: true) ~> sink1",
+				"alterRow1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> sink2"
 			]
 		}
 	}
