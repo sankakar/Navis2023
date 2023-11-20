@@ -25,14 +25,22 @@
 						"referenceName": "linkedService2",
 						"type": "LinkedServiceReference"
 					},
-					"name": "sink1",
+					"name": "DHSink",
 					"rejectedDataLinkedService": {
 						"referenceName": "linkedService2",
 						"type": "LinkedServiceReference"
 					}
 				},
 				{
-					"name": "sink2"
+					"linkedService": {
+						"referenceName": "linkedService2",
+						"type": "LinkedServiceReference"
+					},
+					"name": "MHSink",
+					"rejectedDataLinkedService": {
+						"referenceName": "linkedService2",
+						"type": "LinkedServiceReference"
+					}
 				}
 			],
 			"transformations": [
@@ -290,11 +298,26 @@
 				"     preCommands: [],",
 				"     postCommands: [],",
 				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> sink1",
+				"     skipDuplicateMapOutputs: true) ~> DHSink",
 				"MH7Alter sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
+				"     format: 'delta',",
+				"     fileSystem: 'cmsa-violations',",
+				"     folderPath: 'silver/cmsa-violations-output',",
+				"     deltaTruncate: true,",
+				"     mergeSchema: false,",
+				"     autoCompact: false,",
+				"     optimizedWrite: false,",
+				"     vacuum: 0,",
+				"     deletable: false,",
+				"     insertable: true,",
+				"     updateable: false,",
+				"     upsertable: false,",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
 				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> sink2"
+				"     skipDuplicateMapOutputs: true) ~> MHSink"
 			]
 		}
 	}
