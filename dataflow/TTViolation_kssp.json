@@ -86,6 +86,7 @@
 				"     validateSchema: false,",
 				"     ignoreNoFilesFound: false,",
 				"     format: 'delta',",
+				"     fileSystem: 'kssp',",
 				"     folderPath: 'silver/ecevents') ~> source1",
 				"aggregate1 window(asc(cheID, true),",
 				"     asc(EcEventTime, true),",
