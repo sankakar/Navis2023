@@ -38,7 +38,7 @@
 					"name": "AlterRow1"
 				},
 				{
-					"name": "aggregate1"
+					"name": "aggregate2"
 				}
 			],
 			"scriptLines": [
@@ -89,7 +89,7 @@
 				"     fileSystem: 'kssp',",
 				"     folderPath: 'silver/ecevents') ~> source1",
 				"source1 filter(cheKind==\"ITV\" && (typeDescription==\"AYDR\" || typeDescription==\"TYDR\" || typeDescription==\"AYCO\" || typeDescription==\"TYCO\" || typeDescription==\"AVDR\" || typeDescription==\"TVDR\" || typeDescription==\"AVCO\" || typeDescription==\"TVCO\") && (moveKind==\"DSCH\"||moveKind==\"LOAD\")) ~> filter1",
-				"aggregate1 window(asc(cheID, true),",
+				"sort1 window(asc(cheID, true),",
 				"     asc(EcEventTime, true),",
 				"     asc(ecEventGkey, true),",
 				"     startRowOffset: 1L,",
@@ -98,13 +98,13 @@
 				"          unitIdName_nxt = lead(unitIdName),",
 				"          cheID_nxt = lead(cheID),",
 				"          EcEventTime_nxt = lead(EcEventTime)) ~> window1",
-				"filter1 sort(asc(cheID, true),",
+				"aggregate2 sort(asc(cheID, true),",
 				"     asc(EcEventTime, true),",
 				"     asc(ecEventGkey, true)) ~> sort1",
 				"window1 derive(jobStep = iif(cheID==cheID_nxt && unitIdName==unitIdName_nxt && typeDescription=='TYCO' && typeDescription_nxt=='AYCO', 1,iif(cheID==cheID_nxt && unitIdName==unitIdName_nxt && typeDescription=='TVDR' && typeDescription_nxt=='AVDR',1,iif(cheID==cheID_nxt && unitIdName==unitIdName_nxt && typeDescription=='TYDR' && typeDescription_nxt=='AYDR',1,iif(cheID==cheID_nxt && unitIdName==unitIdName_nxt && typeDescription=='TVCO' && typeDescription_nxt=='AVCO',1,0))))) ~> derivedColumn1",
 				"derivedColumn1 alterRow(upsertIf(true())) ~> AlterRow1",
-				"sort1 aggregate(groupBy(ecEventGkey),",
-				"     each(match(name!='ecEventGkey'), $$ = first($$))) ~> aggregate1",
+				"filter1 aggregate(groupBy(ecEventGkey),",
+				"     each(match(name!='ecEventGkey'), $$ = first($$))) ~> aggregate2",
 				"AlterRow1 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     format: 'delta',",
