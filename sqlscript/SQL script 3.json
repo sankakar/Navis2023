@@ -1,0 +1,17 @@
+{
+	"name": "SQL script 3",
+	"properties": {
+		"content": {
+			"query": " CREATE EXTERNAL DATA SOURCE [transnet] \n   WITH (\n       LOCATION  = 'https://navispowerbidatastorage2.dfs.core.windows.net/transnet', \n   )\nGo",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "transnet",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}
