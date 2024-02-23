@@ -1,9 +1,9 @@
 {
-	"name": "transnet_ecevents",
+	"name": "transnet_silverLevel",
 	"properties": {
 		"activities": [
 			{
-				"name": "EcEvents_transnet",
+				"name": "Dual Cycling_transnet",
 				"type": "ExecuteDataFlow",
 				"dependsOn": [],
 				"policy": {
@@ -16,11 +16,8 @@
 				"userProperties": [],
 				"typeProperties": {
 					"dataflow": {
-						"referenceName": "EcEvents_transnet",
-						"type": "DataFlowReference",
-						"parameters": {
-							"customer": "'transnet'"
-						}
+						"referenceName": "Dual Cycling_transnet",
+						"type": "DataFlowReference"
 					},
 					"compute": {
 						"coreCount": 8,
