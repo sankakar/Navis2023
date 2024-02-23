@@ -1,9 +1,33 @@
 {
-	"name": "transnet_move",
+	"name": "transnet_baseData",
 	"properties": {
 		"activities": [
 			{
-				"name": "Dual Cycling_transnet",
+				"name": "MoveSrc_transnet",
+				"type": "ExecuteDataFlow",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataflow": {
+						"referenceName": "MoveSrc_transnet",
+						"type": "DataFlowReference"
+					},
+					"compute": {
+						"coreCount": 8,
+						"computeType": "General"
+					},
+					"traceLevel": "Fine"
+				}
+			},
+			{
+				"name": "EcEvents_transnet",
 				"type": "ExecuteDataFlow",
 				"dependsOn": [
 					{
@@ -23,32 +47,11 @@
 				"userProperties": [],
 				"typeProperties": {
 					"dataflow": {
-						"referenceName": "Dual Cycling_transnet",
-						"type": "DataFlowReference"
-					},
-					"compute": {
-						"coreCount": 8,
-						"computeType": "General"
-					},
-					"traceLevel": "Fine"
-				}
-			},
-			{
-				"name": "MoveSrc_transnet",
-				"type": "ExecuteDataFlow",
-				"dependsOn": [],
-				"policy": {
-					"timeout": "0.12:00:00",
-					"retry": 0,
-					"retryIntervalInSeconds": 30,
-					"secureOutput": false,
-					"secureInput": false
-				},
-				"userProperties": [],
-				"typeProperties": {
-					"dataflow": {
-						"referenceName": "MoveSrc_transnet",
-						"type": "DataFlowReference"
+						"referenceName": "EcEvents_transnet",
+						"type": "DataFlowReference",
+						"parameters": {
+							"customer": "'transnet'"
+						}
 					},
 					"compute": {
 						"coreCount": 8,
