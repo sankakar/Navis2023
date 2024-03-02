@@ -1,5 +1,5 @@
 {
-	"name": "ITV EcEvents_transet_ctct",
+	"name": "ITV EcEvents_transnet_ctct",
 	"properties": {
 		"description": "for TT Productivity report",
 		"type": "MappingDataFlow",
