@@ -27,7 +27,7 @@
 				}
 			},
 			{
-				"name": "ITV EcEvents_transet",
+				"name": "ITV EcEvents_transnet_ctct",
 				"type": "ExecuteDataFlow",
 				"dependsOn": [
 					{
@@ -47,7 +47,38 @@
 				"userProperties": [],
 				"typeProperties": {
 					"dataflow": {
-						"referenceName": "ITV EcEvents_transet",
+						"referenceName": "ITV EcEvents_transnet_ctct",
+						"type": "DataFlowReference"
+					},
+					"compute": {
+						"coreCount": 8,
+						"computeType": "General"
+					},
+					"traceLevel": "Fine"
+				}
+			},
+			{
+				"name": "SC EcEvents_transnet_dct",
+				"type": "ExecuteDataFlow",
+				"dependsOn": [
+					{
+						"activity": "ITV EcEvents_transnet_ctct",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataflow": {
+						"referenceName": "SC EcEvents_transnet_dct",
 						"type": "DataFlowReference"
 					},
 					"compute": {
