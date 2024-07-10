@@ -1,0 +1,67 @@
+{
+	"name": "mnhpi_moves",
+	"properties": {
+		"description": "Manila North Harbor Port Inc",
+		"activities": [
+			{
+				"name": "MoveSrc_mnhpi",
+				"type": "ExecuteDataFlow",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataflow": {
+						"referenceName": "MoveSrc_mnhpi",
+						"type": "DataFlowReference"
+					},
+					"compute": {
+						"coreCount": 8,
+						"computeType": "General"
+					},
+					"traceLevel": "Fine"
+				}
+			},
+			{
+				"name": "Rehandle_mnhpi",
+				"type": "ExecuteDataFlow",
+				"dependsOn": [
+					{
+						"activity": "MoveSrc_mnhpi",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataflow": {
+						"referenceName": "Rehandle_mnhpi",
+						"type": "DataFlowReference",
+						"parameters": {
+							"customer": "'cmsa'"
+						}
+					},
+					"compute": {
+						"coreCount": 8,
+						"computeType": "General"
+					},
+					"traceLevel": "Fine"
+				}
+			}
+		],
+		"annotations": []
+	}
+}
