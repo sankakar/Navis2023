@@ -1,0 +1,17 @@
+{
+	"name": "SQL script 4",
+	"properties": {
+		"content": {
+			"query": "create or alter view itv_workhours\nas\nselect *\nFROM\n    OPENROWSET(\n        BULK 'gold/itv_workhours',\n        data_source = 'mnhpi',\n        FORMAT = 'DELTA'\n    ) AS [itv_workhours];\n\ncreate or alter view itv_ecevents\nas\nselect *\nFROM\n    OPENROWSET(\n        BULK 'gold/itv_ecevents',\n        data_source = 'mnhpi',\n        FORMAT = 'DELTA'\n    ) AS [itv_ecevents];",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "mnhpi",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}
