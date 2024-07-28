@@ -31,6 +31,13 @@
 						"type": "LinkedServiceReference"
 					},
 					"name": "ShiftInfo"
+				},
+				{
+					"linkedService": {
+						"referenceName": "linkedService2",
+						"type": "LinkedServiceReference"
+					},
+					"name": "XpsEcUser"
 				}
 			],
 			"sinks": [],
@@ -174,7 +181,23 @@
 				"     columnDelimiter: ',',",
 				"     escapeChar: '\\\\',",
 				"     quoteChar: '\\\"',",
-				"     columnNamesAsHeader: true) ~> ShiftInfo"
+				"     columnNamesAsHeader: true) ~> ShiftInfo",
+				"source(output(",
+				"          gkey as short,",
+				"          user_id as string,",
+				"          name as string,",
+				"          yard as string",
+				"     ),",
+				"     useSchema: false,",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     format: 'delimited',",
+				"     fileSystem: 'mnhpi-xpsuser',",
+				"     columnDelimiter: ',',",
+				"     escapeChar: '\\\\',",
+				"     quoteChar: '\\\"',",
+				"     columnNamesAsHeader: true) ~> XpsEcUser"
 			]
 		}
 	}
