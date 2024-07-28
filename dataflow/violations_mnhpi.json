@@ -41,7 +41,11 @@
 				}
 			],
 			"sinks": [],
-			"transformations": [],
+			"transformations": [
+				{
+					"name": "select1"
+				}
+			],
 			"scriptLines": [
 				"source(output(",
 				"          {Unit Nbr} as string,",
@@ -197,7 +201,14 @@
 				"     columnDelimiter: ',',",
 				"     escapeChar: '\\\\',",
 				"     quoteChar: '\\\"',",
-				"     columnNamesAsHeader: true) ~> XpsEcUser"
+				"     columnNamesAsHeader: true) ~> XpsEcUser",
+				"MoveHistory select(mapColumn(",
+				"          mve_gkey,",
+				"          {Unit Nbr},",
+				"          {Event Type Id}",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select1"
 			]
 		}
 	}
