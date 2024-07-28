@@ -17,6 +17,20 @@
 						"type": "LinkedServiceReference"
 					},
 					"name": "DeckingHistory"
+				},
+				{
+					"linkedService": {
+						"referenceName": "linkedService2",
+						"type": "LinkedServiceReference"
+					},
+					"name": "ShiftData"
+				},
+				{
+					"linkedService": {
+						"referenceName": "linkedService2",
+						"type": "LinkedServiceReference"
+					},
+					"name": "ShiftInfo"
 				}
 			],
 			"sinks": [],
@@ -126,7 +140,41 @@
 				"     columnDelimiter: ',',",
 				"     escapeChar: '\\\\',",
 				"     quoteChar: '\\\"',",
-				"     columnNamesAsHeader: true) ~> DeckingHistory"
+				"     columnNamesAsHeader: true) ~> DeckingHistory",
+				"source(output(",
+				"          {Shift Id} as string,",
+				"          Hour as short,",
+				"          Minute as short",
+				"     ),",
+				"     useSchema: false,",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     format: 'delimited',",
+				"     fileSystem: 'mnhpi-shiftinfo',",
+				"     columnDelimiter: ',',",
+				"     escapeChar: '\\\\',",
+				"     quoteChar: '\\\"',",
+				"     columnNamesAsHeader: true) ~> ShiftData",
+				"source(output(",
+				"          {Shift Name} as string,",
+				"          {Shift Start Hour} as short,",
+				"          {Shift Start Minute} as short,",
+				"          {Shift Start} as string,",
+				"          {Shift End Hour} as short,",
+				"          {Shift End Minute} as short,",
+				"          {Shift End} as string",
+				"     ),",
+				"     useSchema: false,",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     format: 'delimited',",
+				"     fileSystem: 'mnhpi-shiftdata',",
+				"     columnDelimiter: ',',",
+				"     escapeChar: '\\\\',",
+				"     quoteChar: '\\\"',",
+				"     columnNamesAsHeader: true) ~> ShiftInfo"
 			]
 		}
 	}
