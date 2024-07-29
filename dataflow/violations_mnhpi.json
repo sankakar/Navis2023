@@ -47,6 +47,9 @@
 				},
 				{
 					"name": "derivedColumn1"
+				},
+				{
+					"name": "select2"
 				}
 			],
 			"scriptLines": [
@@ -222,7 +225,15 @@
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> select1",
 				"select1 derive(Year_Month = (year({MH T_Put DateTime}) * 100) + month({MH T_Put DateTime}),",
-				"          Year_Week = (year({MH T_Put DateTime}) * 100) + weekOfYear({MH T_Put DateTime})) ~> derivedColumn1"
+				"          Year_Week = (year({MH T_Put DateTime}) * 100) + weekOfYear({MH T_Put DateTime})) ~> derivedColumn1",
+				"DeckingHistory select(mapColumn(",
+				"          gkey,",
+				"          unit_id,",
+				"          {DH TimeStamp} = time_stamp,",
+				"          decking_type",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select2"
 			]
 		}
 	}
