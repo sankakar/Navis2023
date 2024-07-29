@@ -44,6 +44,9 @@
 			"transformations": [
 				{
 					"name": "select1"
+				},
+				{
+					"name": "derivedColumn1"
 				}
 			],
 			"scriptLines": [
@@ -216,7 +219,10 @@
 				"          ufv_gkey",
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> select1"
+				"     skipDuplicateMapOutputs: true) ~> select1",
+				"select1 derive(Date = dayOfMonth({MH T_Put DateTime}),",
+				"          Month = month({MH T_Put DateTime}),",
+				"          Year = year({MH T_Put DateTime})) ~> derivedColumn1"
 			]
 		}
 	}
