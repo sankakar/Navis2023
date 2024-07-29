@@ -215,14 +215,14 @@
 				"          {Put CHE Operator Id},",
 				"          {Put CHE Id},",
 				"          {MH T_Put DateTime} = t_put,",
+				"          {Freight Kind Id},",
 				"          {Category Id},",
 				"          ufv_gkey",
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> select1",
-				"select1 derive(Date = dayOfMonth({MH T_Put DateTime}),",
-				"          Month = month({MH T_Put DateTime}),",
-				"          Year = year({MH T_Put DateTime})) ~> derivedColumn1"
+				"select1 derive(Year_Month = (year({MH T_Put DateTime}) * 100) + month({MH T_Put DateTime}),",
+				"          Year_Week = (year({MH T_Put DateTime}) * 100) + weekOfYear({MH T_Put DateTime})) ~> derivedColumn1"
 			]
 		}
 	}
