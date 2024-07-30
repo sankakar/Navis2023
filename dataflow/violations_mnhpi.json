@@ -65,6 +65,9 @@
 				},
 				{
 					"name": "derivedColumn3"
+				},
+				{
+					"name": "filter3"
 				}
 			],
 			"scriptLines": [
@@ -260,10 +263,13 @@
 				"     broadcast: 'auto')~> join1",
 				"join1 filter({From Location} != 'YARD' && unit_id != '' && !startsWith(split({To Position Name}, \"-\")[3], 'CR')) ~> filter2",
 				"filter2 derive({MH TPut Less 4 hours} = add({MH T_Put DateTime} , -4*60*60*1000),",
-				"          DH_TimeStamp_Within_4_Hours = iif({DH TimeStamp} >= add({MH T_Put DateTime} , -4*60*60*1000) && {DH TimeStamp} <= {MH T_Put DateTime}, 1, 0),",
+				"          DH_TimeStamp_Within_4_Hours = iif(({DH TimeStamp} >= add({MH T_Put DateTime} , -4*60*60*1000)) && ({DH TimeStamp} <= {MH T_Put DateTime}), 1, 0),",
 				"          {MH ToPosName Short} = split({To Position Name}, \"-\")[3],",
 				"          {MH ToPosName Short 5Char} = iif(length(split({To Position Name}, \"-\")[3]) == 6, substring(split({To Position Name}, \"-\")[3], 0, 5), split({To Position Name}, \"-\")[3])\r",
-				") ~> derivedColumn3"
+				",",
+				"          {DH ToPosName Shorrt} = split(to_pos_name, \"-\")[3],",
+				"          {DH ToPosName Short 5Char} = iif(length(split(to_pos_name, \"-\")[3]) == 6, substring(split(to_pos_name, \"-\")[3], 0, 5), split(to_pos_name, \"-\")[3])) ~> derivedColumn3",
+				"derivedColumn3 filter(DH_TimeStamp_Within_4_Hours == 1) ~> filter3"
 			]
 		}
 	}
