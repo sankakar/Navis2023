@@ -62,6 +62,9 @@
 				},
 				{
 					"name": "filter2"
+				},
+				{
+					"name": "derivedColumn3"
 				}
 			],
 			"scriptLines": [
@@ -242,7 +245,8 @@
 				"          gkey,",
 				"          unit_id,",
 				"          {DH TimeStamp} = time_stamp,",
-				"          Decking_Type = decking_type",
+				"          Decking_Type = decking_type,",
+				"          to_pos_name",
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> select2",
@@ -250,11 +254,16 @@
 				"filter1 derive(Year_Month = (year({DH TimeStamp}) * 100) + month({DH TimeStamp}),",
 				"          Year_Week = (year({DH TimeStamp}) * 100) + weekOfYear({DH TimeStamp})) ~> derivedColumn2",
 				"derivedColumn1, derivedColumn2 join({Unit Nbr} == unit_id,",
-				"     joinType:'inner',",
+				"     joinType:'left',",
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
 				"     broadcast: 'auto')~> join1",
-				"join1 filter({From Location} != 'YARD') ~> filter2"
+				"join1 filter({From Location} != 'YARD' && unit_id != '' && !startsWith(split({To Position Name}, \"-\")[3], 'CR')) ~> filter2",
+				"filter2 derive({MH TPut Less 4 hours} = add({MH T_Put DateTime} , -4*60*60*1000),",
+				"          DH_TimeStamp_Within_4_Hours = iif({DH TimeStamp} >= add({MH T_Put DateTime} , -4*60*60*1000) && {DH TimeStamp} <= {MH T_Put DateTime}, 1, 0),",
+				"          {MH ToPosName Short} = split({To Position Name}, \"-\")[3],",
+				"          {MH ToPosName Short 5Char} = iif(length(split({To Position Name}, \"-\")[3]) == 6, substring(split({To Position Name}, \"-\")[3], 0, 5), split({To Position Name}, \"-\")[3])\r",
+				") ~> derivedColumn3"
 			]
 		}
 	}
