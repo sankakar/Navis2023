@@ -40,7 +40,15 @@
 					"name": "XpsEcUser"
 				}
 			],
-			"sinks": [],
+			"sinks": [
+				{
+					"linkedService": {
+						"referenceName": "linkedService2",
+						"type": "LinkedServiceReference"
+					},
+					"name": "sink1"
+				}
+			],
 			"transformations": [
 				{
 					"name": "select1"
@@ -95,6 +103,12 @@
 				},
 				{
 					"name": "join6"
+				},
+				{
+					"name": "select5"
+				},
+				{
+					"name": "alterRow1"
 				}
 			],
 			"scriptLines": [
@@ -397,7 +411,33 @@
 				"     joinType:'inner',",
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
-				"     broadcast: 'auto')~> join6"
+				"     broadcast: 'auto')~> join6",
+				"select4 select(mapColumn(",
+				"          each(match(true()),",
+				"               regexReplace($$,' ','_') = $$)",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select5",
+				"select5 alterRow(upsertIf(true())) ~> alterRow1",
+				"alterRow1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'delta',",
+				"     fileSystem: 'mnhpi',",
+				"     folderPath: 'gold/violation',",
+				"     mergeSchema: false,",
+				"     autoCompact: true,",
+				"     optimizedWrite: true,",
+				"     vacuum: 0,",
+				"     deletable: false,",
+				"     insertable: false,",
+				"     updateable: false,",
+				"     upsertable: true,",
+				"     keys:['mve_gkey'],",
+				"     umask: 0777,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> sink1"
 			]
 		}
 	}
