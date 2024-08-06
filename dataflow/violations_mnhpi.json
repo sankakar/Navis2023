@@ -89,6 +89,12 @@
 				},
 				{
 					"name": "derivedColumn5"
+				},
+				{
+					"name": "select4"
+				},
+				{
+					"name": "join6"
 				}
 			],
 			"scriptLines": [
@@ -364,7 +370,34 @@
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
 				"     broadcast: 'auto')~> join4",
-				"join4 derive({Shift Date} = iif({MH T_Put DateTime} - toTimestamp(toString(Shift_Date) + {Shift End}) > 0, addDays(Shift_Date, -1), Shift_Date)) ~> derivedColumn5"
+				"join4 derive({Shift Date} = iif({MH T_Put DateTime} - toTimestamp(toString(Shift_Date) + {Shift End}) > 0, addDays(Shift_Date, -1), Shift_Date),",
+				"          Week_of_Year = year(iif({MH T_Put DateTime} - toTimestamp(toString(Shift_Date) + {Shift End}) > 0, addDays(Shift_Date, -1), Shift_Date))*100 + weekOfYear(iif({MH T_Put DateTime} - toTimestamp(toString(Shift_Date) + {Shift End}) > 0, addDays(Shift_Date, -1), Shift_Date))) ~> derivedColumn5",
+				"join6 select(mapColumn(",
+				"          {D H Decking Type},",
+				"          {MH ToPosName Short 5Char},",
+				"          {DH ToPosName Short 5Char},",
+				"          {MH Unit Nbr},",
+				"          {MH Move Kind},",
+				"          {Category Id},",
+				"          {MH T_Put DateTime},",
+				"          {MH Put CHE Operator Id},",
+				"          mve_gkey,",
+				"          {MH Put CHE Id},",
+				"          {Freight Kind Id},",
+				"          MaxDHTime,",
+				"          {Location Match or Not},",
+				"          {Shift Id},",
+				"          {Shift Date},",
+				"          Week_of_Year,",
+				"          {XPS_ECUser.name} = name",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select4",
+				"derivedColumn5, XpsEcUser join({MH Put CHE Operator Id} == user_id,",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> join6"
 			]
 		}
 	}
