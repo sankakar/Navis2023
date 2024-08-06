@@ -1,0 +1,17 @@
+{
+	"name": "SQL script 6",
+	"properties": {
+		"content": {
+			"query": "SELECT TOP (100) [mve_gkey]\n,[Unit_Nbr]\n,[Yard_Id]\n,[Event_Type_Id]\n,[Move_Kind]\n,[t_carry_complete]\n,[Year]\n,[Month]\n,[Week]\n,[Date]\n,[Year_Week]\n,[t_put]\n,[Category_Id]\n,[Freight_Kind_Id]\n,[pow]\n,[active_ufv]\n,[Rehandles]\n FROM [dbo].[rehandle]",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "mnhpi",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}
