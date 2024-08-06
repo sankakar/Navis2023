@@ -77,6 +77,18 @@
 				},
 				{
 					"name": "select3"
+				},
+				{
+					"name": "derivedColumn4"
+				},
+				{
+					"name": "join3"
+				},
+				{
+					"name": "join4"
+				},
+				{
+					"name": "derivedColumn5"
 				}
 			],
 			"scriptLines": [
@@ -279,7 +291,7 @@
 				"          {MH ToPosName Short 5Char} = iif(length(split({To Position Name}, \"-\")[3]) == 6, substring(split({To Position Name}, \"-\")[3], 0, 5), split({To Position Name}, \"-\")[3]),",
 				"          {DH ToPosName Shorrt} = split(to_pos_name, \"-\")[3],",
 				"          {DH ToPosName Short 5Char} = iif(length(split(to_pos_name, \"-\")[3]) == 6, substring(split(to_pos_name, \"-\")[3], 0, 5), split(to_pos_name, \"-\")[3])) ~> derivedColumn3",
-				"derivedColumn3 filter({DH TimeStamp Within 4 Hours} == 1) ~> filter3",
+				"derivedColumn3 filter({DH TimeStamp Within 4 Hours} == 1 && {DH ToPosName Short 5Char} != \"FLD\") ~> filter3",
 				"filter3 aggregate(groupBy({Unit Nbr},",
 				"          {Move Kind},",
 				"          {Category Id},",
@@ -334,7 +346,25 @@
 				"          MaxDHTime",
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> select3"
+				"     skipDuplicateMapOutputs: true) ~> select3",
+				"select3 derive({Location Match or Not} = iif({MH ToPosName Short 5Char} == {DH ToPosName Short 5Char}, 'Position Followed', 'Position Not Followed'),",
+				"          Shift_Date = toDate({MH T_Put DateTime}),",
+				"          {T Put Time} = MaxDHTime,",
+				"          {T Put Hour} = hour(MaxDHTime),",
+				"          {T Put Minute} = minute(MaxDHTime),",
+				"          {T Put Second} = second(MaxDHTime)) ~> derivedColumn4",
+				"derivedColumn4, ShiftData join({T Put Hour} == Hour",
+				"     && {T Put Minute} == Minute,",
+				"     joinType:'left',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> join3",
+				"join3, ShiftInfo join({Shift Id} == {Shift Name},",
+				"     joinType:'left',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> join4",
+				"join4 derive({Shift Date} = iif({MH T_Put DateTime} - toTimestamp(toString(Shift_Date) + {Shift End}) > 0, addDays(Shift_Date, -1), Shift_Date)) ~> derivedColumn5"
 			]
 		}
 	}
