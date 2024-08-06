@@ -68,6 +68,15 @@
 				},
 				{
 					"name": "filter3"
+				},
+				{
+					"name": "aggregate1"
+				},
+				{
+					"name": "join2"
+				},
+				{
+					"name": "select3"
 				}
 			],
 			"scriptLines": [
@@ -259,7 +268,7 @@
 				"derivedColumn1, derivedColumn2 join({Unit Nbr} == unit_id",
 				"     && derivedColumn1@Year_Month == derivedColumn2@Year_Month",
 				"     && derivedColumn1@Year_Week == derivedColumn2@Year_Week,",
-				"     joinType:'left',",
+				"     joinType:'inner',",
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
 				"     broadcast: 'auto')~> join1",
@@ -270,7 +279,62 @@
 				"          {MH ToPosName Short 5Char} = iif(length(split({To Position Name}, \"-\")[3]) == 6, substring(split({To Position Name}, \"-\")[3], 0, 5), split({To Position Name}, \"-\")[3]),",
 				"          {DH ToPosName Shorrt} = split(to_pos_name, \"-\")[3],",
 				"          {DH ToPosName Short 5Char} = iif(length(split(to_pos_name, \"-\")[3]) == 6, substring(split(to_pos_name, \"-\")[3], 0, 5), split(to_pos_name, \"-\")[3])) ~> derivedColumn3",
-				"derivedColumn3 filter({DH TimeStamp Within 4 Hours} == 1) ~> filter3"
+				"derivedColumn3 filter({DH TimeStamp Within 4 Hours} == 1) ~> filter3",
+				"filter3 aggregate(groupBy({Unit Nbr},",
+				"          {Move Kind},",
+				"          {Category Id},",
+				"          {MH ToPosName Short 5Char},",
+				"          {MH T_Put DateTime},",
+				"          {Put CHE Operator Id},",
+				"          mve_gkey,",
+				"          {Put CHE Id},",
+				"          {Freight Kind Id}),",
+				"     MaxDHTime = max({DH TimeStamp})) ~> aggregate1",
+				"filter3, aggregate1 join(select1@{Unit Nbr} == aggregate1@{Unit Nbr}",
+				"     && select1@{Move Kind} == aggregate1@{Move Kind}",
+				"     && select1@{Category Id} == aggregate1@{Category Id}",
+				"     && derivedColumn3@{MH ToPosName Short 5Char} == aggregate1@{MH ToPosName Short 5Char}",
+				"     && select1@{MH T_Put DateTime} == aggregate1@{MH T_Put DateTime}",
+				"     && select1@{Put CHE Operator Id} == aggregate1@{Put CHE Operator Id}",
+				"     && select1@mve_gkey == aggregate1@mve_gkey",
+				"     && select1@{Put CHE Id} == aggregate1@{Put CHE Id}",
+				"     && select1@{Freight Kind Id} == aggregate1@{Freight Kind Id}",
+				"     && {DH TimeStamp} == MaxDHTime,",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> join2",
+				"join2 select(mapColumn(",
+				"          {MH Event Type Id} = {Event Type Id},",
+				"          {From Location},",
+				"          {MH To Position Name} = {To Position Name},",
+				"          ufv_gkey,",
+				"          gkey,",
+				"          unit_id,",
+				"          {D H TimeStamp} = {DH TimeStamp},",
+				"          {D H Decking Type} = Decking_Type,",
+				"          {D H To Pos Name} = to_pos_name,",
+				"          Year_Month = derivedColumn2@Year_Month,",
+				"          Year_Week = derivedColumn2@Year_Week,",
+				"          {MH TPut Less 4 hours},",
+				"          {DH TimeStamp Within 4 Hours},",
+				"          {MH ToPosName Short},",
+				"          {MH ToPosName Short 5Char} = derivedColumn3@{MH ToPosName Short 5Char},",
+				"          {DH ToPosName Shorrt},",
+				"          {DH ToPosName Short 5Char},",
+				"          {MH Unit Nbr} = aggregate1@{Unit Nbr},",
+				"          {MH Move Kind} = aggregate1@{Move Kind},",
+				"          {Category Id} = aggregate1@{Category Id},",
+				"          {MH ToPosName Short 5Char} = aggregate1@{MH ToPosName Short 5Char},",
+				"          {MH T_Put DateTime} = aggregate1@{MH T_Put DateTime},",
+				"          {MH Put CHE Operator Id} = aggregate1@{Put CHE Operator Id},",
+				"          mve_gkey = aggregate1@mve_gkey,",
+				"          {MH Put CHE Id} = aggregate1@{Put CHE Id},",
+				"          {Freight Kind Id} = aggregate1@{Freight Kind Id},",
+				"          MaxDHTime",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select3"
 			]
 		}
 	}
