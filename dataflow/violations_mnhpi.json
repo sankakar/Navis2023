@@ -47,6 +47,20 @@
 						"type": "LinkedServiceReference"
 					},
 					"name": "sink1"
+				},
+				{
+					"linkedService": {
+						"referenceName": "linkedService2",
+						"type": "LinkedServiceReference"
+					},
+					"name": "sink2"
+				},
+				{
+					"linkedService": {
+						"referenceName": "linkedService2",
+						"type": "LinkedServiceReference"
+					},
+					"name": "sink3"
 				}
 			],
 			"transformations": [
@@ -109,6 +123,12 @@
 				},
 				{
 					"name": "alterRow1"
+				},
+				{
+					"name": "AlterRow2"
+				},
+				{
+					"name": "alterRow3"
 				}
 			],
 			"scriptLines": [
@@ -297,14 +317,12 @@
 				"select2 filter(Decking_Type == 'Bump Intruder' || Decking_Type == 'Vessel Discharge' || Decking_Type == 'Vessel Discharge - Twin' || Decking_Type == 'XD Drop if Floating Refine' || Decking_Type == 'XD Refine Request' || Decking_Type == 'XD Rehandle Request') ~> filter1",
 				"filter1 derive(Year_Month = (year({DH TimeStamp}) * 100) + month({DH TimeStamp}),",
 				"          Year_Week = (year({DH TimeStamp}) * 100) + weekOfYear({DH TimeStamp})) ~> derivedColumn2",
-				"derivedColumn1, derivedColumn2 join({Unit Nbr} == unit_id",
-				"     && derivedColumn1@Year_Month == derivedColumn2@Year_Month",
-				"     && derivedColumn1@Year_Week == derivedColumn2@Year_Week,",
-				"     joinType:'inner',",
+				"derivedColumn1, derivedColumn2 join({Unit Nbr} == unit_id,",
+				"     joinType:'left',",
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
 				"     broadcast: 'auto')~> join1",
-				"join1 filter({From Location} != 'YARD' && unit_id != '' && !startsWith(split({To Position Name}, \"-\")[3], 'CR')) ~> filter2",
+				"join1 filter({From Location} != 'YARD' && unit_id != '' && !startsWith(split({To Position Name}, \"-\")[3], 'CR') && {MH T_Put DateTime} > addDays({DH TimeStamp}, -15)) ~> filter2",
 				"filter2 derive({MH TPut Less 4 hours} = add({MH T_Put DateTime} , -4*60*60*1000),",
 				"          {DH TimeStamp Within 4 Hours} = iif(({DH TimeStamp} >= add({MH T_Put DateTime} , -4*60*60*1000)) && ({DH TimeStamp} <= {MH T_Put DateTime}), 1, 0),",
 				"          {MH ToPosName Short} = split({To Position Name}, \"-\")[3],",
@@ -419,6 +437,8 @@
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> select5",
 				"select5 alterRow(upsertIf(true())) ~> alterRow1",
+				"derivedColumn2 alterRow(upsertIf(true())) ~> AlterRow2",
+				"derivedColumn1 alterRow(upsertIf(true())) ~> alterRow3",
 				"alterRow1 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     format: 'delta',",
@@ -437,7 +457,45 @@
 				"     preCommands: [],",
 				"     postCommands: [],",
 				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> sink1"
+				"     skipDuplicateMapOutputs: true) ~> sink1",
+				"AlterRow2 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'delta',",
+				"     fileSystem: 'mnhpi',",
+				"     folderPath: 'gold/decking',",
+				"     mergeSchema: false,",
+				"     autoCompact: true,",
+				"     optimizedWrite: true,",
+				"     vacuum: 0,",
+				"     deletable: false,",
+				"     insertable: false,",
+				"     updateable: false,",
+				"     upsertable: true,",
+				"     keys:['gkey'],",
+				"     umask: 0777,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> sink2",
+				"alterRow3 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'delta',",
+				"     fileSystem: 'mnhpi',",
+				"     folderPath: 'gold/move',",
+				"     mergeSchema: false,",
+				"     autoCompact: true,",
+				"     optimizedWrite: true,",
+				"     vacuum: 0,",
+				"     deletable: false,",
+				"     insertable: false,",
+				"     updateable: false,",
+				"     upsertable: true,",
+				"     keys:['mve_gkey'],",
+				"     umask: 0777,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> sink3"
 			]
 		}
 	}
