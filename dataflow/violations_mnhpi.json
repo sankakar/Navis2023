@@ -46,21 +46,21 @@
 						"referenceName": "linkedService2",
 						"type": "LinkedServiceReference"
 					},
-					"name": "sink1"
+					"name": "violation"
 				},
 				{
 					"linkedService": {
 						"referenceName": "linkedService2",
 						"type": "LinkedServiceReference"
 					},
-					"name": "sink2"
+					"name": "decking"
 				},
 				{
 					"linkedService": {
 						"referenceName": "linkedService2",
 						"type": "LinkedServiceReference"
 					},
-					"name": "sink3"
+					"name": "move"
 				}
 			],
 			"transformations": [
@@ -129,6 +129,9 @@
 				},
 				{
 					"name": "alterRow3"
+				},
+				{
+					"name": "select6"
 				}
 			],
 			"scriptLines": [
@@ -437,8 +440,14 @@
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> select5",
 				"select5 alterRow(upsertIf(true())) ~> alterRow1",
-				"derivedColumn2 alterRow(upsertIf(true())) ~> AlterRow2",
+				"select6 alterRow(upsertIf(true())) ~> AlterRow2",
 				"derivedColumn1 alterRow(upsertIf(true())) ~> alterRow3",
+				"derivedColumn2 select(mapColumn(",
+				"          each(match(true()),",
+				"               regexReplace($$,' ','_') = $$)",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select6",
 				"alterRow1 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     format: 'delta',",
@@ -457,7 +466,7 @@
 				"     preCommands: [],",
 				"     postCommands: [],",
 				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> sink1",
+				"     skipDuplicateMapOutputs: true) ~> violation",
 				"AlterRow2 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     format: 'delta',",
@@ -476,7 +485,7 @@
 				"     preCommands: [],",
 				"     postCommands: [],",
 				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> sink2",
+				"     skipDuplicateMapOutputs: true) ~> decking",
 				"alterRow3 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     format: 'delta',",
@@ -495,7 +504,7 @@
 				"     preCommands: [],",
 				"     postCommands: [],",
 				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> sink3"
+				"     skipDuplicateMapOutputs: true) ~> move"
 			]
 		}
 	}
