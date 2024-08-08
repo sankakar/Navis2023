@@ -132,6 +132,9 @@
 				},
 				{
 					"name": "select6"
+				},
+				{
+					"name": "select7"
 				}
 			],
 			"scriptLines": [
@@ -441,13 +444,19 @@
 				"     skipDuplicateMapOutputs: true) ~> select5",
 				"select5 alterRow(upsertIf(true())) ~> alterRow1",
 				"select6 alterRow(upsertIf(true())) ~> AlterRow2",
-				"derivedColumn1 alterRow(upsertIf(true())) ~> alterRow3",
+				"select7 alterRow(upsertIf(true())) ~> alterRow3",
 				"derivedColumn2 select(mapColumn(",
 				"          each(match(true()),",
 				"               regexReplace($$,' ','_') = $$)",
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> select6",
+				"derivedColumn1 select(mapColumn(",
+				"          each(match(true()),",
+				"               regexReplace($$,' ','_') = $$)",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select7",
 				"alterRow1 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     format: 'delta',",
