@@ -340,7 +340,7 @@
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
 				"     broadcast: 'auto')~> join1",
-				"join1 filter({From Location} != 'YARD' && unit_id != '' && !startsWith(split({To Position Name}, \"-\")[3], 'CR') && {MH T_Put DateTime} > addDays({DH TimeStamp}, -15)) ~> filter2",
+				"join1 filter({From Location} != 'YARD' && unit_id != '' && not(isNull(unit_id)) && !startsWith(split({To Position Name}, \"-\")[3], 'CR') && {MH T_Put DateTime} > addDays({DH TimeStamp}, -15)) ~> filter2",
 				"filter2 derive({MH TPut Less 4 hours} = add({MH T_Put DateTime} , -4*60*60*1000),",
 				"          {DH TimeStamp Within 4 Hours} = iif(({DH TimeStamp} >= add({MH T_Put DateTime} , -4*60*60*1000)) && ({DH TimeStamp} <= {MH T_Put DateTime}), 1, 0),",
 				"          {MH ToPosName Short} = split({To Position Name}, \"-\")[3],",
