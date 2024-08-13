@@ -135,6 +135,18 @@
 				},
 				{
 					"name": "select7"
+				},
+				{
+					"name": "aggregate2"
+				},
+				{
+					"name": "filter4"
+				},
+				{
+					"name": "aggregate3"
+				},
+				{
+					"name": "filter5"
 				}
 			],
 			"scriptLines": [
@@ -309,7 +321,7 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> select1",
-				"select1 derive(Year_Month = (year({MH T_Put DateTime}) * 100) + month({MH T_Put DateTime}),",
+				"aggregate3 derive(Year_Month = (year({MH T_Put DateTime}) * 100) + month({MH T_Put DateTime}),",
 				"          Year_Week = (year({MH T_Put DateTime}) * 100) + weekOfYear({MH T_Put DateTime})) ~> derivedColumn1",
 				"DeckingHistory select(mapColumn(",
 				"          gkey,",
@@ -320,7 +332,7 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> select2",
-				"select2 filter(Decking_Type == 'Bump Intruder' || Decking_Type == 'Vessel Discharge' || Decking_Type == 'Vessel Discharge - Twin' || Decking_Type == 'XD Drop if Floating Refine' || Decking_Type == 'XD Refine Request' || Decking_Type == 'XD Rehandle Request') ~> filter1",
+				"aggregate2 filter(Decking_Type == 'Bump Intruder' || Decking_Type == 'Vessel Discharge' || Decking_Type == 'Vessel Discharge - Twin' || Decking_Type == 'XD Drop if Floating Refine' || Decking_Type == 'XD Refine Request' || Decking_Type == 'XD Rehandle Request') ~> filter1",
 				"filter1 derive(Year_Month = (year({DH TimeStamp}) * 100) + month({DH TimeStamp}),",
 				"          Year_Week = (year({DH TimeStamp}) * 100) + weekOfYear({DH TimeStamp})) ~> derivedColumn2",
 				"derivedColumn1, derivedColumn2 join({Unit Nbr} == unit_id,",
@@ -457,6 +469,12 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> select7",
+				"filter5 aggregate(groupBy(gkey),",
+				"     each(match(name!='gkey'), $$ = first($$))) ~> aggregate2",
+				"select1 filter(not(isNull(mve_gkey))) ~> filter4",
+				"filter4 aggregate(groupBy(mve_gkey),",
+				"     each(match(name!='mve_gkey'), $$ = first($$))) ~> aggregate3",
+				"select2 filter(not(isNull(gkey))) ~> filter5",
 				"alterRow1 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     format: 'delta',",
