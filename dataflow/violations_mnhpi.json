@@ -147,6 +147,9 @@
 				},
 				{
 					"name": "filter5"
+				},
+				{
+					"name": "derivedColumn6"
 				}
 			],
 			"scriptLines": [
@@ -422,7 +425,7 @@
 				"     broadcast: 'auto')~> join4",
 				"join4 derive({Shift Date} = iif({MH T_Put DateTime} - toTimestamp(toString(Shift_Date) + {Shift End}) > 0, addDays(Shift_Date, -1), Shift_Date),",
 				"          Week_of_Year = year(iif({MH T_Put DateTime} - toTimestamp(toString(Shift_Date) + {Shift End}) > 0, addDays(Shift_Date, -1), Shift_Date))*100 + weekOfYear(iif({MH T_Put DateTime} - toTimestamp(toString(Shift_Date) + {Shift End}) > 0, addDays(Shift_Date, -1), Shift_Date))) ~> derivedColumn5",
-				"join6 select(mapColumn(",
+				"derivedColumn6 select(mapColumn(",
 				"          {D H Decking Type},",
 				"          {MH ToPosName Short 5Char},",
 				"          {DH ToPosName Short 5Char},",
@@ -439,7 +442,10 @@
 				"          {Shift Id},",
 				"          {Shift Date},",
 				"          Week_of_Year,",
-				"          {XPS_ECUser.name} = name",
+				"          {XPS_ECUser.name} = name,",
+				"          Block_To_Block_Violation,",
+				"          Same_Block_Violation,",
+				"          Stack_Violation",
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> select4",
@@ -475,6 +481,9 @@
 				"filter4 aggregate(groupBy(mve_gkey),",
 				"     each(match(name!='mve_gkey'), $$ = first($$))) ~> aggregate3",
 				"select2 filter(not(isNull(gkey))) ~> filter5",
+				"join6 derive(Block_To_Block_Violation = iif(substring({MH ToPosName Short 5Char}, 1, 2) != substring({DH ToPosName Short 5Char}, 1, 2), true(), false()),",
+				"          Same_Block_Violation = iif(substring({MH ToPosName Short 5Char}, 1, 4) != substring({DH ToPosName Short 5Char}, 1, 4), true(), false()),",
+				"          Stack_Violation = iif(substring({MH ToPosName Short 5Char}, 1, 7) != substring({DH ToPosName Short 5Char}, 1, 7), true(), false())) ~> derivedColumn6",
 				"alterRow1 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     format: 'delta',",
