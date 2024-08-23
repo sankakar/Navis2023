@@ -1,0 +1,52 @@
+{
+	"name": "stack_confirmity_TEAGTL",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"linkedService": {
+						"referenceName": "linkedService2",
+						"type": "LinkedServiceReference"
+					},
+					"name": "StackConfirmity"
+				}
+			],
+			"sinks": [],
+			"transformations": [
+				{
+					"name": "derivedColumn1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          {Equipment ID} as string,",
+				"          {Stacking Factor} as string,",
+				"          CHE as string,",
+				"          {Blk Typ} as string,",
+				"          Type as string,",
+				"          {Current Position} as string,",
+				"          {Yard Row} as string,",
+				"          Cat as string,",
+				"          Sts as string,",
+				"          {Section Factor} as string",
+				"     ),",
+				"     useSchema: false,",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     inferDriftedColumnTypes: true,",
+				"     ignoreNoFilesFound: true,",
+				"     rowUrlColumn: 'FileDate',",
+				"     format: 'delimited',",
+				"     fileSystem: 'teagtl-stack-confirmity',",
+				"     columnDelimiter: '\\t',",
+				"     escapeChar: '\\\\',",
+				"     quoteChar: '',",
+				"     columnNamesAsHeader: true,",
+				"     skipLines: -2) ~> StackConfirmity",
+				"StackConfirmity derive(Pos_WO_Tier = iif(isInteger(right({Current Position}, 1)), left({Current Position}, length({Current Position}) - 1), {Current Position}),",
+				"          Date = toDate(substring(FileDate, 2, 8), 'yyyyMMdd')) ~> derivedColumn1"
+			]
+		}
+	}
+}
