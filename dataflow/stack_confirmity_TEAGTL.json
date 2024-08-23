@@ -16,6 +16,9 @@
 			"transformations": [
 				{
 					"name": "derivedColumn1"
+				},
+				{
+					"name": "surrogateKey1"
 				}
 			],
 			"scriptLines": [
@@ -45,7 +48,10 @@
 				"     columnNamesAsHeader: true,",
 				"     skipLines: -2) ~> StackConfirmity",
 				"StackConfirmity derive(Pos_WO_Tier = iif(isInteger(right({Current Position}, 1)), left({Current Position}, length({Current Position}) - 1), {Current Position}),",
-				"          Date = toDate(substring(FileDate, 2, 8), 'yyyyMMdd')) ~> derivedColumn1"
+				"          Date = toDate(substring(FileDate, 2, 8), 'yyyyMMdd')) ~> derivedColumn1",
+				"derivedColumn1 keyGenerate(output(RowNum as long),",
+				"     startAt: 1L,",
+				"     stepValue: 1L) ~> surrogateKey1"
 			]
 		}
 	}
