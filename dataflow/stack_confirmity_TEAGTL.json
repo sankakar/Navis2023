@@ -12,13 +12,39 @@
 					"name": "StackConfirmity"
 				}
 			],
-			"sinks": [],
+			"sinks": [
+				{
+					"linkedService": {
+						"referenceName": "linkedService2",
+						"type": "LinkedServiceReference"
+					},
+					"name": "StackConformity"
+				}
+			],
 			"transformations": [
 				{
 					"name": "derivedColumn1"
 				},
 				{
-					"name": "surrogateKey1"
+					"name": "window1"
+				},
+				{
+					"name": "aggregate1"
+				},
+				{
+					"name": "join1"
+				},
+				{
+					"name": "select1"
+				},
+				{
+					"name": "sort1"
+				},
+				{
+					"name": "filter1"
+				},
+				{
+					"name": "alterRow1"
 				}
 			],
 			"scriptLines": [
@@ -48,10 +74,62 @@
 				"     columnNamesAsHeader: true,",
 				"     skipLines: -2) ~> StackConfirmity",
 				"StackConfirmity derive(Pos_WO_Tier = iif(isInteger(right({Current Position}, 1)), left({Current Position}, length({Current Position}) - 1), {Current Position}),",
-				"          Date = toDate(substring(FileDate, 2, 8), 'yyyyMMdd')) ~> derivedColumn1",
-				"derivedColumn1 keyGenerate(output(RowNum as long),",
-				"     startAt: 1L,",
-				"     stepValue: 1L) ~> surrogateKey1"
+				"          Date = toDate(substring(FileDate, 2, 8), 'yyyyMMdd'),",
+				"          Week = weekOfYear(toDate(substring(FileDate, 2, 8), 'yyyyMMdd'))) ~> derivedColumn1",
+				"derivedColumn1 window(over(Date,",
+				"          Pos_WO_Tier),",
+				"     asc({Stacking Factor}, true),",
+				"     stackrank = rank()) ~> window1",
+				"window1 aggregate(groupBy(Date,",
+				"          Pos_WO_Tier),",
+				"     {Stack_confirmty } = iif(max(stackrank) > 1, 'Mix', 'Pure')) ~> aggregate1",
+				"window1, aggregate1 join(derivedColumn1@Date == aggregate1@Date",
+				"     && derivedColumn1@Pos_WO_Tier == aggregate1@Pos_WO_Tier,",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> join1",
+				"filter1 select(mapColumn(",
+				"          Date = derivedColumn1@Date,",
+				"          {Container No.} = {Equipment ID},",
+				"          {Stacking Factor},",
+				"          CHE,",
+				"          {Blk Typ},",
+				"          Type,",
+				"          {Current Position},",
+				"          {Yard Row},",
+				"          Cat,",
+				"          Sts,",
+				"          {Section Factor},",
+				"          Pos_WO_Tier = derivedColumn1@Pos_WO_Tier,",
+				"          stackConfirmity = {Stack_confirmty },",
+				"          Week",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select1",
+				"select1 sort(asc(Date, true),",
+				"     asc({Container No.}, true)) ~> sort1",
+				"join1 filter(not(isDate({Equipment ID})) && not(isNull({Equipment ID})) && {Equipment ID} != '') ~> filter1",
+				"sort1 alterRow(upsertIf(true())) ~> alterRow1",
+				"alterRow1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'delta',",
+				"     fileSystem: 'teagtl',",
+				"     folderPath: 'gold/stack_confirmity',",
+				"     mergeSchema: false,",
+				"     autoCompact: false,",
+				"     optimizedWrite: false,",
+				"     vacuum: 0,",
+				"     deletable: false,",
+				"     insertable: true,",
+				"     updateable: false,",
+				"     upsertable: false,",
+				"     keys:['Date','Container No.'],",
+				"     umask: 0777,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> StackConformity"
 			]
 		}
 	}
