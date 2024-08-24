@@ -78,7 +78,7 @@
 				"     skipLines: -2) ~> StackConfirmity",
 				"StackConfirmity derive(Pos_WO_Tier = iif(isInteger(right({Current Position}, 1)), left({Current Position}, length({Current Position}) - 1), {Current Position}),",
 				"          Date = toDate(substring(FileDate, 2, 8), 'yyyyMMdd'),",
-				"          Week = weekOfYear(toDate(substring(FileDate, 2, 8), 'yyyyMMdd'))) ~> derivedColumn1",
+				"          Week = iif(dayOfWeek(toDate(substring(FileDate, 2, 8), 'yyyyMMdd')) == 1,  weekOfYear(toDate(substring(FileDate, 2, 8), 'yyyyMMdd')) + 1, weekOfYear(toDate(substring(FileDate, 2, 8), 'yyyyMMdd')))) ~> derivedColumn1",
 				"derivedColumn1 window(over(Date,",
 				"          Pos_WO_Tier),",
 				"     asc({Stacking Factor}, true),",
