@@ -113,7 +113,7 @@
 				"select1 sort(asc(Date, true),",
 				"     asc({Container No.}, true)) ~> sort1",
 				"join1 filter(not(isDate({Equipment ID})) && not(isNull({Equipment ID})) && {Equipment ID} != '') ~> filter1",
-				"select2 alterRow(insertIf(true())) ~> alterRow1",
+				"select2 alterRow(upsertIf(true())) ~> alterRow1",
 				"sort1 select(mapColumn(",
 				"          each(match(true()),",
 				"               regexReplace($$,' ','_') = $$)",
