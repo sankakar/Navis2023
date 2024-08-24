@@ -2,12 +2,12 @@
 	"name": "SQL script 4",
 	"properties": {
 		"content": {
-			"query": "create or alter view itv_workhours\nas\nselect *\nFROM\n    OPENROWSET(\n        BULK 'gold/itv_workhours',\n        data_source = 'mnhpi',\n        FORMAT = 'DELTA'\n    ) AS [itv_workhours];\n\ncreate or alter view itv_ecevents\nas\nselect *\nFROM\n    OPENROWSET(\n        BULK 'gold/itv_ecevents',\n        data_source = 'mnhpi',\n        FORMAT = 'DELTA'\n    ) AS [itv_ecevents];",
+			"query": "create or alter view itv_workhours\nas\nselect *\nFROM\n    OPENROWSET(\n        BULK 'gold/itv_workhours',\n        data_source = 'mnhpi',\n        FORMAT = 'DELTA'\n    ) AS [itv_workhours];\n\nIF NOT EXISTS (SELECT * FROM sys.external_data_sources WHERE name = 'teagtl')  \n\n    CREATE EXTERNAL DATA SOURCE [teagtl]  \n\n    WITH ( \n\n        LOCATION   = 'https://navispowerbidatastorage2.dfs.core.windows.net/teagtl',  \n\n    ) \n\nGo \n\nDrop view stack_confirmity\n\ncreate or alter view stack_confirmity\nas\nselect *\nFROM\n    OPENROWSET(\n        BULK 'gold/stack_confirmity',\n        data_source = 'teagtl',\n        FORMAT = 'DELTA'\n    ) AS [stack_confirmity];",
 			"metadata": {
 				"language": "sql"
 			},
 			"currentConnection": {
-				"databaseName": "mnhpi",
+				"databaseName": "teagtl",
 				"poolName": "Built-in"
 			},
 			"resultLimit": 5000
