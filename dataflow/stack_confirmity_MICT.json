@@ -124,7 +124,7 @@
 				"alterRow1 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     format: 'delta',",
-				"     fileSystem: 'teagtl',",
+				"     fileSystem: 'mict',",
 				"     folderPath: 'gold/stack_confirmity',",
 				"     mergeSchema: false,",
 				"     autoCompact: false,",
