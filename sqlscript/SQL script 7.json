@@ -2,7 +2,7 @@
 	"name": "SQL script 7",
 	"properties": {
 		"content": {
-			"query": "create view stack_confirmity\nas\nselect *\nFROM\n    OPENROWSET(\n        BULK 'gold/stack_confirmity',\n        data_source = 'mict',\n        FORMAT = 'DELTA'\n    ) AS [stack_confirmity];",
+			"query": "SELECT OBJECT_DEFINITION(OBJECT_ID('[dbo].[stack_confirmity]')) AS ViewDefinition;\n\ncreate view stack_confirmity\nas\nselect *\nFROM\n    OPENROWSET(\n        BULK 'gold/stack_confirmity',\n        data_source = 'mict',\n        FORMAT = 'DELTA'\n    ) AS [stack_confirmity];",
 			"metadata": {
 				"language": "sql"
 			},
