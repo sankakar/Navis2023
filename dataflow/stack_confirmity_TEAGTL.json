@@ -99,7 +99,7 @@
 				"filter1 select(mapColumn(",
 				"          Date = derivedColumn1@Date,",
 				"          {Container No.} = {Equipment ID},",
-				"          {Stacking Factor} = StackConfirmity@{Stacking Factor},",
+				"          {Stacking Factor},",
 				"          CHE,",
 				"          {Blk Typ},",
 				"          Type,",
