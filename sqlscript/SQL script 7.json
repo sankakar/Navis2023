@@ -1,0 +1,17 @@
+{
+	"name": "SQL script 7",
+	"properties": {
+		"content": {
+			"query": "create view stack_confirmity\nas\nselect *\nFROM\n    OPENROWSET(\n        BULK 'gold/stack_confirmity',\n        data_source = 'mict',\n        FORMAT = 'DELTA'\n    ) AS [stack_confirmity];",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "mict",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}
