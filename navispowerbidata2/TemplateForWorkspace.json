@@ -28394,7 +28394,7 @@
 			"properties": {
 				"description": "TEAGTL stack_conformity",
 				"annotations": [],
-				"runtimeState": "Stopped",
+				"runtimeState": "Started",
 				"pipelines": [
 					{
 						"pipelineReference": {
