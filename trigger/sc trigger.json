@@ -3,8 +3,15 @@
 	"properties": {
 		"description": "TEAGTL stack_conformity",
 		"annotations": [],
-		"runtimeState": "Stopped",
-		"pipelines": [],
+		"runtimeState": "Started",
+		"pipelines": [
+			{
+				"pipelineReference": {
+					"referenceName": "TEAGTL_stack_confirmity",
+					"type": "PipelineReference"
+				}
+			}
+		],
 		"type": "BlobEventsTrigger",
 		"typeProperties": {
 			"blobPathBeginsWith": "/teagtl/blobs/bronze/stackconformity/load/",
