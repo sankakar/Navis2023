@@ -1,15 +1,15 @@
 {
 	"name": "powerbianalyticsdata-WorkspaceDefaultStorage",
-	"type": "Microsoft.Synapse/workspaces/linkedservices",
 	"properties": {
-		"typeProperties": {
-			"url": "https://powerbianalyticsdata.dfs.core.windows.net"
-		},
+		"annotations": [],
 		"type": "AzureBlobFS",
+		"typeProperties": {
+			"url": "https://navispowerbidatastorage2.dfs.core.windows.net/"
+		},
 		"connectVia": {
 			"referenceName": "AutoResolveIntegrationRuntime",
 			"type": "IntegrationRuntimeReference"
-		},
-		"annotations": []
-	}
+		}
+	},
+	"type": "Microsoft.Synapse/workspaces/linkedservices"
 }
