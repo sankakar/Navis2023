@@ -257,7 +257,7 @@
 				"     asc(Unit_Id, true),",
 				"     asc(DH_Date_Time, true),",
 				"     Unit_Id_Row_Num = rowNumber()) ~> DH8",
-				"DH8 derive(Time_Gap_in_Minutes = round((MH_Date_Time-DH_Date_Time)/(1000*60),2),",
+				"DH8 derive(Time_Gap_in_Minutes = round((MH_Date-Decking_Date_Time)/(1000*60),2),",
 				"          Pass_01_POS_Name_Match = iif(DH_To_Pos_Name==MH_To_POS_Name, 'PASS', 'FAIL'),",
 				"          Decking_Type_To_be_Used_or_Not = iif(\r",
 				"DH_Decking_Type=='Vessel Discharge' && MH_Move_Kind=='RECV', 'FAIL', \r",
