@@ -15,13 +15,19 @@
 					"referenceName": "mict_violations",
 					"type": "PipelineReference"
 				}
+			},
+			{
+				"pipelineReference": {
+					"referenceName": "mict_rehandle",
+					"type": "PipelineReference"
+				}
 			}
 		],
 		"type": "ScheduleTrigger",
 		"typeProperties": {
 			"recurrence": {
 				"frequency": "Day",
-				"interval": 13,
+				"interval": 64,
 				"startTime": "2024-09-04T13:30:00",
 				"timeZone": "India Standard Time"
 			}
