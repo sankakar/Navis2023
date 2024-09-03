@@ -21,6 +21,12 @@
 					"referenceName": "mict_rehandle",
 					"type": "PipelineReference"
 				}
+			},
+			{
+				"pipelineReference": {
+					"referenceName": "mnhpi_rehandle",
+					"type": "PipelineReference"
+				}
 			}
 		],
 		"type": "ScheduleTrigger",
