@@ -136,7 +136,7 @@
 				"     insertable: false,",
 				"     updateable: false,",
 				"     upsertable: true,",
-				"     keys:['Date','Equipment ID','Current_position'],",
+				"     keys:['Date',({Container_No.}),'Current_position'],",
 				"     umask: 0777,",
 				"     preCommands: [],",
 				"     postCommands: [],",
