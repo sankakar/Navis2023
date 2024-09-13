@@ -139,7 +139,6 @@
 				"     insertable: true,",
 				"     updateable: false,",
 				"     upsertable: false,",
-				"     keys:['Date','Container_No.','Current_Position'],",
 				"     umask: 0777,",
 				"     preCommands: [],",
 				"     postCommands: [],",
