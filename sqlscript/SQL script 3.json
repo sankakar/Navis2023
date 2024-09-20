@@ -2,12 +2,12 @@
 	"name": "SQL script 3",
 	"properties": {
 		"content": {
-			"query": " CREATE EXTERNAL DATA SOURCE [transnet] \n   WITH (\n       LOCATION  = 'https://navispowerbidatastorage2.dfs.core.windows.net/transnet', \n   )\nGo",
+			"query": "\nIF NOT EXISTS (SELECT * FROM sys.external_data_sources WHERE name = 'tauranga')  \n\n    CREATE EXTERNAL DATA SOURCE [tauranga]  \n\n    WITH ( \n\n        LOCATION   = 'https://navispowerbidatastorage2.dfs.core.windows.net/tauranga',  \n\n    ) \n\nGo \nSELECT * FROM sys.external_data_sources\nDrop EXTERNAL DATA SOURCE [tauranga] \n\ncreate view dual_cycling\nas\nselect *\nFROM\n    OPENROWSET(\n        BULK 'gold/dual_cycling',\n        data_source = 'tauranga',\n        FORMAT = 'DELTA'\n    ) AS [dual_cycling];",
 			"metadata": {
 				"language": "sql"
 			},
 			"currentConnection": {
-				"databaseName": "transnet",
+				"databaseName": "tauranga",
 				"poolName": "Built-in"
 			},
 			"resultLimit": 5000
