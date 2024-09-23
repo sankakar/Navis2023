@@ -128,7 +128,7 @@
 				"          lastEstMoveTime,",
 				"          Date,",
 				"          Time,",
-				"          {Day of Week}",
+				"          Day_of_Week = {Day of Week}",
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> select1",
