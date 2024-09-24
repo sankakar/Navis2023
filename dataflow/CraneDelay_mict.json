@@ -1,0 +1,38 @@
+{
+	"name": "CraneDelay_mict",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"linkedService": {
+						"referenceName": "linkedService1",
+						"type": "LinkedServiceReference"
+					},
+					"name": "source1"
+				}
+			],
+			"sinks": [
+				{
+					"linkedService": {
+						"referenceName": "linkedService1",
+						"type": "LinkedServiceReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "Select1"
+				},
+				{
+					"name": "AlterRow1"
+				},
+				{
+					"name": "aggregate1"
+				}
+			],
+			"script": "parameters{\n\tcustomer as string (\"mict\")\n}\nsource(output(\n\t\tFacilityId as string,\n\t\t{Yard Id} as string,\n\t\tCarrierVisitId as string,\n\t\tCarrierVisitKey as integer,\n\t\tCraneServiceGkey as short,\n\t\t{Crane DelayTypeId} as string,\n\t\tDelayCategory as string,\n\t\tDelayDurationSec as short,\n\t\tDelayStartTime as string,\n\t\tCraneDelayGkey as short,\n\t\tCHEId as short,\n\t\tCHEShortName as string,\n\t\tSrcTable as string\n\t),\n\tuseSchema: false,\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: true,\n\tmoveFiles: ['bronze/cranedelay','/bronze/cranedelay/archive'],\n\tformat: 'delimited',\n\tfileSystem: 'mict',\n\tfolderPath: 'bronze/cranedelay/load',\n\tcolumnDelimiter: ',',\n\tescapeChar: '\\\\',\n\tquoteChar: '\\\"',\n\tcolumnNamesAsHeader: true) ~> source1\nsource1 select(mapColumn(\n\t\teach(match(true()),\n\t\t\tregexReplace($$,' ','_') = $$)\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> Select1\naggregate1 alterRow(upsertIf(true())) ~> AlterRow1\nSelect1 aggregate(groupBy(CraneDelayGkey),\n\teach(match(name!='CraneDelayGkey'), $$ = first($$))) ~> aggregate1\nAlterRow1 sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'delta',\n\tfileSystem: 'valencia',\n\tfolderPath: 'silver/cranedelays',\n\toverwrite: true,\n\tmergeSchema: true,\n\tautoCompact: true,\n\toptimizedWrite: true,\n\tvacuum: 0,\n\tdeletable: false,\n\tinsertable: true,\n\tupdateable: false,\n\tupsertable: false,\n\tkeys:['CraneDelayGkey'],\n\tumask: 0777,\n\tpreCommands: [],\n\tpostCommands: [],\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> sink1"
+		}
+	}
+}
