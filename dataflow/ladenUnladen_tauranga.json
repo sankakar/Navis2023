@@ -141,7 +141,7 @@
 				"     optimizedWrite: false,",
 				"     vacuum: 0,",
 				"     deletable: false,",
-				"     insertable: true,",
+				"     insertable: false,",
 				"     updateable: false,",
 				"     upsertable: true,",
 				"     keys:['ecEventGkey'],",
