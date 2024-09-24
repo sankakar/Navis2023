@@ -1,0 +1,17 @@
+{
+	"name": "SQL script 8",
+	"properties": {
+		"content": {
+			"query": "\nSelect *\n FROM [dbo].[violation]\n WHERE Block_To_Block_Violation = 'False'\n And Same_Block_Violation = 'False'\n And Stack_Violation = 'False'\n And Location_Match_or_Not = 'Position Not Followed'",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "mict",
+				"poolName": "Built-in"
+			},
+			"resultLimit": -1
+		},
+		"type": "SqlQuery"
+	}
+}

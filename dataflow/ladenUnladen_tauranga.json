@@ -82,7 +82,7 @@
 				"     format: 'delta',",
 				"     fileSystem: 'tauranga',",
 				"     folderPath: 'silver/ecevents') ~> ecevents",
-				"ecevents filter(cheKind == 'SC' && (moveKind == 'DSCH' || moveKind == 'LOAD')) ~> filter1",
+				"ecevents filter(cheKind == 'SC' && ((moveKind == 'DSCH' && typeDescription == 'LTRW') || (moveKind == 'LOAD' && typeDescription == 'LTSH'))) ~> filter1",
 				"filter1 derive(Date = toDate(EcEventTime),",
 				"          Day_of_Week = dayOfWeek(EcEventTime)) ~> derivedColumn1",
 				"derivedColumn1 select(mapColumn(",
