@@ -1,5 +1,5 @@
 {
-	"name": "CraneDelay_mict",
+	"name": "CraneDelays_mict",
 	"properties": {
 		"type": "MappingDataFlow",
 		"typeProperties": {
