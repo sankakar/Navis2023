@@ -126,7 +126,7 @@
 				"alterRow1 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     format: 'delta',",
-				"     fileSystem: 'mict',",
+				"     fileSystem: 'dpw-peru',",
 				"     folderPath: 'gold/stack_confirmity',",
 				"     mergeSchema: false,",
 				"     autoCompact: false,",
