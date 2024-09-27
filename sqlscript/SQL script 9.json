@@ -1,0 +1,17 @@
+{
+	"name": "SQL script 9",
+	"properties": {
+		"content": {
+			"query": "SELECT [Fetch_CHE_Id]\n,[Put_CHE_Id]\n,[CarryCompleteDate]\n,[First_Lift]\n,[Last_Lift]\n,[Move_Count]\n,[WorkTime]\n,[Year]\n,[Month]\n,[Week]\n FROM [dbo].[yard_che_productivity]\n WHERE (Fetch_CHE_Id = 47\n or Put_CHE_Id = 47)\n AND DATEPART(\"day\",CarryCompleteDate) = 1 And Year= 2022 and Month = 10\n order by [CarryCompleteDate]",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "mict",
+				"poolName": "Built-in"
+			},
+			"resultLimit": -1
+		},
+		"type": "SqlQuery"
+	}
+}
