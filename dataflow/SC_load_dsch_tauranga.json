@@ -1,0 +1,129 @@
+{
+	"name": "SC_load_dsch_tauranga",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"linkedService": {
+						"referenceName": "linkedService2",
+						"type": "LinkedServiceReference"
+					},
+					"name": "ecevents"
+				}
+			],
+			"sinks": [],
+			"transformations": [
+				{
+					"name": "filter1"
+				},
+				{
+					"name": "aggregate1"
+				},
+				{
+					"name": "sort1"
+				},
+				{
+					"name": "filter2"
+				},
+				{
+					"name": "filter3"
+				},
+				{
+					"name": "aggregate2"
+				},
+				{
+					"name": "join1"
+				},
+				{
+					"name": "derivedColumn2"
+				},
+				{
+					"name": "select1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          ecEventGkey as long,",
+				"          yardGkey as long,",
+				"          YardID as string,",
+				"          FcyID as string,",
+				"          cheKind as string,",
+				"          cheName as string,",
+				"          cheID as long,",
+				"          EcEventTime as timestamp,",
+				"          type as short,",
+				"          subType as short,",
+				"          typeDescription as string,",
+				"          fromCheIdName as boolean,",
+				"          ToCheIdName as boolean,",
+				"          unitIdName as string,",
+				"          powName as string,",
+				"          poolName as string,",
+				"          workQueue as string,",
+				"          travelDistance as short,",
+				"          moveKind as string,",
+				"          isTwinMove as boolean,",
+				"          startDistance as short,",
+				"          workAssignmentId as long,",
+				"          unitReference as string,",
+				"          tranId as string,",
+				"          locType as string,",
+				"          locId as string,",
+				"          locSlot as string,",
+				"          opsPosId as string,",
+				"          unladenLoctype as string,",
+				"          unladenLocid as string,",
+				"          unladenLocSlot as string,",
+				"          ladenLoctype as string,",
+				"          ladenLocid as string,",
+				"          ladenLocSlot as string,",
+				"          lastEstMoveTime as string,",
+				"          Year as integer,",
+				"          Month as integer,",
+				"          Week as integer",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: true,",
+				"     format: 'delta',",
+				"     fileSystem: 'tauranga',",
+				"     folderPath: 'silver/ecevents') ~> ecevents",
+				"ecevents filter(cheKind == 'SC' && (moveKind == 'DSCH' || moveKind == 'LOAD')) ~> filter1",
+				"filter2 aggregate(groupBy(unitIdName,",
+				"          typeDescription),",
+				"     each(match(name!='unitIdName' && name!='typeDescription'), $$ = first($$))) ~> aggregate1",
+				"filter1 sort(asc(unitIdName, true),",
+				"     asc(EcEventTime, true)) ~> sort1",
+				"sort1 filter(typeDescription=='DROP') ~> filter2",
+				"sort1 filter(typeDescription=='DSPT') ~> filter3",
+				"filter3 aggregate(groupBy(unitIdName,",
+				"          typeDescription),",
+				"     each(match(name!='unitIdName' && name!='typeDescription'), $$ = last($$))) ~> aggregate2",
+				"aggregate2, aggregate1 join(aggregate2@unitIdName == aggregate1@unitIdName,",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> join1",
+				"join1 derive(Total_cycle_minutes = :Total_cycle_minutes,",
+				"          Total_cycle_minutes_range = iif(:Total_cycle_minutes > 0 && :Total_cycle_minutes <= 10, \"0 to 10 min\",\r",
+				"iif(:Total_cycle_minutes > 10 && :Total_cycle_minutes <= 15, \"10 to 15 min\",\r",
+				"iif(:Total_cycle_minutes > 15 && :Total_cycle_minutes <= 20, \"15 to 20 min\",\r",
+				"iif(:Total_cycle_minutes > 20 && :Total_cycle_minutes <= 25, \"20 to 25 min\",\r",
+				"iif(:Total_cycle_minutes > 25 && :Total_cycle_minutes <= 30, \"25 to 30 min\",\r",
+				"iif(:Total_cycle_minutes > 30 && :Total_cycle_minutes <= 40, \"30 to 40 min\",\r",
+				"iif(:Total_cycle_minutes > 40 && :Total_cycle_minutes <= 50, \"40 to 50 min\",\r",
+				"\"50 & above\")))))))\r",
+				",",
+				"          Date = toDate(toString(aggregate1@EcEventTime)),",
+				"          Total_cycle_minutes := round((aggregate1@EcEventTime - aggregate2@EcEventTime)/60000, 2)) ~> derivedColumn2",
+				"derivedColumn2 select(mapColumn(",
+				"          each(match(/* All input columns */ true()),",
+				"               /* Input name */ $$ = $$)",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select1"
+			]
+		}
+	}
+}
