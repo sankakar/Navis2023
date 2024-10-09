@@ -40,6 +40,21 @@
 				},
 				{
 					"name": "select1"
+				},
+				{
+					"name": "filter4"
+				},
+				{
+					"name": "aggregate3"
+				},
+				{
+					"name": "join2"
+				},
+				{
+					"name": "derivedColumn3"
+				},
+				{
+					"name": "select2"
 				}
 			],
 			"scriptLines": [
@@ -92,37 +107,59 @@
 				"ecevents filter(cheKind == 'SC' && (moveKind == 'DSCH' || moveKind == 'LOAD')) ~> filter1",
 				"filter2 aggregate(groupBy(unitIdName,",
 				"          typeDescription),",
-				"     each(match(name!='unitIdName' && name!='typeDescription'), $$ = first($$))) ~> aggregate1",
+				"     each(match(name!='unitIdName'&&name!='typeDescription'), $$ = first($$))) ~> aggregate1",
 				"filter1 sort(asc(unitIdName, true),",
 				"     asc(EcEventTime, true)) ~> sort1",
 				"sort1 filter(typeDescription=='DROP') ~> filter2",
 				"sort1 filter(typeDescription=='DSPT') ~> filter3",
 				"filter3 aggregate(groupBy(unitIdName,",
 				"          typeDescription),",
-				"     each(match(name!='unitIdName' && name!='typeDescription'), $$ = last($$))) ~> aggregate2",
-				"aggregate2, aggregate1 join(aggregate2@unitIdName == aggregate1@unitIdName,",
+				"     each(match(name!='unitIdName'&&name!='typeDescription'), $$ = last($$))) ~> aggregate2",
+				"aggregate2, aggregate1 join(aggregate2@unitIdName == aggregate1@unitIdName",
+				"     && toDate(toString(aggregate2@EcEventTime)) >= subDays(toDate(toString(aggregate1@EcEventTime)), 1)",
+				"     && toDate(toString(aggregate2@EcEventTime)) <= addDays(toDate(toString(aggregate1@EcEventTime)), 1),",
 				"     joinType:'inner',",
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
-				"     broadcast: 'auto')~> join1",
-				"join1 derive(Total_cycle_minutes = :Total_cycle_minutes,",
-				"          Total_cycle_minutes_range = iif(:Total_cycle_minutes > 0 && :Total_cycle_minutes <= 10, \"0 to 10 min\",\r",
+				"     broadcast: 'left')~> join1",
+				"join1 derive(Total_cycle_time = :Total_cycle_minutes,",
+				"          Total_cycle_time_range = iif(:Total_cycle_minutes > 0 && :Total_cycle_minutes <= 10, \"0 to 10 min\",\r",
 				"iif(:Total_cycle_minutes > 10 && :Total_cycle_minutes <= 15, \"10 to 15 min\",\r",
 				"iif(:Total_cycle_minutes > 15 && :Total_cycle_minutes <= 20, \"15 to 20 min\",\r",
 				"iif(:Total_cycle_minutes > 20 && :Total_cycle_minutes <= 25, \"20 to 25 min\",\r",
 				"iif(:Total_cycle_minutes > 25 && :Total_cycle_minutes <= 30, \"25 to 30 min\",\r",
 				"iif(:Total_cycle_minutes > 30 && :Total_cycle_minutes <= 40, \"30 to 40 min\",\r",
 				"iif(:Total_cycle_minutes > 40 && :Total_cycle_minutes <= 50, \"40 to 50 min\",\r",
-				"\"50 & above\")))))))\r",
-				",",
+				"\"50 & above\"))))))),",
 				"          Date = toDate(toString(aggregate1@EcEventTime)),",
 				"          Total_cycle_minutes := round((aggregate1@EcEventTime - aggregate2@EcEventTime)/60000, 2)) ~> derivedColumn2",
 				"derivedColumn2 select(mapColumn(",
+				"          each(match(/* All input columns */true()),",
+				"               /* Input name */$$ = $$)",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select1",
+				"sort1 filter(typeDescription=='EASH' ) ~> filter4",
+				"filter4 aggregate(groupBy(unitIdName,",
+				"          typeDescription),",
+				"     each(match(name!='unitIdName'&&name!='typeDescription'), $$ = first($$))) ~> aggregate3",
+				"aggregate2, aggregate3 join(aggregate2@unitIdName == aggregate3@unitIdName",
+				"     && toDate(toString(aggregate2@EcEventTime)) >= subDays(toDate(toString(aggregate3@EcEventTime)), 1)",
+				"     && toDate(toString(aggregate2@EcEventTime)) <= addDays(toDate(toString(aggregate3@EcEventTime)), 1),",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'left')~> join2",
+				"join2 derive(Dsch_unladen_time = :Dsch_unladen_minutes,",
+				"          Dsch_unladen_time_range = iif(:Dsch_unladen_minutes > 0 && :Dsch_unladen_minutes <= 10, \"0 to 10 min\",iif(:Dsch_unladen_minutes > 10 && :Dsch_unladen_minutes <= 15, \"10 to 15 min\",iif(:Dsch_unladen_minutes > 15 && :Dsch_unladen_minutes <= 20, \"15 to 20 min\",iif(:Dsch_unladen_minutes > 20 && :Dsch_unladen_minutes <= 25, \"20 to 25 min\",iif(:Dsch_unladen_minutes > 25 && :Dsch_unladen_minutes <= 30, \"25 to 30 min\",iif(:Dsch_unladen_minutes > 30 && :Dsch_unladen_minutes <= 40, \"30 to 40 min\",iif(:Dsch_unladen_minutes > 40 && :Dsch_unladen_minutes <= 50, \"40 to 50 min\",\"50 & above\"))))))),",
+				"          Date = toDate(toString(aggregate3@EcEventTime)),",
+				"          Dsch_unladen_minutes := round((aggregate3@EcEventTime - aggregate2@EcEventTime)/60000, 2)) ~> derivedColumn3",
+				"derivedColumn3 select(mapColumn(",
 				"          each(match(/* All input columns */ true()),",
 				"               /* Input name */ $$ = $$)",
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> select1"
+				"     skipDuplicateMapOutputs: true) ~> select2"
 			]
 		}
 	}
