@@ -340,6 +340,7 @@
 				"     insertable: false,",
 				"     updateable: false,",
 				"     upsertable: true,",
+				"     keys:['ecEventGkey','Date'],",
 				"     umask: 0022,",
 				"     preCommands: [],",
 				"     postCommands: [],",
