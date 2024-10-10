@@ -1,0 +1,17 @@
+{
+	"name": "SQL script 11",
+	"properties": {
+		"content": {
+			"query": "SELECT [unitIdName]\n,[typeDescription]\n,[ecEventGkey]\n,[yardGkey]\n,[YardID]\n,[FcyID]\n,[Week]\n,[Total_cycle_time]\n,[Total_cycle_time_range]\n,[Date]\n,[moveKind]\n,[isTwinMove]\n,[startDistance]\n,[workAssignmentId]\n,[Year]\n,[Month]\n,[fromCheIdName]\n,[ToCheIdName]\n,[powName]\n,[poolName]\n,[workQueue]\n,[travelDistance]\n,[cheKind]\n,[cheName]\n,[cheID]\n,[EcEventTime]\n,[type]\n,[subType]\n FROM [dbo].[sc_full_time]\n ORDER BY Total_cycle_time ASC",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "tauranga",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

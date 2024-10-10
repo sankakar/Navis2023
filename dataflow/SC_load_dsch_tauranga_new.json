@@ -79,9 +79,6 @@
 					"name": "select2"
 				},
 				{
-					"name": "filter5"
-				},
-				{
 					"name": "aggregate4"
 				},
 				{
@@ -150,7 +147,7 @@
 				"     format: 'delta',",
 				"     fileSystem: 'tauranga',",
 				"     folderPath: 'silver/ecevents') ~> ecevents",
-				"ecevents filter(cheKind == 'SC' && (moveKind == 'DSCH' || moveKind == 'LOAD')) ~> filter1",
+				"ecevents filter(cheKind == 'SC' && (moveKind == 'DSCH' || moveKind == 'LOAD') && (typeDescription=='EARW' || typeDescription=='EASH' || typeDescription=='DSPT' || typeDescription=='DROP')) ~> filter1",
 				"filter2 aggregate(groupBy(unitIdName,",
 				"          typeDescription),",
 				"     each(match(name!='unitIdName'&&name!='typeDescription'), $$ = first($$))) ~> aggregate1",
@@ -258,8 +255,8 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> select2",
-				"sort1 filter(typeDescription=='EARW' ) ~> filter5",
-				"filter5 aggregate(groupBy(unitIdName,",
+				"sort1 aggregate(groupBy(unitIdName,",
+				"          moveKind,",
 				"          typeDescription),",
 				"     each(match(name!='unitIdName'&&name!='typeDescription'), $$ = first($$))) ~> aggregate4",
 				"aggregate2, aggregate4 join(aggregate2@unitIdName == aggregate4@unitIdName",

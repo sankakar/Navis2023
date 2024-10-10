@@ -1,0 +1,17 @@
+{
+	"name": "SQL script 10",
+	"properties": {
+		"content": {
+			"query": "SELECT\n[unitIdName]\n,[moveKind]\n,[cheID]\n,max([EcEventTime]) as time\n,[typeDescription]\n FROM [dbo].[ecevents]\n    WHERE Year = 2024 AND Month = 1 AND unitIdName = 'TCNU6890381'\n    AND moveKind in ('LOAD' , 'DSCH') AND typeDescription in ('DSPT' , 'DROP', 'EARW','EASH') AND cheKind = 'SC'\n    GROUP By unitIdName, moveKind, typeDescription, cheId\n    ORDER BY time ASC",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "tauranga",
+				"poolName": "Built-in"
+			},
+			"resultLimit": -1
+		},
+		"type": "SqlQuery"
+	}
+}
