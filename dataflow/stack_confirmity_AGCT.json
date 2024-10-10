@@ -1,0 +1,147 @@
+{
+	"name": "stack_confirmity_AGCT",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"linkedService": {
+						"referenceName": "linkedService2",
+						"type": "LinkedServiceReference"
+					},
+					"name": "StackConfirmity"
+				}
+			],
+			"sinks": [
+				{
+					"linkedService": {
+						"referenceName": "linkedService2",
+						"type": "LinkedServiceReference"
+					},
+					"name": "StackConformity"
+				}
+			],
+			"transformations": [
+				{
+					"name": "derivedColumn1"
+				},
+				{
+					"name": "window1"
+				},
+				{
+					"name": "aggregate1"
+				},
+				{
+					"name": "join1"
+				},
+				{
+					"name": "select1"
+				},
+				{
+					"name": "sort1"
+				},
+				{
+					"name": "filter1"
+				},
+				{
+					"name": "alterRow1"
+				},
+				{
+					"name": "select2"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          {Equipment ID} as string,",
+				"          {Stacking Factor} as string,",
+				"          CHE as string,",
+				"          {Blk Typ} as string,",
+				"          Type as string,",
+				"          {Current Position} as string,",
+				"          {Yard Row} as string,",
+				"          Cat as string,",
+				"          Sts as string,",
+				"          {Section Factor} as string",
+				"     ),",
+				"     useSchema: false,",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     inferDriftedColumnTypes: true,",
+				"     ignoreNoFilesFound: true,",
+				"     moveFiles: ['/bronze/stackconformity/load','bronze/stackconformity/archive'],",
+				"     rowUrlColumn: 'FileDate',",
+				"     format: 'delimited',",
+				"     fileSystem: 'agct',",
+				"     folderPath: 'bronze/stackconformity/load',",
+				"     columnDelimiter: '\\t',",
+				"     escapeChar: '\\\\',",
+				"     quoteChar: '',",
+				"     columnNamesAsHeader: true,",
+				"     skipLines: -2) ~> StackConfirmity",
+				"StackConfirmity derive(Pos_WO_Tier = iif(isInteger(right({Current Position}, 1)), left({Current Position}, length({Current Position}) - 1), {Current Position}),",
+				"          Date = toDate(substring(FileDate, -12, 8), 'yyyyMMdd'),",
+				"          Week = iif(dayOfWeek(toDate(substring(FileDate, -12, 8), 'yyyyMMdd')) == 1,  weekOfYear(toDate(substring(FileDate, -12, 8), 'yyyyMMdd')) + 1, weekOfYear(toDate(substring(FileDate, -12, 8), 'yyyyMMdd'))),",
+				"          stacking_array := split({Stacking Factor}, '/')) ~> derivedColumn1",
+				"derivedColumn1 window(over(Date,",
+				"          Pos_WO_Tier),",
+				"     asc({Stacking Factor}, true),",
+				"     stackrank = rank()) ~> window1",
+				"window1 aggregate(groupBy(Date,",
+				"          Pos_WO_Tier),",
+				"     Stack_confirmty = iif(max(stackrank) > 1, 'Mix', 'Pure')) ~> aggregate1",
+				"window1, aggregate1 join(derivedColumn1@Date == aggregate1@Date",
+				"     && derivedColumn1@Pos_WO_Tier == aggregate1@Pos_WO_Tier,",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> join1",
+				"filter1 select(mapColumn(",
+				"          {Container No.} = {Equipment ID},",
+				"          {Stacking Factor},",
+				"          CHE,",
+				"          {Blk Typ},",
+				"          Type,",
+				"          {Current position} = {Current Position},",
+				"          {Yard Row},",
+				"          Cat,",
+				"          Sts,",
+				"          {Section Factor},",
+				"          Pos_WO_Tier = derivedColumn1@Pos_WO_Tier,",
+				"          Date = derivedColumn1@Date,",
+				"          Week,",
+				"          Stack_confirmty",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select1",
+				"select1 sort(asc(Date, true),",
+				"     asc({Container No.}, true)) ~> sort1",
+				"join1 filter(not(isDate({Equipment ID})) && not(isNull({Equipment ID})) && {Equipment ID} != '') ~> filter1",
+				"select2 alterRow(upsertIf(true())) ~> alterRow1",
+				"sort1 select(mapColumn(",
+				"          each(match(true()),",
+				"               regexReplace($$,' ','_') = $$)",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select2",
+				"alterRow1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'delta',",
+				"     fileSystem: 'agct',",
+				"     folderPath: 'gold/stackconformity',",
+				"     mergeSchema: false,",
+				"     autoCompact: false,",
+				"     optimizedWrite: false,",
+				"     vacuum: 0,",
+				"     deletable: false,",
+				"     insertable: true,",
+				"     updateable: false,",
+				"     upsertable: false,",
+				"     umask: 0777,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> StackConformity"
+			]
+		}
+	}
+}
