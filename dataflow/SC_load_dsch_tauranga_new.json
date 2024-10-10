@@ -1,0 +1,371 @@
+{
+	"name": "SC_load_dsch_tauranga_new",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"linkedService": {
+						"referenceName": "linkedService2",
+						"type": "LinkedServiceReference"
+					},
+					"name": "ecevents"
+				}
+			],
+			"sinks": [
+				{
+					"linkedService": {
+						"referenceName": "linkedService2",
+						"type": "LinkedServiceReference"
+					},
+					"name": "sink1"
+				},
+				{
+					"linkedService": {
+						"referenceName": "linkedService2",
+						"type": "LinkedServiceReference"
+					},
+					"name": "sink2"
+				},
+				{
+					"linkedService": {
+						"referenceName": "linkedService2",
+						"type": "LinkedServiceReference"
+					},
+					"name": "sink3"
+				}
+			],
+			"transformations": [
+				{
+					"name": "filter1"
+				},
+				{
+					"name": "aggregate1"
+				},
+				{
+					"name": "sort1"
+				},
+				{
+					"name": "filter2"
+				},
+				{
+					"name": "filter3"
+				},
+				{
+					"name": "aggregate2"
+				},
+				{
+					"name": "join1"
+				},
+				{
+					"name": "derivedColumn2"
+				},
+				{
+					"name": "select1"
+				},
+				{
+					"name": "filter4"
+				},
+				{
+					"name": "aggregate3"
+				},
+				{
+					"name": "join2"
+				},
+				{
+					"name": "derivedColumn3"
+				},
+				{
+					"name": "select2"
+				},
+				{
+					"name": "filter5"
+				},
+				{
+					"name": "aggregate4"
+				},
+				{
+					"name": "join3"
+				},
+				{
+					"name": "derivedColumn4"
+				},
+				{
+					"name": "select3"
+				},
+				{
+					"name": "alterRow1"
+				},
+				{
+					"name": "alterRow2"
+				},
+				{
+					"name": "alterRow3"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          ecEventGkey as long,",
+				"          yardGkey as long,",
+				"          YardID as string,",
+				"          FcyID as string,",
+				"          cheKind as string,",
+				"          cheName as string,",
+				"          cheID as long,",
+				"          EcEventTime as timestamp,",
+				"          type as short,",
+				"          subType as short,",
+				"          typeDescription as string,",
+				"          fromCheIdName as boolean,",
+				"          ToCheIdName as boolean,",
+				"          unitIdName as string,",
+				"          powName as string,",
+				"          poolName as string,",
+				"          workQueue as string,",
+				"          travelDistance as short,",
+				"          moveKind as string,",
+				"          isTwinMove as boolean,",
+				"          startDistance as short,",
+				"          workAssignmentId as long,",
+				"          unitReference as string,",
+				"          tranId as string,",
+				"          locType as string,",
+				"          locId as string,",
+				"          locSlot as string,",
+				"          opsPosId as string,",
+				"          unladenLoctype as string,",
+				"          unladenLocid as string,",
+				"          unladenLocSlot as string,",
+				"          ladenLoctype as string,",
+				"          ladenLocid as string,",
+				"          ladenLocSlot as string,",
+				"          lastEstMoveTime as string,",
+				"          Year as integer,",
+				"          Month as integer,",
+				"          Week as integer",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: true,",
+				"     format: 'delta',",
+				"     fileSystem: 'tauranga',",
+				"     folderPath: 'silver/ecevents') ~> ecevents",
+				"ecevents filter(cheKind == 'SC' && (moveKind == 'DSCH' || moveKind == 'LOAD')) ~> filter1",
+				"filter2 aggregate(groupBy(unitIdName,",
+				"          typeDescription),",
+				"     each(match(name!='unitIdName'&&name!='typeDescription'), $$ = first($$))) ~> aggregate1",
+				"filter1 sort(asc(unitIdName, true),",
+				"     asc(EcEventTime, true)) ~> sort1",
+				"sort1 filter(typeDescription=='DROP') ~> filter2",
+				"sort1 filter(typeDescription=='DSPT') ~> filter3",
+				"filter3 aggregate(groupBy(unitIdName,",
+				"          typeDescription),",
+				"     each(match(name!='unitIdName'&&name!='typeDescription'), $$ = last($$))) ~> aggregate2",
+				"aggregate2, aggregate1 join(aggregate2@unitIdName == aggregate1@unitIdName",
+				"     && toDate(toString(aggregate2@EcEventTime)) >= subDays(toDate(toString(aggregate1@EcEventTime)), 1)",
+				"     && toDate(toString(aggregate2@EcEventTime)) <= addDays(toDate(toString(aggregate1@EcEventTime)), 1),",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'left')~> join1",
+				"join1 derive(Total_cycle_time = :Total_cycle_minutes,",
+				"          Total_cycle_time_range = iif(:Total_cycle_minutes > 0 && :Total_cycle_minutes <= 10, \"0 to 10 min\",\r",
+				"iif(:Total_cycle_minutes > 10 && :Total_cycle_minutes <= 15, \"10 to 15 min\",\r",
+				"iif(:Total_cycle_minutes > 15 && :Total_cycle_minutes <= 20, \"15 to 20 min\",\r",
+				"iif(:Total_cycle_minutes > 20 && :Total_cycle_minutes <= 25, \"20 to 25 min\",\r",
+				"iif(:Total_cycle_minutes > 25 && :Total_cycle_minutes <= 30, \"25 to 30 min\",\r",
+				"iif(:Total_cycle_minutes > 30 && :Total_cycle_minutes <= 40, \"30 to 40 min\",\r",
+				"iif(:Total_cycle_minutes > 40 && :Total_cycle_minutes <= 50, \"40 to 50 min\",\r",
+				"\"50 & above\"))))))),",
+				"          Date = toDate(toString(aggregate1@EcEventTime)),",
+				"          Total_cycle_minutes := round((aggregate1@EcEventTime - aggregate2@EcEventTime)/60000, 2)) ~> derivedColumn2",
+				"derivedColumn2 select(mapColumn(",
+				"          unitIdName = aggregate2@unitIdName,",
+				"          typeDescription = aggregate2@typeDescription,",
+				"          ecEventGkey = aggregate2@ecEventGkey,",
+				"          yardGkey = aggregate2@yardGkey,",
+				"          YardID = aggregate2@YardID,",
+				"          FcyID = aggregate2@FcyID,",
+				"          cheKind = aggregate2@cheKind,",
+				"          cheName = aggregate2@cheName,",
+				"          cheID = aggregate2@cheID,",
+				"          EcEventTime = aggregate2@EcEventTime,",
+				"          type = aggregate2@type,",
+				"          subType = aggregate2@subType,",
+				"          fromCheIdName = aggregate2@fromCheIdName,",
+				"          ToCheIdName = aggregate2@ToCheIdName,",
+				"          powName = aggregate2@powName,",
+				"          poolName = aggregate2@poolName,",
+				"          workQueue = aggregate2@workQueue,",
+				"          travelDistance = aggregate2@travelDistance,",
+				"          moveKind = aggregate2@moveKind,",
+				"          isTwinMove = aggregate2@isTwinMove,",
+				"          startDistance = aggregate2@startDistance,",
+				"          workAssignmentId = aggregate2@workAssignmentId,",
+				"          Year = aggregate2@Year,",
+				"          Month = aggregate2@Month,",
+				"          Week = aggregate2@Week,",
+				"          Total_cycle_time,",
+				"          Total_cycle_time_range,",
+				"          Date",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select1",
+				"sort1 filter(typeDescription=='EASH' ) ~> filter4",
+				"filter4 aggregate(groupBy(unitIdName,",
+				"          typeDescription),",
+				"     each(match(name!='unitIdName'&&name!='typeDescription'), $$ = first($$))) ~> aggregate3",
+				"aggregate2, aggregate3 join(aggregate2@unitIdName == aggregate3@unitIdName",
+				"     && toDate(toString(aggregate2@EcEventTime)) >= subDays(toDate(toString(aggregate3@EcEventTime)), 1)",
+				"     && toDate(toString(aggregate2@EcEventTime)) <= addDays(toDate(toString(aggregate3@EcEventTime)), 1),",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'left')~> join2",
+				"join2 derive(Dsch_unladen_time = :Dsch_unladen_minutes,",
+				"          Dsch_unladen_time_range = iif(:Dsch_unladen_minutes > 0 && :Dsch_unladen_minutes <= 10, \"0 to 10 min\",iif(:Dsch_unladen_minutes > 10 && :Dsch_unladen_minutes <= 15, \"10 to 15 min\",iif(:Dsch_unladen_minutes > 15 && :Dsch_unladen_minutes <= 20, \"15 to 20 min\",iif(:Dsch_unladen_minutes > 20 && :Dsch_unladen_minutes <= 25, \"20 to 25 min\",iif(:Dsch_unladen_minutes > 25 && :Dsch_unladen_minutes <= 30, \"25 to 30 min\",iif(:Dsch_unladen_minutes > 30 && :Dsch_unladen_minutes <= 40, \"30 to 40 min\",iif(:Dsch_unladen_minutes > 40 && :Dsch_unladen_minutes <= 50, \"40 to 50 min\",\"50 & above\"))))))),",
+				"          Date = toDate(toString(aggregate3@EcEventTime)),",
+				"          Dsch_unladen_minutes := round((aggregate3@EcEventTime - aggregate2@EcEventTime)/60000, 2)) ~> derivedColumn3",
+				"derivedColumn3 select(mapColumn(",
+				"          unitIdName = aggregate2@unitIdName,",
+				"          typeDescription = aggregate2@typeDescription,",
+				"          ecEventGkey = aggregate2@ecEventGkey,",
+				"          yardGkey = aggregate2@yardGkey,",
+				"          YardID = aggregate2@YardID,",
+				"          FcyID = aggregate2@FcyID,",
+				"          cheKind = aggregate2@cheKind,",
+				"          cheName = aggregate2@cheName,",
+				"          cheID = aggregate2@cheID,",
+				"          EcEventTime = aggregate2@EcEventTime,",
+				"          type = aggregate2@type,",
+				"          subType = aggregate2@subType,",
+				"          fromCheIdName = aggregate2@fromCheIdName,",
+				"          ToCheIdName = aggregate2@ToCheIdName,",
+				"          powName = aggregate2@powName,",
+				"          poolName = aggregate2@poolName,",
+				"          workQueue = aggregate2@workQueue,",
+				"          travelDistance = aggregate2@travelDistance,",
+				"          moveKind = aggregate2@moveKind,",
+				"          isTwinMove = aggregate2@isTwinMove,",
+				"          startDistance = aggregate2@startDistance,",
+				"          workAssignmentId = aggregate2@workAssignmentId,",
+				"          Year = aggregate2@Year,",
+				"          Month = aggregate2@Month,",
+				"          Week = aggregate2@Week,",
+				"          Dsch_unladen_time,",
+				"          Dsch_unladen_time_range,",
+				"          Date",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select2",
+				"sort1 filter(typeDescription=='EARW' ) ~> filter5",
+				"filter5 aggregate(groupBy(unitIdName,",
+				"          typeDescription),",
+				"     each(match(name!='unitIdName'&&name!='typeDescription'), $$ = first($$))) ~> aggregate4",
+				"aggregate2, aggregate4 join(aggregate2@unitIdName == aggregate4@unitIdName",
+				"     && toDate(toString(aggregate2@EcEventTime)) >= subDays(toDate(toString(aggregate4@EcEventTime)), 1)",
+				"     && toDate(toString(aggregate2@EcEventTime)) <= addDays(toDate(toString(aggregate4@EcEventTime)), 1),",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'left')~> join3",
+				"join3 derive(Load_unladen_time = :Load_unladen_minutes,",
+				"          Load_unladen_time_range = iif(:Load_unladen_minutes > 0 && :Load_unladen_minutes <= 10, \"0 to 10 min\",iif(:Load_unladen_minutes > 10 && :Load_unladen_minutes <= 15, \"10 to 15 min\",iif(:Load_unladen_minutes > 15 && :Load_unladen_minutes <= 20, \"15 to 20 min\",iif(:Load_unladen_minutes > 20 && :Load_unladen_minutes <= 25, \"20 to 25 min\",iif(:Load_unladen_minutes > 25 && :Load_unladen_minutes <= 30, \"25 to 30 min\",iif(:Load_unladen_minutes > 30 && :Load_unladen_minutes <= 40, \"30 to 40 min\",iif(:Load_unladen_minutes > 40 && :Load_unladen_minutes <= 50, \"40 to 50 min\",\"50 & above\"))))))),",
+				"          Date = toDate(toString(aggregate4@EcEventTime)),",
+				"          Load_unladen_minutes := round((aggregate4@EcEventTime - aggregate2@EcEventTime)/60000, 2)) ~> derivedColumn4",
+				"derivedColumn4 select(mapColumn(",
+				"          unitIdName = aggregate2@unitIdName,",
+				"          typeDescription = aggregate2@typeDescription,",
+				"          ecEventGkey = aggregate2@ecEventGkey,",
+				"          yardGkey = aggregate2@yardGkey,",
+				"          YardID = aggregate2@YardID,",
+				"          FcyID = aggregate2@FcyID,",
+				"          cheKind = aggregate2@cheKind,",
+				"          cheName = aggregate2@cheName,",
+				"          cheID = aggregate2@cheID,",
+				"          EcEventTime = aggregate2@EcEventTime,",
+				"          type = aggregate2@type,",
+				"          subType = aggregate2@subType,",
+				"          fromCheIdName = aggregate2@fromCheIdName,",
+				"          ToCheIdName = aggregate2@ToCheIdName,",
+				"          powName = aggregate2@powName,",
+				"          poolName = aggregate2@poolName,",
+				"          workQueue = aggregate2@workQueue,",
+				"          travelDistance = aggregate2@travelDistance,",
+				"          moveKind = aggregate2@moveKind,",
+				"          isTwinMove = aggregate2@isTwinMove,",
+				"          startDistance = aggregate2@startDistance,",
+				"          workAssignmentId = aggregate2@workAssignmentId,",
+				"          Year = aggregate2@Year,",
+				"          Month = aggregate2@Month,",
+				"          Week = aggregate2@Week,",
+				"          Load_unladen_time,",
+				"          Load_unladen_time_range,",
+				"          Date",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select3",
+				"select3 alterRow(upsertIf(true())) ~> alterRow1",
+				"select2 alterRow(upsertIf(true())) ~> alterRow2",
+				"select1 alterRow(upsertIf(true())) ~> alterRow3",
+				"alterRow2 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'delta',",
+				"     fileSystem: 'tauranga',",
+				"     folderPath: 'gold/sc_dsch_time',",
+				"     mergeSchema: false,",
+				"     autoCompact: false,",
+				"     optimizedWrite: false,",
+				"     vacuum: 0,",
+				"     deletable: false,",
+				"     insertable: false,",
+				"     updateable: false,",
+				"     upsertable: true,",
+				"     keys:['ecEventGkey','Date'],",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> sink1",
+				"alterRow1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'delta',",
+				"     fileSystem: 'tauranga',",
+				"     folderPath: 'gold/sc_load_time',",
+				"     mergeSchema: false,",
+				"     autoCompact: false,",
+				"     optimizedWrite: false,",
+				"     vacuum: 0,",
+				"     deletable: false,",
+				"     insertable: false,",
+				"     updateable: false,",
+				"     upsertable: true,",
+				"     keys:['ecEventGkey','Date'],",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> sink2",
+				"alterRow3 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'delta',",
+				"     fileSystem: 'tauranga',",
+				"     folderPath: 'gold/sc_full_time',",
+				"     mergeSchema: false,",
+				"     autoCompact: false,",
+				"     optimizedWrite: false,",
+				"     vacuum: 0,",
+				"     deletable: false,",
+				"     insertable: false,",
+				"     updateable: false,",
+				"     upsertable: true,",
+				"     keys:['ecEventGkey','Date'],",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> sink3"
+			]
+		}
+	}
+}
