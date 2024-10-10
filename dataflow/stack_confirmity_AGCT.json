@@ -127,7 +127,7 @@
 				"     validateSchema: false,",
 				"     format: 'delta',",
 				"     fileSystem: 'agct',",
-				"     folderPath: 'gold/stackconformity',",
+				"     folderPath: 'gold/stack_conformity',",
 				"     mergeSchema: false,",
 				"     autoCompact: false,",
 				"     optimizedWrite: false,",
