@@ -26,7 +26,7 @@
 					"name": "filter1"
 				},
 				{
-					"name": "alterRow3"
+					"name": "alterRow1"
 				},
 				{
 					"name": "pivot1"
@@ -35,17 +35,32 @@
 					"name": "derivedColumn1"
 				},
 				{
-					"name": "aggregate1"
+					"name": "split1"
 				},
 				{
-					"name": "split1"
+					"name": "derivedColumn2"
 				},
 				{
 					"name": "MapDrifted1",
 					"description": "Creates an explicit mapping for each drifted column"
 				},
 				{
-					"name": "filter2"
+					"name": "select1"
+				},
+				{
+					"name": "split2"
+				},
+				{
+					"name": "select2"
+				},
+				{
+					"name": "split3"
+				},
+				{
+					"name": "select3"
+				},
+				{
+					"name": "select4"
 				}
 			],
 			"scriptLines": [
@@ -96,29 +111,102 @@
 				"     fileSystem: 'tauranga',",
 				"     folderPath: 'silver/ecevents') ~> ecevents",
 				"ecevents filter(cheKind == 'SC' && (moveKind == 'DSCH' || moveKind == 'LOAD') && (typeDescription=='EARW' || typeDescription=='EASH' || typeDescription=='DSPT' || typeDescription=='DROP')) ~> filter1",
-				"aggregate1 alterRow(upsertIf(true())) ~> alterRow3",
+				"select1 alterRow(upsertIf(true())) ~> alterRow1",
 				"filter1 pivot(groupBy(unitIdName,",
 				"          moveKind),",
 				"     pivotBy(typeDescription),",
-				"     {} = max(EcEventTime),",
+				"     first_ = first(EcEventTime),",
+				"          last_ = last(EcEventTime),",
 				"     columnNaming: '$N$V_Time',",
 				"     lateral: false) ~> pivot1",
-				"split1@loadMoves derive({Drop-Dspt} = iifNull(round((DROP_Time - DSPT_Time)/60000,2), 0) ,",
-				"          {Earw-Dspt} = round((EARW_Time - DSPT_Time)/60000,2)) ~> derivedColumn1",
-				"MapDrifted1 aggregate(groupBy(unitIdName),",
-				"     WorkTime = ERROR_FUNCTION('')) ~> aggregate1",
+				"split1@LoadMoves derive(ScLoadTime = :sc_load_time,",
+				"          ScLoadUnladenTime = :sc_load_unladen_time,",
+				"          ScLoadTimeRange = iif(:sc_load_time > 0 && :sc_load_time <= 10, \"0 to 10 min\",iif(:sc_load_time > 10 && :sc_load_time <= 15, \"10 to 15 min\",iif(:sc_load_time > 15 && :sc_load_time <= 20, \"15 to 20 min\",iif(:sc_load_time > 20 && :sc_load_time <= 25, \"20 to 25 min\",iif(:sc_load_time > 25 && :sc_load_time <= 30, \"25 to 30 min\",iif(:sc_load_time > 30 && :sc_load_time <= 40, \"30 to 40 min\",iif(:sc_load_time > 40 && :sc_load_time <= 50, \"40 to 50 min\",\"50 & above\"))))))),",
+				"          ScLoadUnladenTimeRange = iif(:sc_load_unladen_time > 0 && :sc_load_unladen_time <= 10, \"0 to 10 min\",iif(:sc_load_unladen_time > 10 && :sc_load_unladen_time <= 15, \"10 to 15 min\",iif(:sc_load_unladen_time > 15 && :sc_load_unladen_time <= 20, \"15 to 20 min\",iif(:sc_load_unladen_time > 20 && :sc_load_unladen_time <= 25, \"20 to 25 min\",iif(:sc_load_unladen_time > 25 && :sc_load_unladen_time <= 30, \"25 to 30 min\",iif(:sc_load_unladen_time > 30 && :sc_load_unladen_time <= 40, \"30 to 40 min\",iif(:sc_load_unladen_time > 40 && :sc_load_unladen_time <= 50, \"40 to 50 min\",\"50 & above\"))))))),",
+				"          sc_load_time := round((DROP_Time - DSPT_Time)/60000,2),",
+				"          sc_load_unladen_time := round((EARW_Time - DSPT_Time)/60000,2)) ~> derivedColumn1",
 				"MapDrifted1 split(moveKind  == \"LOAD\",",
-				"     disjoint: true) ~> split1@(loadMoves, shiftMoves)",
-				"pivot1 derive(DROP_Time = toTimestamp(byName('DROP_Time')),",
-				"          DSPT_Time = toTimestamp(byName('DSPT_Time')),",
-				"          EARW_Time = toTimestamp(byName('EARW_Time')),",
-				"          EASH_Time = toTimestamp(byName('EASH_Time'))) ~> MapDrifted1",
-				"derivedColumn1 filter(not(isNull({Earw-Dspt}))) ~> filter2",
-				"alterRow3 sink(allowSchemaDrift: true,",
+				"     moveKind  == \"DSCH\",",
+				"     disjoint: false) ~> split1@(LoadMoves, DschMoves)",
+				"split1@DschMoves derive(ScDschTime = :sc_dsch_time,",
+				"          ScDschUnladenTime = :sc_dsch_unladen_time,",
+				"          ScDschTimeRange = iif(:sc_dsch_time > 0 && :sc_dsch_time <= 10, \"0 to 10 min\",iif(:sc_dsch_time > 10 && :sc_dsch_time <= 15, \"10 to 15 min\",iif(:sc_dsch_time > 15 && :sc_dsch_time <= 20, \"15 to 20 min\",iif(:sc_dsch_time > 20 && :sc_dsch_time <= 25, \"20 to 25 min\",iif(:sc_dsch_time > 25 && :sc_dsch_time <= 30, \"25 to 30 min\",iif(:sc_dsch_time > 30 && :sc_dsch_time <= 40, \"30 to 40 min\",iif(:sc_dsch_time > 40 && :sc_dsch_time <= 50, \"40 to 50 min\",\"50 & above\"))))))),",
+				"          ScDschUnladenTimeRange = iif(:sc_dsch_unladen_time > 0 && :sc_dsch_unladen_time <= 10, \"0 to 10 min\",iif(:sc_dsch_unladen_time > 10 && :sc_dsch_unladen_time <= 15, \"10 to 15 min\",iif(:sc_dsch_unladen_time > 15 && :sc_dsch_unladen_time <= 20, \"15 to 20 min\",iif(:sc_dsch_unladen_time > 20 && :sc_dsch_unladen_time <= 25, \"20 to 25 min\",iif(:sc_dsch_unladen_time > 25 && :sc_dsch_unladen_time <= 30, \"25 to 30 min\",iif(:sc_dsch_unladen_time > 30 && :sc_dsch_unladen_time <= 40, \"30 to 40 min\",iif(:sc_dsch_unladen_time > 40 && :sc_dsch_unladen_time <= 50, \"40 to 50 min\",\"50 & above\"))))))),",
+				"          sc_dsch_time := iifNull(round((DROP_Time - DSPT_Time)/60000,2), 0),",
+				"          sc_dsch_unladen_time := round((EASH_Time - DSPT_Time)/60000,2)) ~> derivedColumn2",
+				"pivot1 derive(DROP_Time = toTimestamp(byName('last_DROP_Time')),",
+				"          DSPT_Time = toTimestamp(byName('first_DSPT_Time')),",
+				"          EARW_Time = toTimestamp(byName('last_EARW_Time')),",
+				"          EASH_Time = toTimestamp(byName('last_EASH_Time')),",
+				"          Timestamp = :Timestamp,",
+				"          Date = toDate(toString(:Timestamp)),",
+				"          Year = year(:Timestamp),",
+				"          Month = month(:Timestamp),",
+				"          Week = weekOfYear(:Timestamp),",
+				"          Timestamp := toTimestamp(byName('first_DSPT_Time'))) ~> MapDrifted1",
+				"split2@ScLoadUnladenTime select(mapColumn(",
+				"          unitIdName,",
+				"          moveKind,",
+				"          ScLoadUnladenTime,",
+				"          ScLoadUnladenTimeRange,",
+				"          Timestamp,",
+				"          Date,",
+				"          Year,",
+				"          Month,",
+				"          Week",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select1",
+				"derivedColumn1 split(not(isNull(ScLoadUnladenTime)) && ScLoadUnladenTime >= 0,",
+				"     not(isNull(ScLoadTime)) && ScLoadTime >= 0,",
+				"     disjoint: false) ~> split2@(ScLoadUnladenTime, ScLoadTime)",
+				"split2@ScLoadTime select(mapColumn(",
+				"          unitIdName,",
+				"          moveKind,",
+				"          Timestamp,",
+				"          Date,",
+				"          Year,",
+				"          Month,",
+				"          Week,",
+				"          ScLoadTime,",
+				"          ScLoadTimeRange",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select2",
+				"derivedColumn2 split(not(isNull(ScDschUnladenTime)) && ScDschUnladenTime >= 0,",
+				"     not(isNull(ScDschTime)) && ScDschTime >= 0,",
+				"     disjoint: false) ~> split3@(ScDschUnladenTime, ScDschTime)",
+				"split3@ScDschUnladenTime select(mapColumn(",
+				"          unitIdName,",
+				"          moveKind,",
+				"          Timestamp,",
+				"          Date,",
+				"          Year,",
+				"          Month,",
+				"          Week,",
+				"          ScDschUnladenTime,",
+				"          ScDschUnladenTimeRange",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select3",
+				"split3@ScDschTime select(mapColumn(",
+				"          unitIdName,",
+				"          moveKind,",
+				"          Timestamp,",
+				"          Date,",
+				"          Year,",
+				"          Month,",
+				"          Week,",
+				"          ScDschTime,",
+				"          ScDschTimeRange",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select4",
+				"alterRow1 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     format: 'delta',",
 				"     fileSystem: 'tauranga',",
-				"     folderPath: 'gold/sc_full_time',",
+				"     folderPath: 'gold/sc_load_unladen',",
 				"     mergeSchema: false,",
 				"     autoCompact: false,",
 				"     optimizedWrite: false,",
@@ -127,7 +215,7 @@
 				"     insertable: false,",
 				"     updateable: false,",
 				"     upsertable: true,",
-				"     keys:['ecEventGkey','Date'],",
+				"     keys:['unitIdName','moveKind','Timestamp'],",
 				"     umask: 0022,",
 				"     preCommands: [],",
 				"     postCommands: [],",
