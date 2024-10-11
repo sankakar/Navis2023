@@ -39,6 +39,13 @@
 				},
 				{
 					"name": "split1"
+				},
+				{
+					"name": "MapDrifted1",
+					"description": "Creates an explicit mapping for each drifted column"
+				},
+				{
+					"name": "filter2"
 				}
 			],
 			"scriptLines": [
@@ -96,10 +103,17 @@
 				"     {} = max(EcEventTime),",
 				"     columnNaming: '$N$V_Time',",
 				"     lateral: false) ~> pivot1",
-				"split1@loadMoves derive() ~> derivedColumn1",
-				"pivot1 aggregate(groupBy(unitIdName)) ~> aggregate1",
-				"pivot1 split(moveKind  == \"LOAD\",",
-				"     disjoint: false) ~> split1@(loadMoves, shiftMoves)",
+				"split1@loadMoves derive({Drop-Dspt} = iifNull(round((DROP_Time - DSPT_Time)/60000,2), 0) ,",
+				"          {Earw-Dspt} = round((EARW_Time - DSPT_Time)/60000,2)) ~> derivedColumn1",
+				"MapDrifted1 aggregate(groupBy(unitIdName),",
+				"     WorkTime = ERROR_FUNCTION('')) ~> aggregate1",
+				"MapDrifted1 split(moveKind  == \"LOAD\",",
+				"     disjoint: true) ~> split1@(loadMoves, shiftMoves)",
+				"pivot1 derive(DROP_Time = toTimestamp(byName('DROP_Time')),",
+				"          DSPT_Time = toTimestamp(byName('DSPT_Time')),",
+				"          EARW_Time = toTimestamp(byName('EARW_Time')),",
+				"          EASH_Time = toTimestamp(byName('EASH_Time'))) ~> MapDrifted1",
+				"derivedColumn1 filter(not(isNull({Earw-Dspt}))) ~> filter2",
 				"alterRow3 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     format: 'delta',",
