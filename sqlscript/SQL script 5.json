@@ -2,12 +2,12 @@
 	"name": "SQL script 5",
 	"properties": {
 		"content": {
-			"query": "create or ALTER  view  rehandle\nas\nselect *\nFROM\n    OPENROWSET(\n        BULK 'gold/rehandle',\n        data_source = 'mnhpi',\n        FORMAT = 'DELTA'\n    ) AS [rehandle]\n",
+			"query": "create or ALTER  view  sc_dsch_time\nas\nselect *\nFROM\n    OPENROWSET(\n        BULK 'gold/sc_dsch_time',\n        data_source = 'tauranga',\n        FORMAT = 'DELTA'\n    ) AS [sc_dsch_time];\n\ncreate or ALTER  view  sc_dsch_unladen_time\nas\nselect *\nFROM\n    OPENROWSET(\n        BULK 'gold/sc_dsch_unladen_time',\n        data_source = 'tauranga',\n        FORMAT = 'DELTA'\n    ) AS [sc_dsch_unladen_time];\n\ncreate or ALTER  view  sc_load_time\nas\nselect *\nFROM\n    OPENROWSET(\n        BULK 'gold/sc_load_time',\n        data_source = 'tauranga',\n        FORMAT = 'DELTA'\n    ) AS [sc_load_time];\n\ncreate or ALTER  view  sc_load_unladen_time\nas\nselect *\nFROM\n    OPENROWSET(\n        BULK 'gold/sc_load_unladen_time',\n        data_source = 'tauranga',\n        FORMAT = 'DELTA'\n    ) AS [sc_load_unladen_time];\n\n\n\n\n",
 			"metadata": {
 				"language": "sql"
 			},
 			"currentConnection": {
-				"databaseName": "mnhpi",
+				"databaseName": "tauranga",
 				"poolName": "Built-in"
 			},
 			"resultLimit": 5000
