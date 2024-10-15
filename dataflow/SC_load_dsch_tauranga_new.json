@@ -152,7 +152,7 @@
 				"     format: 'delta',",
 				"     fileSystem: 'tauranga',",
 				"     folderPath: 'silver/ecevents') ~> ecevents",
-				"ecevents filter(cheKind == 'SC' && (moveKind == 'DSCH' || moveKind == 'LOAD') && (typeDescription=='EARW' || typeDescription=='EASH' || typeDescription=='DSPT' || typeDescription=='DROP') && unitIdName=='TGBU7476268') ~> filter1",
+				"ecevents filter(cheKind == 'SC' && (moveKind == 'DSCH' || moveKind == 'LOAD') && (typeDescription=='EARW' || typeDescription=='EASH' || typeDescription=='DSPT' || typeDescription=='DROP')) ~> filter1",
 				"select1 alterRow(upsertIf(true())) ~> alterRow1",
 				"window2 pivot(groupBy(unitIdName,",
 				"          GroupNumber,",
