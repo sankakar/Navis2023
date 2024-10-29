@@ -2,12 +2,12 @@
 	"name": "SQL script 5",
 	"properties": {
 		"content": {
-			"query": "create or ALTER  view  sc_dsch_time\nas\nselect *\nFROM\n    OPENROWSET(\n        BULK 'gold/sc_dsch_time',\n        data_source = 'tauranga',\n        FORMAT = 'DELTA'\n    ) AS [sc_dsch_time];\n\ncreate or ALTER  view  sc_dsch_unladen_time\nas\nselect *\nFROM\n    OPENROWSET(\n        BULK 'gold/sc_dsch_unladen_time',\n        data_source = 'tauranga',\n        FORMAT = 'DELTA'\n    ) AS [sc_dsch_unladen_time];\n\ncreate or ALTER  view  sc_load_time\nas\nselect *\nFROM\n    OPENROWSET(\n        BULK 'gold/sc_load_time',\n        data_source = 'tauranga',\n        FORMAT = 'DELTA'\n    ) AS [sc_load_time];\n\ncreate or ALTER  view  sc_load_unladen_time\nas\nselect *\nFROM\n    OPENROWSET(\n        BULK 'gold/sc_load_unladen_time',\n        data_source = 'tauranga',\n        FORMAT = 'DELTA'\n    ) AS [sc_load_unladen_time];\n\n\n\n\n",
+			"query": "create or ALTER  view  move_history\nas\nselect *\nFROM\n    OPENROWSET(\n        BULK 'gold/move',\n        data_source = 'malta',\n        FORMAT = 'DELTA'\n    ) AS [move_history];\n\ncreate or ALTER  view  decking_history\nas\nselect *\nFROM\n    OPENROWSET(\n        BULK 'gold/decking',\n        data_source = 'malta',\n        FORMAT = 'DELTA'\n    ) AS [decking_history];\n\ncreate or ALTER  view  violation\nas\nselect *\nFROM\n    OPENROWSET(\n        BULK 'gold/violation',\n        data_source = 'malta',\n        FORMAT = 'DELTA'\n    ) AS [violation];\n\ncreate or ALTER  view  sc_load_unladen_time\nas\nselect *\nFROM\n    OPENROWSET(\n        BULK 'gold/sc_load_unladen_time',\n        data_source = 'tauranga',\n        FORMAT = 'DELTA'\n    ) AS [sc_load_unladen_time];\n\n\n\n\n",
 			"metadata": {
 				"language": "sql"
 			},
 			"currentConnection": {
-				"databaseName": "tauranga",
+				"databaseName": "malta",
 				"poolName": "Built-in"
 			},
 			"resultLimit": 5000
