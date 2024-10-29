@@ -434,7 +434,7 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> select3",
-				"select3 derive({Location Match or Not} = iif({MH ToPosName Short 5Char} == {DH ToPosName Short 5Char}, 'Position Followed', 'Position Not Followed'),",
+				"select3 derive({Location Match or Not} = iif(substring({MH ToPosName Short 5Char},1, 9) == substring({DH ToPosName Short 5Char},1,9), 'Position Followed', 'Position Not Followed'),",
 				"          Shift_Date = toDate({MH T_Put DateTime}),",
 				"          {T Put Time} = MaxDHTime,",
 				"          {T Put Hour} = hour(MaxDHTime),",
