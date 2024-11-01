@@ -1,0 +1,17 @@
+{
+	"name": "SQL script 12",
+	"properties": {
+		"content": {
+			"query": "SELECT SUM(WorkTime) as WorkTime, SUM(MoveCount) as MoveCount, sum([IdleTimeFL]) as IdleTimeFL\n, sum([RTGIdleTime]) as RTGIdleTime, SUM(WorkTime)/ SUM(MoveCount) as yard_che_prod, Date\n FROM [dbo].[rtg_ecevents]\n    WHERE Year = 2024 and Month = 6\n Group by [Year] ,[Month], Date\n ORDER BY [Year] ,[Month], Date\n ",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "mict",
+				"poolName": "Built-in"
+			},
+			"resultLimit": -1
+		},
+		"type": "SqlQuery"
+	}
+}
