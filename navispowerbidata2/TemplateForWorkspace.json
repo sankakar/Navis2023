@@ -76,6 +76,15 @@
 	},
 	"resources": [
 		{
+			"name": "[concat(parameters('workspaceName'), '/navispowerbidata2')]",
+			"type": "Microsoft.Synapse/workspaces/sqlPools",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"annotations": []
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('workspaceName'), '/AGCT_stack_confirmity')]",
 			"type": "Microsoft.Synapse/workspaces/pipelines",
 			"apiVersion": "2019-06-01-preview",
@@ -5117,6 +5126,83 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('workspaceName'), '/malta')]",
+			"type": "Microsoft.Synapse/workspaces/pipelines",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"activities": [
+					{
+						"name": "MoveSrc_malta",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "MoveSrc_malta",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"CSV": {},
+									"sink2": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					},
+					{
+						"name": "EcEvents_malta",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "EcEvents_malta",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"CSV": {},
+									"sink1": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/dataflows/MoveSrc_malta')]",
+				"[concat(variables('workspaceId'), '/dataflows/EcEvents_malta')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('workspaceName'), '/malta_violations')]",
 			"type": "Microsoft.Synapse/workspaces/pipelines",
 			"apiVersion": "2019-06-01-preview",
@@ -5520,8 +5606,7 @@
 				"annotations": []
 			},
 			"dependsOn": [
-				"[concat(variables('workspaceId'), '/dataflows/RTG EcEvents_mict')]",
-				"[concat(variables('workspaceId'), '/integrationRuntimes/AutoResolveIntegrationRuntime')]"
+				"[concat(variables('workspaceId'), '/dataflows/RTG EcEvents_mict')]"
 			]
 		},
 		{
@@ -8344,7 +8429,7 @@
 			"apiVersion": "2019-06-01-preview",
 			"properties": {
 				"annotations": [],
-				"runtimeState": "Stopped",
+				"runtimeState": "Started",
 				"pipelines": [
 					{
 						"pipelineReference": {
@@ -10555,6 +10640,55 @@
 			},
 			"dependsOn": [
 				"[concat(variables('workspaceId'), '/linkedServices/linkedService2')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/EcEvents_malta')]",
+			"type": "Microsoft.Synapse/workspaces/dataflows",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"linkedService": {
+								"referenceName": "linkedService1",
+								"type": "LinkedServiceReference"
+							},
+							"name": "CSV"
+						}
+					],
+					"sinks": [
+						{
+							"linkedService": {
+								"referenceName": "linkedService1",
+								"type": "LinkedServiceReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [
+						{
+							"name": "DataTypeConversion"
+						},
+						{
+							"name": "AlterRow1"
+						},
+						{
+							"name": "Select1"
+						},
+						{
+							"name": "Filter1"
+						},
+						{
+							"name": "derivedColumn1"
+						}
+					],
+					"script": "source(output(\n\t\tecEventGkey as long,\n\t\tyardGkey as integer,\n\t\tYARDID as string,\n\t\tFCYID as string,\n\t\tcheKind as string,\n\t\tCHE_Name as string,\n\t\tCHE_ID as short,\n\t\tTimeStamp as string,\n\t\teventType as short,\n\t\teventSubType as short,\n\t\teventTypeDescription as string,\n\t\tfromCheIdName as boolean,\n\t\tToCheIdName as boolean,\n\t\tunit as string,\n\t\tpow as string,\n\t\tpool as string,\n\t\tworkQueue as string,\n\t\ttravelDistance as short,\n\t\tmoveKind as string,\n\t\tisTwin as boolean,\n\t\tstartDistance as short,\n\t\tunitRef as string,\n\t\ttran_ID as string,\n\t\tlocType as string,\n\t\tlocID as string,\n\t\tlocSlot as string,\n\t\topsPosID as string,\n\t\tunladenLoctype as string,\n\t\tunladenLocID as string,\n\t\tunladenLocSlot as string,\n\t\tladenLoctype as string,\n\t\tladenLocID as string,\n\t\tladen_LocSlot as string,\n\t\tOPERATOR_NAME as string\n\t),\n\tuseSchema: false,\n\tallowSchemaDrift: false,\n\tvalidateSchema: true,\n\tignoreNoFilesFound: true,\n\tmoveFiles: ['bronze/ecevents/load','bronze/ecevents/archive'],\n\tformat: 'delimited',\n\tfileSystem: 'malta',\n\tfolderPath: 'bronze/ecevents/load',\n\tcolumnDelimiter: ',',\n\tescapeChar: '\\\\',\n\tquoteChar: '\\\"',\n\tcolumnNamesAsHeader: true,\n\tdateFormats: ['dd-MM-yyyy'],\n\ttimestampFormats: ['yyyy-MM-dd\\'T\\'HH:mm:ss.SSS\\'Z\\'','yyyy-MM-dd\\'T\\'HH:mm:ss\\'Z\\'']) ~> CSV\nCSV derive(EcEventTime = coalesce(toTimestamp(TimeStamp,'MM/dd/yyyy HH:mm:ss'),toTimestamp(TimeStamp,'dd-MM-yy HH:mm:ss'),toTimestamp(TimeStamp,'dd/MM/yyyy\\'T\\'HH:mm:ss'), toTimestamp(TimeStamp,'yyyy-MM-dd HH:mm:ss.SSS'),toTimestamp(TimeStamp,'dd/MM/yyyy HH:mm:ss'),toTimestamp(TimeStamp,'dd-MM-yyyy HH:mm:ss')),\n\t\tYear = iifNull(year( coalesce(toTimestamp(TimeStamp,'MM/dd/yyyy HH:mm:ss'),toTimestamp(TimeStamp,'dd-MM-yy HH:mm:ss'),toTimestamp(TimeStamp,'dd/MM/yyyy\\'T\\'HH:mm:ss'), toTimestamp(TimeStamp,'yyyy-MM-dd HH:mm:ss.SSS'),toTimestamp(TimeStamp,'dd/MM/yyyy HH:mm:ss'),toTimestamp(TimeStamp,'dd-MM-yyyy HH:mm:ss')))),\n\t\tMonth = iifNull(month( coalesce(toTimestamp(TimeStamp,'MM/dd/yyyy HH:mm:ss'),toTimestamp(TimeStamp,'dd-MM-yy HH:mm:ss'),toTimestamp(TimeStamp,'dd/MM/yyyy\\'T\\'HH:mm:ss'), toTimestamp(TimeStamp,'yyyy-MM-dd HH:mm:ss.SSS'),toTimestamp(TimeStamp,'dd/MM/yyyy HH:mm:ss'),toTimestamp(TimeStamp,'dd-MM-yyyy HH:mm:ss')))),\n\t\tWeek = iifNull(weekOfYear( coalesce(toTimestamp(TimeStamp,'MM/dd/yyyy HH:mm:ss'),toTimestamp(TimeStamp,'dd-MM-yy HH:mm:ss'),toTimestamp(TimeStamp,'dd/MM/yyyy\\'T\\'HH:mm:ss'), toTimestamp(TimeStamp,'yyyy-MM-dd HH:mm:ss.SSS'),toTimestamp(TimeStamp,'dd/MM/yyyy HH:mm:ss'),toTimestamp(TimeStamp,'dd-MM-yyyy HH:mm:ss'))))) ~> DataTypeConversion\nFilter1 alterRow(upsertIf(true())) ~> AlterRow1\nDataTypeConversion select(mapColumn(\n\t\tecEventGkey,\n\t\tyardGkey,\n\t\tYardID = YARDID,\n\t\tFcyID = FCYID,\n\t\tcheKind,\n\t\tcheName = CHE_Name,\n\t\tcheID = CHE_ID,\n\t\tTimeStamp,\n\t\ttype = eventType,\n\t\tsubType = eventSubType,\n\t\ttypeDescription = eventTypeDescription,\n\t\tfromCheIdName,\n\t\tToCheIdName,\n\t\tunitIdName = unit,\n\t\tpowName = pow,\n\t\tpoolName = pool,\n\t\tworkQueue,\n\t\ttravelDistance,\n\t\tmoveKind,\n\t\tisTwin,\n\t\tstartDistance,\n\t\tunitReference = unitRef,\n\t\ttranId = tran_ID,\n\t\tlocType,\n\t\tlocId = locID,\n\t\tlocSlot,\n\t\topsPosId = opsPosID,\n\t\tunladenLoctype,\n\t\tunladenLocId = unladenLocID,\n\t\tunladenLocSlot,\n\t\tladenLoctype,\n\t\tladenLocId = ladenLocID,\n\t\tladen_LocSlot,\n\t\toperatorName = OPERATOR_NAME,\n\t\tEcEventTime,\n\t\tYear,\n\t\tMonth,\n\t\tWeek\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> Select1\nderivedColumn1 filter(not(isNull(ecEventGkey))) ~> Filter1\nSelect1 derive(cheID = toLong(cheID),\n\t\tecEventGkey = toLong(ecEventGkey),\n\t\tyardGkey = toLong(yardGkey)) ~> derivedColumn1\nAlterRow1 sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'delta',\n\tfileSystem: 'malta',\n\tfolderPath: 'silver/ecevents',\n\tmergeSchema: true,\n\tautoCompact: true,\n\toptimizedWrite: true,\n\tvacuum: 0,\n\tdeletable: false,\n\tinsertable: false,\n\tupdateable: false,\n\tupsertable: true,\n\tkeys:['ecEventGkey'],\n\tumask: 0022,\n\tpreCommands: [],\n\tpostCommands: [],\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\tpartitionBy('key',\n\t\t0,\n\t\tYear,\n\t\tMonth,\n\t\tWeek\n\t)) ~> sink1"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/linkedServices/linkedService1')]"
 			]
 		},
 		{
@@ -14396,6 +14530,56 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('workspaceName'), '/MoveSrc_malta')]",
+			"type": "Microsoft.Synapse/workspaces/dataflows",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"linkedService": {
+								"referenceName": "linkedService1",
+								"type": "LinkedServiceReference"
+							},
+							"name": "CSV"
+						}
+					],
+					"sinks": [
+						{
+							"linkedService": {
+								"referenceName": "linkedService2",
+								"type": "LinkedServiceReference"
+							},
+							"name": "sink2"
+						}
+					],
+					"transformations": [
+						{
+							"name": "DataTypeConversion"
+						},
+						{
+							"name": "Select1"
+						},
+						{
+							"name": "Aggregate1"
+						},
+						{
+							"name": "Select2"
+						},
+						{
+							"name": "AlterRow1"
+						}
+					],
+					"script": "source(output(\n\t\t{Unit Nbr} as string,\n\t\t{Facility Id} as string,\n\t\t{Complex Id} as string,\n\t\t{Yard Id} as string,\n\t\t{Carrier Visit Key} as string,\n\t\t{Event Type Id} as string,\n\t\t{Move Kind} as string,\n\t\t{From Location} as string,\n\t\t{To Location} as string,\n\t\t{From Position Name} as string,\n\t\t{To Position Name} as string,\n\t\t{Carry CHE Operator Id} as string,\n\t\t{Fetch CHE Operator Id} as string,\n\t\t{Put CHE Operator Id} as string,\n\t\t{Fetch CHE Id} as string,\n\t\t{Fetch CHE Kind} as string,\n\t\t{Carry CHE Id} as string,\n\t\t{Carry CHE Kind} as string,\n\t\t{Put CHE Id} as string,\n\t\t{Put CHE Kind} as string,\n\t\t{QC CHE Id} as string,\n\t\t{QC CHE Kind} as string,\n\t\tt_carry_complete as string,\n\t\tt_put as string,\n\t\tt_fetch as string,\n\t\tt_dispatch as string,\n\t\tt_discharge as string,\n\t\tt_carry_dispatch as string,\n\t\tt_carry_fetch_ready as string,\n\t\tt_carry_put_ready as string,\n\t\tdist_carry as string,\n\t\tdist_start as string,\n\t\t{Twin Fetch} as string,\n\t\t{Twin Carry} as string,\n\t\t{Twin Put} as string,\n\t\t{Category Id} as string,\n\t\t{Freight Kind Id} as string,\n\t\tto_pos_gkey as string,\n\t\tfm_pos_gkey as string,\n\t\t{Restow Reason} as string,\n\t\t{Container Line Id} as string,\n\t\t{Container Line Role} as string,\n\t\tpow as string,\n\t\tmve_gkey as string,\n\t\tufv_gkey as string,\n\t\t{Berth Id} as string,\n\t\t{Goods And Ctr Wt Kg} as string,\n\t\tactive_ufv as string,\n\t\t{Requires Power Flag} as string,\n\t\t{OOG Flag} as string,\n\t\t{Shipper Id} as string,\n\t\t{Consignee Id} as string,\n\t\t{Commodity Id} as string,\n\t\tATA as string,\n\t\tATD as string,\n\t\tRehandles as string\n\t),\n\tuseSchema: false,\n\tallowSchemaDrift: false,\n\tvalidateSchema: true,\n\tignoreNoFilesFound: false,\n\tmoveFiles: ['bronze/moves/load','bronze/moves/archive'],\n\tformat: 'delimited',\n\tfileSystem: 'malta',\n\tfolderPath: 'bronze/moves/load',\n\tcolumnDelimiter: ',',\n\tescapeChar: '\\\\',\n\tquoteChar: '\\\"',\n\tcolumnNamesAsHeader: true,\n\tdateFormats: ['dd-MM-yyyy'],\n\ttimestampFormats: ['yyyy-MM-dd\\'T\\'HH:mm:ss.SSS\\'Z\\'','yyyy-MM-dd\\'T\\'HH:mm:ss\\'Z\\'']) ~> CSV\nAggregate1 derive(t_carry_complete = coalesce(toTimestamp(t_carry_complete,'MM/dd/yyyy HH:mm:ss'),toTimestamp(t_carry_complete,'dd-MM-yy HH:mm:ss'),toTimestamp(t_carry_complete,'dd/MM/yyyy\\'T\\'HH:mm:ss'), toTimestamp(t_carry_complete,'yyyy-MM-dd HH:mm:ss.SSS'),toTimestamp(t_carry_complete,'dd/MM/yyyy HH:mm:ss'),toTimestamp(t_carry_complete,'dd-MM-yyyy HH:mm:ss')),\n\t\tt_put = coalesce(toTimestamp(t_put,'MM/dd/yyyy HH:mm:ss'),toTimestamp(t_put,'dd-MM-yy HH:mm:ss'),toTimestamp(t_put,'dd.MM.yy HH:mm:ss'),toTimestamp(t_put,'dd/MM/yyyy\\'T\\'HH:mm:ss'), toTimestamp(t_put,'yyyy-MM-dd HH:mm:ss.SSS'),toTimestamp(t_put,'dd/MM/yyyy HH:mm:ss'),toTimestamp(t_put,'dd-MM-yyyy HH:mm:ss')),\n\t\tt_fetch = coalesce(toTimestamp(t_fetch,'MM/dd/yyyy HH:mm:ss'),toTimestamp(t_fetch,'dd-MM-yy HH:mm:ss'),toTimestamp(t_fetch,'dd.MM.yy HH:mm:ss'),toTimestamp(t_fetch,'dd/MM/yyyy\\'T\\'HH:mm:ss'), toTimestamp(t_fetch,'yyyy-MM-dd HH:mm:ss.SSS'),toTimestamp(t_fetch,'dd/MM/yyyy HH:mm:ss'),toTimestamp(t_fetch,'dd-MM-yyyy HH:mm:ss')),\n\t\tt_discharge = coalesce(toTimestamp(t_discharge,'MM/dd/yyyy HH:mm:ss'),toTimestamp(t_discharge,'dd-MM-yy HH:mm:ss'),toTimestamp(t_discharge,'dd.MM.yy HH:mm:ss'),toTimestamp(t_discharge,'dd/MM/yyyy\\'T\\'HH:mm:ss'), toTimestamp(t_discharge,'yyyy-MM-dd HH:mm:ss.SSS'),toTimestamp(t_discharge,'dd/MM/yyyy HH:mm:ss'),toTimestamp(t_discharge,'dd-MM-yyyy HH:mm:ss')),\n\t\tFetch_CHE_Id = toLong(Fetch_CHE_Id),\n\t\tQC_CHE_Id = toLong(QC_CHE_Id),\n\t\tPut_CHE_Id = toLong(Put_CHE_Id),\n\t\tCarry_CHE_Id = toLong(Carry_CHE_Id),\n\t\tYear = year(coalesce(toTimestamp(t_put,'MM/dd/yyyy HH:mm:ss'),toTimestamp(t_put,'dd-MM-yy HH:mm:ss'),toTimestamp(t_put,'dd.MM.yy HH:mm:ss'),toTimestamp(t_put,'dd/MM/yyyy\\'T\\'HH:mm:ss'), toTimestamp(t_put,'yyyy-MM-dd HH:mm:ss.SSS'),toTimestamp(t_put,'dd/MM/yyyy HH:mm:ss'),toTimestamp(t_put,'dd-MM-yyyy HH:mm:ss'))),\n\t\tMonth = month(coalesce(toTimestamp(t_put,'MM/dd/yyyy HH:mm:ss'),toTimestamp(t_put,'dd-MM-yy HH:mm:ss'),toTimestamp(t_put,'dd.MM.yy HH:mm:ss'),toTimestamp(t_put,'dd/MM/yyyy\\'T\\'HH:mm:ss'), toTimestamp(t_put,'yyyy-MM-dd HH:mm:ss.SSS'),toTimestamp(t_put,'dd/MM/yyyy HH:mm:ss'),toTimestamp(t_put,'dd-MM-yyyy HH:mm:ss'))),\n\t\tWeek = weekOfYear(coalesce(toTimestamp(t_put,'MM/dd/yyyy HH:mm:ss'),toTimestamp(t_put,'dd-MM-yy HH:mm:ss'),toTimestamp(t_put,'dd.MM.yy HH:mm:ss'),toTimestamp(t_put,'dd/MM/yyyy\\'T\\'HH:mm:ss'), toTimestamp(t_put,'yyyy-MM-dd HH:mm:ss.SSS'),toTimestamp(t_put,'dd/MM/yyyy HH:mm:ss'),toTimestamp(t_put,'dd-MM-yyyy HH:mm:ss'))),\n\t\tt_dispatch = coalesce(toTimestamp(t_dispatch,'MM/dd/yyyy HH:mm:ss'),toTimestamp(t_dispatch,'dd-MM-yy HH:mm:ss'),toTimestamp(t_dispatch,'dd.MM.yy HH:mm:ss'),toTimestamp(t_dispatch,'dd/MM/yyyy\\'T\\'HH:mm:ss'), toTimestamp(t_dispatch,'yyyy-MM-dd HH:mm:ss.SSS'),toTimestamp(t_dispatch,'dd/MM/yyyy HH:mm:ss'),toTimestamp(t_dispatch,'dd-MM-yyyy HH:mm:ss')),\n\t\tt_carry_dispatch = coalesce(toTimestamp(t_carry_dispatch,'MM/dd/yyyy HH:mm:ss'),toTimestamp(t_carry_dispatch,'dd-MM-yy HH:mm:ss'),toTimestamp(t_carry_dispatch,'dd.MM.yy HH:mm:ss'),toTimestamp(t_carry_dispatch,'dd/MM/yyyy\\'T\\'HH:mm:ss'), toTimestamp(t_carry_dispatch,'yyyy-MM-dd HH:mm:ss.SSS'),toTimestamp(t_carry_dispatch,'dd/MM/yyyy HH:mm:ss'),toTimestamp(t_carry_dispatch,'dd-MM-yyyy HH:mm:ss')),\n\t\tt_carry_fetch_ready = coalesce(toTimestamp(t_carry_fetch_ready,'MM/dd/yyyy HH:mm:ss'),toTimestamp(t_carry_fetch_ready,'dd-MM-yy HH:mm:ss'),toTimestamp(t_carry_fetch_ready,'dd.MM.yy HH:mm:ss'),toTimestamp(t_carry_fetch_ready,'dd/MM/yyyy\\'T\\'HH:mm:ss'), toTimestamp(t_carry_fetch_ready,'yyyy-MM-dd HH:mm:ss.SSS'),toTimestamp(t_carry_fetch_ready,'dd/MM/yyyy HH:mm:ss'),toTimestamp(t_carry_fetch_ready,'dd-MM-yyyy HH:mm:ss')),\n\t\tt_carry_put_ready = coalesce(toTimestamp(t_carry_put_ready,'MM/dd/yyyy HH:mm:ss'),toTimestamp(t_carry_put_ready,'dd-MM-yy HH:mm:ss'),toTimestamp(t_carry_put_ready,'dd.MM.yy HH:mm:ss'),toTimestamp(t_carry_put_ready,'dd/MM/yyyy\\'T\\'HH:mm:ss'), toTimestamp(t_carry_put_ready,'yyyy-MM-dd HH:mm:ss.SSS'),toTimestamp(t_carry_put_ready,'dd/MM/yyyy HH:mm:ss'),toTimestamp(t_carry_put_ready,'dd-MM-yyyy HH:mm:ss')),\n\t\tATD = coalesce(toTimestamp(ATD,'MM/dd/yyyy HH:mm:ss'),toTimestamp(ATD,'dd-MM-yy HH:mm:ss'),toTimestamp(ATD,'dd.MM.yy HH:mm:ss'),toTimestamp(ATD,'dd/MM/yyyy\\'T\\'HH:mm:ss'), toTimestamp(ATD,'yyyy-MM-dd HH:mm:ss.SSS'),toTimestamp(ATD,'dd/MM/yyyy HH:mm:ss'),toTimestamp(ATD,'dd-MM-yyyy HH:mm:ss')),\n\t\tATA = coalesce(toTimestamp(ATA,'MM/dd/yyyy HH:mm:ss'),toTimestamp(ATA,'dd-MM-yy HH:mm:ss'),toTimestamp(ATA,'dd.MM.yy HH:mm:ss'),toTimestamp(ATA,'dd/MM/yyyy\\'T\\'HH:mm:ss'), toTimestamp(ATA,'yyyy-MM-dd HH:mm:ss.SSS'),toTimestamp(ATA,'dd/MM/yyyy HH:mm:ss'),toTimestamp(ATA,'dd-MM-yyyy HH:mm:ss'))) ~> DataTypeConversion\nSelect2 select(mapColumn(\n\t\teach(match(true()),\n\t\t\tregexReplace($$,' ','_') = $$)\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> Select1\nSelect1 aggregate(groupBy(mve_gkey),\n\teach(match(name!='mve_gkey'), $$ = first($$))) ~> Aggregate1\nCSV select(mapColumn(\n\t\t{Unit Nbr},\n\t\t{Facility Id},\n\t\t{Complex Id},\n\t\t{Yard Id},\n\t\t{Carrier Visit Key},\n\t\t{Event Type Id},\n\t\t{Move Kind},\n\t\t{From Location},\n\t\t{To Location},\n\t\t{From Position Name},\n\t\t{To Position Name},\n\t\t{Carry CHE Operator Id},\n\t\t{Fetch CHE Operator Id},\n\t\t{Put CHE Operator Id},\n\t\t{Fetch CHE Id},\n\t\t{Fetch CHE Kind},\n\t\t{Carry CHE Id},\n\t\t{Carry CHE Kind},\n\t\t{Put CHE Id},\n\t\t{Put CHE Kind},\n\t\t{QC CHE Id},\n\t\t{QC CHE Kind},\n\t\tt_carry_complete,\n\t\tt_put,\n\t\tt_fetch,\n\t\tt_dispatch,\n\t\tt_discharge,\n\t\tt_carry_dispatch,\n\t\tt_carry_fetch_ready,\n\t\tt_carry_put_ready,\n\t\tdist_carry,\n\t\tdist_start,\n\t\t{Twin Fetch},\n\t\t{Twin Carry},\n\t\t{Twin Put},\n\t\t{Category Id},\n\t\t{Freight Kind Id},\n\t\tto_pos_gkey,\n\t\tfm_pos_gkey,\n\t\t{Restow Reason},\n\t\t{Container Line Id},\n\t\t{Container Line Role},\n\t\tpow,\n\t\tmve_gkey,\n\t\tufv_gkey,\n\t\t{Berth Id},\n\t\t{Goods And Ctr Wt Kg},\n\t\tactive_ufv,\n\t\t{Requires Power Flag},\n\t\t{OOG Flag},\n\t\t{Shipper Id},\n\t\t{Consignee Id},\n\t\t{Commodity Id},\n\t\tATD,\n\t\tRehandles,\n\t\tATA\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> Select2\nDataTypeConversion alterRow(upsertIf(true())) ~> AlterRow1\nAlterRow1 sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'delta',\n\tfileSystem: 'malta',\n\tfolderPath: 'silver/moves',\n\tmergeSchema: false,\n\tautoCompact: true,\n\toptimizedWrite: true,\n\tvacuum: 0,\n\tdeletable: false,\n\tinsertable: false,\n\tupdateable: false,\n\tupsertable: true,\n\tkeys:['mve_gkey'],\n\tumask: 0777,\n\tpreCommands: [],\n\tpostCommands: [],\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\tpartitionBy('key',\n\t\t0,\n\t\tYear,\n\t\tMonth,\n\t\tWeek\n\t)) ~> sink2"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/linkedServices/linkedService1')]",
+				"[concat(variables('workspaceId'), '/linkedServices/linkedService2')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('workspaceName'), '/MoveSrc_mict')]",
 			"type": "Microsoft.Synapse/workspaces/dataflows",
 			"apiVersion": "2019-06-01-preview",
@@ -17313,6 +17497,59 @@
 			},
 			"dependsOn": [
 				"[concat(variables('workspaceId'), '/linkedServices/linkedService1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/Rehandle_cmsa_new')]",
+			"type": "Microsoft.Synapse/workspaces/dataflows",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"linkedService": {
+								"referenceName": "linkedService1",
+								"type": "LinkedServiceReference"
+							},
+							"name": "MoveHistory"
+						}
+					],
+					"sinks": [
+						{
+							"linkedService": {
+								"referenceName": "linkedService2",
+								"type": "LinkedServiceReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [
+						{
+							"name": "DataTypeConversion"
+						},
+						{
+							"name": "Aggregate1"
+						},
+						{
+							"name": "Select1"
+						},
+						{
+							"name": "AlterRow1"
+						},
+						{
+							"name": "Select2"
+						},
+						{
+							"name": "filter1"
+						}
+					],
+					"script": "source(output(\n\t\t{Unit Nbr} as string,\n\t\t{Facility Id} as string,\n\t\t{Complex Id} as string,\n\t\t{Yard Id} as string,\n\t\t{Carrier Visit Key} as string,\n\t\t{Event Type Id} as string,\n\t\t{Move Kind} as string,\n\t\t{From Location} as string,\n\t\t{To Location} as string,\n\t\t{From Position Name} as string,\n\t\t{To Position Name} as string,\n\t\t{Carry CHE Operator Id} as string,\n\t\t{Fetch CHE Operator Id} as string,\n\t\t{Put CHE Operator Id} as string,\n\t\t{Fetch CHE Id} as string,\n\t\t{Fetch CHE Kind} as string,\n\t\t{Carry CHE Id} as string,\n\t\t{Carry CHE Kind} as string,\n\t\t{Put CHE Id} as string,\n\t\t{Put CHE Kind} as string,\n\t\t{QC CHE Id} as string,\n\t\t{QC CHE Kind} as string,\n\t\tt_carry_complete as string,\n\t\tt_put as string,\n\t\tt_fetch as string,\n\t\tt_dispatch as string,\n\t\tt_discharge as string,\n\t\tt_carry_dispatch as string,\n\t\tt_carry_fetch_ready as string,\n\t\tt_carry_put_ready as string,\n\t\tdist_carry as integer,\n\t\tdist_start as short,\n\t\t{Twin Fetch} as boolean,\n\t\t{Twin Carry} as boolean,\n\t\t{Twin Put} as boolean,\n\t\t{Category Id} as string,\n\t\t{Freight Kind Id} as string,\n\t\tto_pos_gkey as string,\n\t\tfm_pos_gkey as string,\n\t\t{Restow Reason} as string,\n\t\t{Container Line Id} as string,\n\t\t{Container Line Role} as string,\n\t\tpow as string,\n\t\tmve_gkey as integer,\n\t\tufv_gkey as integer,\n\t\t{Berth Id} as string,\n\t\t{Goods And Ctr Wt Kg} as integer,\n\t\tactive_ufv as integer,\n\t\t{Requires Power Flag} as boolean,\n\t\t{OOG Flag} as boolean,\n\t\t{Shipper Id} as string,\n\t\t{Consignee Id} as string,\n\t\t{Commodity Id} as string,\n\t\tATA as string,\n\t\tATD as string,\n\t\tRehandles as short\n\t),\n\tuseSchema: false,\n\tallowSchemaDrift: false,\n\tvalidateSchema: true,\n\tignoreNoFilesFound: true,\n\tmoveFiles: ['bronze/moves/load','bronze/moves/archive'],\n\tformat: 'delimited',\n\tfileSystem: 'cmsa',\n\tfolderPath: 'bronze/moves/load',\n\tcolumnDelimiter: ',',\n\tescapeChar: '\\\\',\n\tquoteChar: '\\\"',\n\tcolumnNamesAsHeader: true,\n\tdateFormats: ['dd-MM-yyyy'],\n\ttimestampFormats: ['yyyy-MM-dd\\'T\\'HH:mm:ss.SSS\\'Z\\'','yyyy-MM-dd\\'T\\'HH:mm:ss\\'Z\\'']) ~> MoveHistory\nAggregate1 derive(t_carry_complete = coalesce(toTimestamp(t_carry_complete,'yyyy/MM/dd HH:mm:ss'),toTimestamp(t_carry_complete,'dd-MM-yy HH:mm:ss'),toTimestamp(t_carry_complete,'dd/MM/yyyy\\'T\\'HH:mm:ss'), toTimestamp(t_carry_complete,'yyyy-MM-dd HH:mm:ss.SSS'),toTimestamp(t_carry_complete,'dd/MM/yyyy HH:mm:ss'),toTimestamp(t_carry_complete,'dd-MM-yyyy HH:mm:ss')),\n\t\tt_put = coalesce(toTimestamp(t_put,'yyyy/MM/dd HH:mm:ss'),toTimestamp(t_put,'dd-MM-yy HH:mm:ss'),toTimestamp(t_put,'dd/MM/yyyy\\'T\\'HH:mm:ss'), toTimestamp(t_put,'yyyy-MM-dd HH:mm:ss.SSS'),toTimestamp(t_put,'dd/MM/yyyy HH:mm:ss'),toTimestamp(t_put,'dd-MM-yyyy HH:mm:ss'),toTimestamp(t_put,'dd MM yy HH:mm')),\n\t\tt_fetch = coalesce(toTimestamp(t_fetch,'yyyy/MM/dd HH:mm:ss'),toTimestamp(t_fetch,'dd-MM-yy HH:mm:ss'),toTimestamp(t_fetch,'dd.MM.yy HH:mm:ss'),toTimestamp(t_fetch,'dd/MM/yyyy\\'T\\'HH:mm:ss'), toTimestamp(t_fetch,'yyyy-MM-dd HH:mm:ss.SSS'),toTimestamp(t_fetch,'dd/MM/yyyy HH:mm:ss'),toTimestamp(t_fetch,'dd-MM-yyyy HH:mm:ss')),\n\t\tt_discharge = coalesce(toTimestamp(t_discharge,'yyyy/MM/dd HH:mm:ss'),toTimestamp(t_discharge,'MM/dd/yyyy HH:mm:ss'),toTimestamp(t_discharge,'dd-MM-yy HH:mm:ss'),toTimestamp(t_discharge,'dd.MM.yy HH:mm:ss'),toTimestamp(t_discharge,'dd/MM/yyyy\\'T\\'HH:mm:ss'), toTimestamp(t_discharge,'yyyy-MM-dd HH:mm:ss.SSS'),toTimestamp(t_discharge,'dd/MM/yyyy HH:mm:ss'),toTimestamp(t_discharge,'dd-MM-yyyy HH:mm:ss')),\n\t\tYear = year(coalesce(toTimestamp(t_put,'yyyy/MM/dd HH:mm:ss'),toTimestamp(t_put,'MM/dd/yyyy HH:mm:ss'),toTimestamp(t_put,'dd-MM-yy HH:mm:ss'),toTimestamp(t_put,'dd/MM/yyyy\\'T\\'HH:mm:ss'), toTimestamp(t_put,'yyyy-MM-dd HH:mm:ss.SSS'),toTimestamp(t_put,'dd/MM/yyyy HH:mm:ss'),toTimestamp(t_put,'dd-MM-yyyy HH:mm:ss'),toTimestamp(t_put,'dd MM yy HH:mm'))),\n\t\tMonth = month(coalesce(toTimestamp(t_put,'yyyy/MM/dd HH:mm:ss'),toTimestamp(t_put,'MM/dd/yyyy HH:mm:ss'),toTimestamp(t_put,'dd-MM-yy HH:mm:ss'),toTimestamp(t_put,'dd/MM/yyyy\\'T\\'HH:mm:ss'), toTimestamp(t_put,'yyyy-MM-dd HH:mm:ss.SSS'),toTimestamp(t_put,'dd/MM/yyyy HH:mm:ss'),toTimestamp(t_put,'dd-MM-yyyy HH:mm:ss'),toTimestamp(t_put,'dd MM yy HH:mm'))),\n\t\tWeek = weekOfYear(coalesce(toTimestamp(t_put,'yyyy/MM/dd HH:mm:ss'),toTimestamp(t_put,'MM/dd/yyyy HH:mm:ss'),toTimestamp(t_put,'dd-MM-yy HH:mm:ss'),toTimestamp(t_put,'dd/MM/yyyy\\'T\\'HH:mm:ss'), toTimestamp(t_put,'yyyy-MM-dd HH:mm:ss.SSS'),toTimestamp(t_put,'dd/MM/yyyy HH:mm:ss'),toTimestamp(t_put,'dd-MM-yyyy HH:mm:ss'),toTimestamp(t_put,'dd MM yy HH:mm'))),\n\t\tt_dispatch = coalesce(toTimestamp(t_dispatch,'yyyy/MM/dd HH:mm:ss'),toTimestamp(t_dispatch,'MM/dd/yyyy HH:mm:ss'),toTimestamp(t_dispatch,'dd-MM-yy HH:mm:ss'),toTimestamp(t_dispatch,'dd.MM.yy HH:mm:ss'),toTimestamp(t_dispatch,'dd/MM/yyyy\\'T\\'HH:mm:ss'), toTimestamp(t_dispatch,'yyyy-MM-dd HH:mm:ss.SSS'),toTimestamp(t_dispatch,'dd/MM/yyyy HH:mm:ss'),toTimestamp(t_dispatch,'dd-MM-yyyy HH:mm:ss')),\n\t\tt_carry_dispatch = coalesce(toTimestamp(t_carry_dispatch,'yyyy/MM/dd HH:mm:ss'),toTimestamp(t_carry_dispatch,'MM/dd/yyyy HH:mm:ss'),toTimestamp(t_carry_dispatch,'dd-MM-yy HH:mm:ss'),toTimestamp(t_carry_dispatch,'dd.MM.yy HH:mm:ss'),toTimestamp(t_carry_dispatch,'dd/MM/yyyy\\'T\\'HH:mm:ss'), toTimestamp(t_carry_dispatch,'yyyy-MM-dd HH:mm:ss.SSS'),toTimestamp(t_carry_dispatch,'dd/MM/yyyy HH:mm:ss'),toTimestamp(t_carry_dispatch,'dd-MM-yyyy HH:mm:ss')),\n\t\tt_carry_fetch_ready = coalesce(toTimestamp(t_carry_fetch_ready,'yyyy/MM/dd HH:mm:ss'),toTimestamp(t_carry_fetch_ready,'MM/dd/yyyy HH:mm:ss'),toTimestamp(t_carry_fetch_ready,'dd-MM-yy HH:mm:ss'),toTimestamp(t_carry_fetch_ready,'dd.MM.yy HH:mm:ss'),toTimestamp(t_carry_fetch_ready,'dd/MM/yyyy\\'T\\'HH:mm:ss'), toTimestamp(t_carry_fetch_ready,'yyyy-MM-dd HH:mm:ss.SSS'),toTimestamp(t_carry_fetch_ready,'dd/MM/yyyy HH:mm:ss'),toTimestamp(t_carry_fetch_ready,'dd-MM-yyyy HH:mm:ss')),\n\t\tt_carry_put_ready = coalesce(toTimestamp(t_carry_put_ready,'yyyy/MM/dd HH:mm:ss'),toTimestamp(t_carry_put_ready,'MM/dd/yyyy HH:mm:ss'),toTimestamp(t_carry_put_ready,'dd-MM-yy HH:mm:ss'),toTimestamp(t_carry_put_ready,'dd.MM.yy HH:mm:ss'),toTimestamp(t_carry_put_ready,'dd/MM/yyyy\\'T\\'HH:mm:ss'), toTimestamp(t_carry_put_ready,'yyyy-MM-dd HH:mm:ss.SSS'),toTimestamp(t_carry_put_ready,'dd/MM/yyyy HH:mm:ss'),toTimestamp(t_carry_put_ready,'dd-MM-yyyy HH:mm:ss')),\n\t\tDate = toDate(coalesce(toTimestamp(t_put,'yyyy/MM/dd HH:mm:ss'),toTimestamp(t_put,'MM/dd/yyyy HH:mm:ss'),toTimestamp(t_put,'dd-MM-yy HH:mm:ss'),toTimestamp(t_put,'dd/MM/yyyy\\'T\\'HH:mm:ss'), toTimestamp(t_put,'yyyy-MM-dd HH:mm:ss.SSS'),toTimestamp(t_put,'dd/MM/yyyy HH:mm:ss'),toTimestamp(t_put,'dd-MM-yyyy HH:mm:ss'),toTimestamp(t_put,'dd MM yy HH:mm'))),\n\t\tYear_Week = (year(coalesce(toTimestamp(t_put,'yyyy/MM/dd HH:mm:ss'),toTimestamp(t_put,'MM/dd/yyyy HH:mm:ss'),toTimestamp(t_put,'dd-MM-yy HH:mm:ss'),toTimestamp(t_put,'dd/MM/yyyy\\'T\\'HH:mm:ss'), toTimestamp(t_put,'yyyy-MM-dd HH:mm:ss.SSS'),toTimestamp(t_put,'dd/MM/yyyy HH:mm:ss'),toTimestamp(t_put,'dd-MM-yyyy HH:mm:ss'),toTimestamp(t_put,'dd MM yy HH:mm'))) * 100) + weekOfYear(coalesce(toTimestamp(t_put,'yyyy/MM/dd HH:mm:ss'),toTimestamp(t_put,'MM/dd/yyyy HH:mm:ss'),toTimestamp(t_put,'dd-MM-yy HH:mm:ss'),toTimestamp(t_put,'dd/MM/yyyy\\'T\\'HH:mm:ss'), toTimestamp(t_put,'yyyy-MM-dd HH:mm:ss.SSS'),toTimestamp(t_put,'dd/MM/yyyy HH:mm:ss'),toTimestamp(t_put,'dd-MM-yyyy HH:mm:ss'),toTimestamp(t_put,'dd MM yy HH:mm')))) ~> DataTypeConversion\nSelect1 aggregate(groupBy(mve_gkey),\n\teach(match(name!='mve_gkey'), $$ = first($$))) ~> Aggregate1\nMoveHistory select(mapColumn(\n\t\t{Unit Nbr},\n\t\t{Complex Id},\n\t\t{Yard Id},\n\t\t{Carrier Visit Key},\n\t\t{Event Type Id},\n\t\t{Move Kind},\n\t\t{Carry CHE Operator Id},\n\t\t{Fetch CHE Operator Id},\n\t\t{Put CHE Operator Id},\n\t\t{Fetch CHE Id},\n\t\t{Fetch CHE Kind},\n\t\t{Carry CHE Id},\n\t\t{Carry CHE Kind},\n\t\t{Put CHE Id},\n\t\t{Put CHE Kind},\n\t\t{QC CHE Id},\n\t\t{QC CHE Kind},\n\t\tt_carry_complete,\n\t\tt_put,\n\t\tt_fetch,\n\t\tt_dispatch,\n\t\tt_discharge,\n\t\tt_carry_dispatch,\n\t\tt_carry_fetch_ready,\n\t\tt_carry_put_ready,\n\t\tdist_carry,\n\t\tdist_start,\n\t\t{Category Id},\n\t\t{Freight Kind Id},\n\t\tpow,\n\t\tmve_gkey,\n\t\tactive_ufv,\n\t\tRehandles\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> Select1\nSelect2 alterRow(upsertIf(true())) ~> AlterRow1\nfilter1 select(mapColumn(\n\t\teach(match(true()),\n\t\t\tregexReplace($$,' ','_') = $$)\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> Select2\nDataTypeConversion filter(!isNull(mve_gkey) && !isNull(t_put) && !isNull({Unit Nbr})) ~> filter1\nAlterRow1 sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'delta',\n\tfileSystem: 'cmsa',\n\tfolderPath: 'gold/rehandle',\n\tmergeSchema: false,\n\tautoCompact: true,\n\toptimizedWrite: true,\n\tvacuum: 0,\n\tdeletable: false,\n\tinsertable: false,\n\tupdateable: false,\n\tupsertable: true,\n\tkeys:['mve_gkey'],\n\tumask: 0777,\n\tpreCommands: [],\n\tpostCommands: [],\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\tmapColumn(\n\t\tmve_gkey,\n\t\tUnit_Nbr,\n\t\tComplex_Id,\n\t\tYard_Id,\n\t\tCarrier_Visit_Key,\n\t\tEvent_Type_Id,\n\t\tMove_Kind,\n\t\tCarry_CHE_Operator_Id,\n\t\tFetch_CHE_Operator_Id,\n\t\tPut_CHE_Operator_Id,\n\t\tFetch_CHE_Id,\n\t\tFetch_CHE_Kind,\n\t\tCarry_CHE_Id,\n\t\tCarry_CHE_Kind,\n\t\tPut_CHE_Id,\n\t\tPut_CHE_Kind,\n\t\tQC_CHE_Id,\n\t\tQC_CHE_Kind,\n\t\tt_carry_complete,\n\t\tt_put,\n\t\tt_fetch,\n\t\tt_dispatch,\n\t\tt_discharge,\n\t\tt_carry_dispatch,\n\t\tt_carry_fetch_ready,\n\t\tt_carry_put_ready,\n\t\tdist_carry,\n\t\tdist_start,\n\t\tCategory_Id,\n\t\tFreight_Kind_Id,\n\t\tpow,\n\t\tactive_ufv,\n\t\tRehandles,\n\t\tYear,\n\t\tMonth,\n\t\tWeek,\n\t\tDate,\n\t\tYear_Week\n\t),\n\tpartitionBy('key',\n\t\t0,\n\t\tYear,\n\t\tMonth,\n\t\tWeek\n\t)) ~> sink1"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/linkedServices/linkedService1')]",
+				"[concat(variables('workspaceId'), '/linkedServices/linkedService2')]"
 			]
 		},
 		{
@@ -31226,6 +31463,27 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('workspaceName'), '/R1_NewEquipmentRunningHrs')]",
+			"type": "Microsoft.Synapse/workspaces/sqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"description": "summary WorkingHours",
+				"content": {
+					"query": "CREATE OR ALTER PROCEDURE ExecuteR1Query AS\nBEGIN\n    -- R1 Query Logic\n    WITH NextEvent AS (\n        SELECT x1.cheID,\n               x1.operatorName,\n               x1.typeDescription AS EcEventType,\n               x1.EcEventTime,\n               x1.ecEventGkey,\n               x1.Year,\n               x1.Month,\n               x1.Week,\n               x2.operatorName AS NextOperator,\n               x2.typeDescription AS NextEcEvent,\n               x2.EcEventTime AS NextEcEventEcEventTime,\n               CASE \n                   WHEN x1.typeDescription = x2.typeDescription THEN 'NO' \n                   ELSE 'YES'\n               END AS CorrectCycle,\n                (SELECT TOP 1 ime.t_put\n                FROM dbo.move_history ime\n                WHERE (ime.Fetch_CHE_Id = x1.cheID or ime.Put_CHE_Id = x1.cheID)\n                    AND ime.t_put < x2.EcEventTime\n                ORDER BY ime.t_put DESC)\n               AS LastMoveEventEcEventTime,\n\t\t\t   ROW_NUMBER() OVER (PARTITION BY x2.cheID ORDER BY x2.EcEventTime ASC) as row_num\n        FROM dbo.ecevents x1\n        LEFT JOIN dbo.ecevents x2\n\t\tON x1.cheID = x2.cheID\n        AND x2.EcEventTime > x1.EcEventTime\n        WHERE x1.typeDescription = 'LGON'\n        AND x2.typeDescription IN ('LGON', 'LGOF')\n\t\tAND x1.cheKind Like 'RTG%'\n    )\n    INSERT INTO dbo.EquipmentRunningHours\n    SELECT\n        ne.ecEventGkey,\n        ne.cheID,\n        ne.operatorName,\n        ne.EcEventType,\n        ne.EcEventTime,\n        ne.NextOperator,\n        ne.NextEcEvent,\n        ne.NextEcEventEcEventTime,\n        ne.CorrectCycle,\n        ne.LastMoveEventEcEventTime,\n        CASE\n            WHEN ne.CorrectCycle = 'YES' \n            THEN DATEDIFF(MINUTE, ne.EcEventTime, ne.NextEcEventEcEventTime) / 60.0\n            ELSE DATEDIFF(MINUTE, ne.EcEventTime, ne.LastMoveEventEcEventTime) / 60.0\n        END AS TotalWorkinghrs,\n        ne.Year,\n        ne.Month,\n        ne.Week\n    FROM NextEvent ne\n\tWHERE row_num = 1\n    ORDER BY ne.cheID, ne.EcEventTime;\nEND;\n\n\n",
+					"metadata": {
+						"language": "sql"
+					},
+					"currentConnection": {
+						"databaseName": "navispowerbidata2",
+						"poolName": "navispowerbidata2"
+					},
+					"resultLimit": -1
+				},
+				"type": "SqlQuery"
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('workspaceName'), '/SQL script 1')]",
 			"type": "Microsoft.Synapse/workspaces/sqlscripts",
 			"apiVersion": "2019-06-01-preview",
@@ -31277,6 +31535,26 @@
 					},
 					"currentConnection": {
 						"databaseName": "tauranga",
+						"poolName": "Built-in"
+					},
+					"resultLimit": 5000
+				},
+				"type": "SqlQuery"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/SQL script 12')]",
+			"type": "Microsoft.Synapse/workspaces/sqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"content": {
+					"query": "create or alter view ecevents\nas\nselect *\nFROM\n    OPENROWSET(\n        BULK 'silver/ecevents/load',\n        data_source = 'malta',\n        FORMAT = 'DELTA'\n    ) AS [ecevents];\n\ncreate or alter view move_history\nas\nselect *\nFROM\n    OPENROWSET(\n        BULK 'silver/moves/load',\n        data_source = 'malta',\n        FORMAT = 'DELTA'\n    ) AS [move_history];",
+					"metadata": {
+						"language": "sql"
+					},
+					"currentConnection": {
+						"databaseName": "malta",
 						"poolName": "Built-in"
 					},
 					"resultLimit": 5000
@@ -31480,6 +31758,26 @@
 						"poolName": "Built-in"
 					},
 					"resultLimit": 5000
+				},
+				"type": "SqlQuery"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/yard_che_mict')]",
+			"type": "Microsoft.Synapse/workspaces/sqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"content": {
+					"query": "SELECT SUM(WorkTime) as WorkTime, SUM(MoveCount) as MoveCount, sum([IdleTimeFL]) as IdleTimeFL\n, sum([RTGIdleTime]) as RTGIdleTime, SUM(WorkTime)/ SUM(MoveCount) as yard_che_prod, Date\n FROM [dbo].[rtg_ecevents]\n    WHERE Year = 2024 and Month = 6\n Group by [Year] ,[Month], Date\n ORDER BY [Year] ,[Month], Date\n ",
+					"metadata": {
+						"language": "sql"
+					},
+					"currentConnection": {
+						"databaseName": "mict",
+						"poolName": "Built-in"
+					},
+					"resultLimit": -1
 				},
 				"type": "SqlQuery"
 			},
@@ -32026,304 +32324,16 @@
 			"location": "westus"
 		},
 		{
-			"name": "[concat(parameters('workspaceName'), '/yard_che_mict')]",
-			"type": "Microsoft.Synapse/workspaces/sqlscripts",
-			"apiVersion": "2019-06-01-preview",
-			"properties": {
-				"content": {
-					"query": "SELECT SUM(WorkTime) as WorkTime, SUM(MoveCount) as MoveCount, sum([IdleTimeFL]) as IdleTimeFL\n, sum([RTGIdleTime]) as RTGIdleTime, SUM(WorkTime)/ SUM(MoveCount) as yard_che_prod, Date\n FROM [dbo].[rtg_ecevents]\n    WHERE Year = 2024 and Month = 6\n Group by [Year] ,[Month], Date\n ORDER BY [Year] ,[Month], Date\n ",
-					"metadata": {
-						"language": "sql"
-					},
-					"currentConnection": {
-						"databaseName": "mict",
-						"poolName": "Built-in"
-					},
-					"resultLimit": -1
-				},
-				"type": "SqlQuery"
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('workspaceName'), '/SQL script 12')]",
-			"type": "Microsoft.Synapse/workspaces/sqlscripts",
-			"apiVersion": "2019-06-01-preview",
-			"properties": {
-				"content": {
-					"query": "create or alter view ecevents\nas\nselect *\nFROM\n    OPENROWSET(\n        BULK 'silver/ecevents/load',\n        data_source = 'malta',\n        FORMAT = 'DELTA'\n    ) AS [ecevents];\n\ncreate or alter view move_history\nas\nselect *\nFROM\n    OPENROWSET(\n        BULK 'silver/moves/load',\n        data_source = 'malta',\n        FORMAT = 'DELTA'\n    ) AS [move_history];",
-					"metadata": {
-						"language": "sql"
-					},
-					"currentConnection": {
-						"databaseName": "malta",
-						"poolName": "Built-in"
-					},
-					"resultLimit": 5000
-				},
-				"type": "SqlQuery"
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('workspaceName'), '/MoveSrc_malta')]",
-			"type": "Microsoft.Synapse/workspaces/dataflows",
-			"apiVersion": "2019-06-01-preview",
-			"properties": {
-				"type": "MappingDataFlow",
-				"typeProperties": {
-					"sources": [
-						{
-							"linkedService": {
-								"referenceName": "linkedService1",
-								"type": "LinkedServiceReference"
-							},
-							"name": "CSV"
-						}
-					],
-					"sinks": [
-						{
-							"linkedService": {
-								"referenceName": "linkedService2",
-								"type": "LinkedServiceReference"
-							},
-							"name": "sink2"
-						}
-					],
-					"transformations": [
-						{
-							"name": "DataTypeConversion"
-						},
-						{
-							"name": "Select1"
-						},
-						{
-							"name": "Aggregate1"
-						},
-						{
-							"name": "Select2"
-						},
-						{
-							"name": "AlterRow1"
-						}
-					],
-					"script": "source(output(\n\t\t{Unit Nbr} as string,\n\t\t{Facility Id} as string,\n\t\t{Complex Id} as string,\n\t\t{Yard Id} as string,\n\t\t{Carrier Visit Key} as string,\n\t\t{Event Type Id} as string,\n\t\t{Move Kind} as string,\n\t\t{From Location} as string,\n\t\t{To Location} as string,\n\t\t{From Position Name} as string,\n\t\t{To Position Name} as string,\n\t\t{Carry CHE Operator Id} as string,\n\t\t{Fetch CHE Operator Id} as string,\n\t\t{Put CHE Operator Id} as string,\n\t\t{Fetch CHE Id} as string,\n\t\t{Fetch CHE Kind} as string,\n\t\t{Carry CHE Id} as string,\n\t\t{Carry CHE Kind} as string,\n\t\t{Put CHE Id} as string,\n\t\t{Put CHE Kind} as string,\n\t\t{QC CHE Id} as string,\n\t\t{QC CHE Kind} as string,\n\t\tt_carry_complete as string,\n\t\tt_put as string,\n\t\tt_fetch as string,\n\t\tt_dispatch as string,\n\t\tt_discharge as string,\n\t\tt_carry_dispatch as string,\n\t\tt_carry_fetch_ready as string,\n\t\tt_carry_put_ready as string,\n\t\tdist_carry as string,\n\t\tdist_start as string,\n\t\t{Twin Fetch} as string,\n\t\t{Twin Carry} as string,\n\t\t{Twin Put} as string,\n\t\t{Category Id} as string,\n\t\t{Freight Kind Id} as string,\n\t\tto_pos_gkey as string,\n\t\tfm_pos_gkey as string,\n\t\t{Restow Reason} as string,\n\t\t{Container Line Id} as string,\n\t\t{Container Line Role} as string,\n\t\tpow as string,\n\t\tmve_gkey as string,\n\t\tufv_gkey as string,\n\t\t{Berth Id} as string,\n\t\t{Goods And Ctr Wt Kg} as string,\n\t\tactive_ufv as string,\n\t\t{Requires Power Flag} as string,\n\t\t{OOG Flag} as string,\n\t\t{Shipper Id} as string,\n\t\t{Consignee Id} as string,\n\t\t{Commodity Id} as string,\n\t\tATA as string,\n\t\tATD as string,\n\t\tRehandles as string\n\t),\n\tuseSchema: false,\n\tallowSchemaDrift: false,\n\tvalidateSchema: true,\n\tignoreNoFilesFound: false,\n\tmoveFiles: ['bronze/moves/load','bronze/moves/archive'],\n\tformat: 'delimited',\n\tfileSystem: 'malta',\n\tfolderPath: 'bronze/moves/load',\n\tcolumnDelimiter: ',',\n\tescapeChar: '\\\\',\n\tquoteChar: '\\\"',\n\tcolumnNamesAsHeader: true,\n\tdateFormats: ['dd-MM-yyyy'],\n\ttimestampFormats: ['yyyy-MM-dd\\'T\\'HH:mm:ss.SSS\\'Z\\'','yyyy-MM-dd\\'T\\'HH:mm:ss\\'Z\\'']) ~> CSV\nAggregate1 derive(t_carry_complete = coalesce(toTimestamp(t_carry_complete,'MM/dd/yyyy HH:mm:ss'),toTimestamp(t_carry_complete,'dd-MM-yy HH:mm:ss'),toTimestamp(t_carry_complete,'dd/MM/yyyy\\'T\\'HH:mm:ss'), toTimestamp(t_carry_complete,'yyyy-MM-dd HH:mm:ss.SSS'),toTimestamp(t_carry_complete,'dd/MM/yyyy HH:mm:ss'),toTimestamp(t_carry_complete,'dd-MM-yyyy HH:mm:ss')),\n\t\tt_put = coalesce(toTimestamp(t_put,'MM/dd/yyyy HH:mm:ss'),toTimestamp(t_put,'dd-MM-yy HH:mm:ss'),toTimestamp(t_put,'dd.MM.yy HH:mm:ss'),toTimestamp(t_put,'dd/MM/yyyy\\'T\\'HH:mm:ss'), toTimestamp(t_put,'yyyy-MM-dd HH:mm:ss.SSS'),toTimestamp(t_put,'dd/MM/yyyy HH:mm:ss'),toTimestamp(t_put,'dd-MM-yyyy HH:mm:ss')),\n\t\tt_fetch = coalesce(toTimestamp(t_fetch,'MM/dd/yyyy HH:mm:ss'),toTimestamp(t_fetch,'dd-MM-yy HH:mm:ss'),toTimestamp(t_fetch,'dd.MM.yy HH:mm:ss'),toTimestamp(t_fetch,'dd/MM/yyyy\\'T\\'HH:mm:ss'), toTimestamp(t_fetch,'yyyy-MM-dd HH:mm:ss.SSS'),toTimestamp(t_fetch,'dd/MM/yyyy HH:mm:ss'),toTimestamp(t_fetch,'dd-MM-yyyy HH:mm:ss')),\n\t\tt_discharge = coalesce(toTimestamp(t_discharge,'MM/dd/yyyy HH:mm:ss'),toTimestamp(t_discharge,'dd-MM-yy HH:mm:ss'),toTimestamp(t_discharge,'dd.MM.yy HH:mm:ss'),toTimestamp(t_discharge,'dd/MM/yyyy\\'T\\'HH:mm:ss'), toTimestamp(t_discharge,'yyyy-MM-dd HH:mm:ss.SSS'),toTimestamp(t_discharge,'dd/MM/yyyy HH:mm:ss'),toTimestamp(t_discharge,'dd-MM-yyyy HH:mm:ss')),\n\t\tFetch_CHE_Id = toLong(Fetch_CHE_Id),\n\t\tQC_CHE_Id = toLong(QC_CHE_Id),\n\t\tPut_CHE_Id = toLong(Put_CHE_Id),\n\t\tCarry_CHE_Id = toLong(Carry_CHE_Id),\n\t\tYear = year(coalesce(toTimestamp(t_put,'MM/dd/yyyy HH:mm:ss'),toTimestamp(t_put,'dd-MM-yy HH:mm:ss'),toTimestamp(t_put,'dd.MM.yy HH:mm:ss'),toTimestamp(t_put,'dd/MM/yyyy\\'T\\'HH:mm:ss'), toTimestamp(t_put,'yyyy-MM-dd HH:mm:ss.SSS'),toTimestamp(t_put,'dd/MM/yyyy HH:mm:ss'),toTimestamp(t_put,'dd-MM-yyyy HH:mm:ss'))),\n\t\tMonth = month(coalesce(toTimestamp(t_put,'MM/dd/yyyy HH:mm:ss'),toTimestamp(t_put,'dd-MM-yy HH:mm:ss'),toTimestamp(t_put,'dd.MM.yy HH:mm:ss'),toTimestamp(t_put,'dd/MM/yyyy\\'T\\'HH:mm:ss'), toTimestamp(t_put,'yyyy-MM-dd HH:mm:ss.SSS'),toTimestamp(t_put,'dd/MM/yyyy HH:mm:ss'),toTimestamp(t_put,'dd-MM-yyyy HH:mm:ss'))),\n\t\tWeek = weekOfYear(coalesce(toTimestamp(t_put,'MM/dd/yyyy HH:mm:ss'),toTimestamp(t_put,'dd-MM-yy HH:mm:ss'),toTimestamp(t_put,'dd.MM.yy HH:mm:ss'),toTimestamp(t_put,'dd/MM/yyyy\\'T\\'HH:mm:ss'), toTimestamp(t_put,'yyyy-MM-dd HH:mm:ss.SSS'),toTimestamp(t_put,'dd/MM/yyyy HH:mm:ss'),toTimestamp(t_put,'dd-MM-yyyy HH:mm:ss'))),\n\t\tt_dispatch = coalesce(toTimestamp(t_dispatch,'MM/dd/yyyy HH:mm:ss'),toTimestamp(t_dispatch,'dd-MM-yy HH:mm:ss'),toTimestamp(t_dispatch,'dd.MM.yy HH:mm:ss'),toTimestamp(t_dispatch,'dd/MM/yyyy\\'T\\'HH:mm:ss'), toTimestamp(t_dispatch,'yyyy-MM-dd HH:mm:ss.SSS'),toTimestamp(t_dispatch,'dd/MM/yyyy HH:mm:ss'),toTimestamp(t_dispatch,'dd-MM-yyyy HH:mm:ss')),\n\t\tt_carry_dispatch = coalesce(toTimestamp(t_carry_dispatch,'MM/dd/yyyy HH:mm:ss'),toTimestamp(t_carry_dispatch,'dd-MM-yy HH:mm:ss'),toTimestamp(t_carry_dispatch,'dd.MM.yy HH:mm:ss'),toTimestamp(t_carry_dispatch,'dd/MM/yyyy\\'T\\'HH:mm:ss'), toTimestamp(t_carry_dispatch,'yyyy-MM-dd HH:mm:ss.SSS'),toTimestamp(t_carry_dispatch,'dd/MM/yyyy HH:mm:ss'),toTimestamp(t_carry_dispatch,'dd-MM-yyyy HH:mm:ss')),\n\t\tt_carry_fetch_ready = coalesce(toTimestamp(t_carry_fetch_ready,'MM/dd/yyyy HH:mm:ss'),toTimestamp(t_carry_fetch_ready,'dd-MM-yy HH:mm:ss'),toTimestamp(t_carry_fetch_ready,'dd.MM.yy HH:mm:ss'),toTimestamp(t_carry_fetch_ready,'dd/MM/yyyy\\'T\\'HH:mm:ss'), toTimestamp(t_carry_fetch_ready,'yyyy-MM-dd HH:mm:ss.SSS'),toTimestamp(t_carry_fetch_ready,'dd/MM/yyyy HH:mm:ss'),toTimestamp(t_carry_fetch_ready,'dd-MM-yyyy HH:mm:ss')),\n\t\tt_carry_put_ready = coalesce(toTimestamp(t_carry_put_ready,'MM/dd/yyyy HH:mm:ss'),toTimestamp(t_carry_put_ready,'dd-MM-yy HH:mm:ss'),toTimestamp(t_carry_put_ready,'dd.MM.yy HH:mm:ss'),toTimestamp(t_carry_put_ready,'dd/MM/yyyy\\'T\\'HH:mm:ss'), toTimestamp(t_carry_put_ready,'yyyy-MM-dd HH:mm:ss.SSS'),toTimestamp(t_carry_put_ready,'dd/MM/yyyy HH:mm:ss'),toTimestamp(t_carry_put_ready,'dd-MM-yyyy HH:mm:ss')),\n\t\tATD = coalesce(toTimestamp(ATD,'MM/dd/yyyy HH:mm:ss'),toTimestamp(ATD,'dd-MM-yy HH:mm:ss'),toTimestamp(ATD,'dd.MM.yy HH:mm:ss'),toTimestamp(ATD,'dd/MM/yyyy\\'T\\'HH:mm:ss'), toTimestamp(ATD,'yyyy-MM-dd HH:mm:ss.SSS'),toTimestamp(ATD,'dd/MM/yyyy HH:mm:ss'),toTimestamp(ATD,'dd-MM-yyyy HH:mm:ss')),\n\t\tATA = coalesce(toTimestamp(ATA,'MM/dd/yyyy HH:mm:ss'),toTimestamp(ATA,'dd-MM-yy HH:mm:ss'),toTimestamp(ATA,'dd.MM.yy HH:mm:ss'),toTimestamp(ATA,'dd/MM/yyyy\\'T\\'HH:mm:ss'), toTimestamp(ATA,'yyyy-MM-dd HH:mm:ss.SSS'),toTimestamp(ATA,'dd/MM/yyyy HH:mm:ss'),toTimestamp(ATA,'dd-MM-yyyy HH:mm:ss'))) ~> DataTypeConversion\nSelect2 select(mapColumn(\n\t\teach(match(true()),\n\t\t\tregexReplace($$,' ','_') = $$)\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> Select1\nSelect1 aggregate(groupBy(mve_gkey),\n\teach(match(name!='mve_gkey'), $$ = first($$))) ~> Aggregate1\nCSV select(mapColumn(\n\t\t{Unit Nbr},\n\t\t{Facility Id},\n\t\t{Complex Id},\n\t\t{Yard Id},\n\t\t{Carrier Visit Key},\n\t\t{Event Type Id},\n\t\t{Move Kind},\n\t\t{From Location},\n\t\t{To Location},\n\t\t{From Position Name},\n\t\t{To Position Name},\n\t\t{Carry CHE Operator Id},\n\t\t{Fetch CHE Operator Id},\n\t\t{Put CHE Operator Id},\n\t\t{Fetch CHE Id},\n\t\t{Fetch CHE Kind},\n\t\t{Carry CHE Id},\n\t\t{Carry CHE Kind},\n\t\t{Put CHE Id},\n\t\t{Put CHE Kind},\n\t\t{QC CHE Id},\n\t\t{QC CHE Kind},\n\t\tt_carry_complete,\n\t\tt_put,\n\t\tt_fetch,\n\t\tt_dispatch,\n\t\tt_discharge,\n\t\tt_carry_dispatch,\n\t\tt_carry_fetch_ready,\n\t\tt_carry_put_ready,\n\t\tdist_carry,\n\t\tdist_start,\n\t\t{Twin Fetch},\n\t\t{Twin Carry},\n\t\t{Twin Put},\n\t\t{Category Id},\n\t\t{Freight Kind Id},\n\t\tto_pos_gkey,\n\t\tfm_pos_gkey,\n\t\t{Restow Reason},\n\t\t{Container Line Id},\n\t\t{Container Line Role},\n\t\tpow,\n\t\tmve_gkey,\n\t\tufv_gkey,\n\t\t{Berth Id},\n\t\t{Goods And Ctr Wt Kg},\n\t\tactive_ufv,\n\t\t{Requires Power Flag},\n\t\t{OOG Flag},\n\t\t{Shipper Id},\n\t\t{Consignee Id},\n\t\t{Commodity Id},\n\t\tATD,\n\t\tRehandles,\n\t\tATA\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> Select2\nDataTypeConversion alterRow(upsertIf(true())) ~> AlterRow1\nAlterRow1 sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'delta',\n\tfileSystem: 'malta',\n\tfolderPath: 'silver/moves',\n\tmergeSchema: false,\n\tautoCompact: true,\n\toptimizedWrite: true,\n\tvacuum: 0,\n\tdeletable: false,\n\tinsertable: false,\n\tupdateable: false,\n\tupsertable: true,\n\tkeys:['mve_gkey'],\n\tumask: 0777,\n\tpreCommands: [],\n\tpostCommands: [],\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\tpartitionBy('key',\n\t\t0,\n\t\tYear,\n\t\tMonth,\n\t\tWeek\n\t)) ~> sink2"
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('workspaceId'), '/linkedServices/linkedService1')]",
-				"[concat(variables('workspaceId'), '/linkedServices/linkedService2')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('workspaceName'), '/EcEvents_malta')]",
-			"type": "Microsoft.Synapse/workspaces/dataflows",
-			"apiVersion": "2019-06-01-preview",
-			"properties": {
-				"type": "MappingDataFlow",
-				"typeProperties": {
-					"sources": [
-						{
-							"linkedService": {
-								"referenceName": "linkedService1",
-								"type": "LinkedServiceReference"
-							},
-							"name": "CSV"
-						}
-					],
-					"sinks": [
-						{
-							"linkedService": {
-								"referenceName": "linkedService1",
-								"type": "LinkedServiceReference"
-							},
-							"name": "sink1"
-						}
-					],
-					"transformations": [
-						{
-							"name": "DataTypeConversion"
-						},
-						{
-							"name": "AlterRow1"
-						},
-						{
-							"name": "Select1"
-						},
-						{
-							"name": "Filter1"
-						},
-						{
-							"name": "derivedColumn1"
-						}
-					],
-					"script": "source(output(\n\t\tecEventGkey as long,\n\t\tyardGkey as integer,\n\t\tYARDID as string,\n\t\tFCYID as string,\n\t\tcheKind as string,\n\t\tCHE_Name as string,\n\t\tCHE_ID as short,\n\t\tTimeStamp as string,\n\t\teventType as short,\n\t\teventSubType as short,\n\t\teventTypeDescription as string,\n\t\tfromCheIdName as boolean,\n\t\tToCheIdName as boolean,\n\t\tunit as string,\n\t\tpow as string,\n\t\tpool as string,\n\t\tworkQueue as string,\n\t\ttravelDistance as short,\n\t\tmoveKind as string,\n\t\tisTwin as boolean,\n\t\tstartDistance as short,\n\t\tunitRef as string,\n\t\ttran_ID as string,\n\t\tlocType as string,\n\t\tlocID as string,\n\t\tlocSlot as string,\n\t\topsPosID as string,\n\t\tunladenLoctype as string,\n\t\tunladenLocID as string,\n\t\tunladenLocSlot as string,\n\t\tladenLoctype as string,\n\t\tladenLocID as string,\n\t\tladen_LocSlot as string,\n\t\tOPERATOR_NAME as string\n\t),\n\tuseSchema: false,\n\tallowSchemaDrift: false,\n\tvalidateSchema: true,\n\tignoreNoFilesFound: true,\n\tmoveFiles: ['bronze/ecevents/load','bronze/ecevents/archive'],\n\tformat: 'delimited',\n\tfileSystem: 'malta',\n\tfolderPath: 'bronze/ecevents/load',\n\tcolumnDelimiter: ',',\n\tescapeChar: '\\\\',\n\tquoteChar: '\\\"',\n\tcolumnNamesAsHeader: true,\n\tdateFormats: ['dd-MM-yyyy'],\n\ttimestampFormats: ['yyyy-MM-dd\\'T\\'HH:mm:ss.SSS\\'Z\\'','yyyy-MM-dd\\'T\\'HH:mm:ss\\'Z\\'']) ~> CSV\nCSV derive(EcEventTime =  coalesce(toTimestamp(TimeStamp,'MM/dd/yyyy HH:mm:ss'),toTimestamp(TimeStamp,'dd-MM-yy HH:mm:ss'),toTimestamp(TimeStamp,'dd/MM/yyyy\\'T\\'HH:mm:ss'), toTimestamp(TimeStamp,'yyyy-MM-dd HH:mm:ss.SSS'),toTimestamp(TimeStamp,'dd/MM/yyyy HH:mm:ss'),toTimestamp(TimeStamp,'dd-MM-yyyy HH:mm:ss')),\n\t\tYear = iifNull(year( coalesce(toTimestamp(TimeStamp,'MM/dd/yyyy HH:mm:ss'),toTimestamp(TimeStamp,'dd-MM-yy HH:mm:ss'),toTimestamp(TimeStamp,'dd/MM/yyyy\\'T\\'HH:mm:ss'), toTimestamp(TimeStamp,'yyyy-MM-dd HH:mm:ss.SSS'),toTimestamp(TimeStamp,'dd/MM/yyyy HH:mm:ss'),toTimestamp(TimeStamp,'dd-MM-yyyy HH:mm:ss')))),\n\t\tMonth = iifNull(month( coalesce(toTimestamp(TimeStamp,'MM/dd/yyyy HH:mm:ss'),toTimestamp(TimeStamp,'dd-MM-yy HH:mm:ss'),toTimestamp(TimeStamp,'dd/MM/yyyy\\'T\\'HH:mm:ss'), toTimestamp(TimeStamp,'yyyy-MM-dd HH:mm:ss.SSS'),toTimestamp(TimeStamp,'dd/MM/yyyy HH:mm:ss'),toTimestamp(TimeStamp,'dd-MM-yyyy HH:mm:ss')))),\n\t\tWeek = iifNull(weekOfYear( coalesce(toTimestamp(TimeStamp,'MM/dd/yyyy HH:mm:ss'),toTimestamp(TimeStamp,'dd-MM-yy HH:mm:ss'),toTimestamp(TimeStamp,'dd/MM/yyyy\\'T\\'HH:mm:ss'), toTimestamp(TimeStamp,'yyyy-MM-dd HH:mm:ss.SSS'),toTimestamp(TimeStamp,'dd/MM/yyyy HH:mm:ss'),toTimestamp(TimeStamp,'dd-MM-yyyy HH:mm:ss'))))) ~> DataTypeConversion\nFilter1 alterRow(upsertIf(true())) ~> AlterRow1\nDataTypeConversion select(mapColumn(\n\t\tecEventGkey,\n\t\tyardGkey,\n\t\tYardID = YARDID,\n\t\tFcyID = FCYID,\n\t\tcheKind,\n\t\tcheName = CHE_Name,\n\t\tcheID = CHE_ID,\n\t\tTimeStamp,\n\t\ttype = eventType,\n\t\tsubType = eventSubType,\n\t\ttypeDescription = eventTypeDescription,\n\t\tfromCheIdName,\n\t\tToCheIdName,\n\t\tunitIdName = unit,\n\t\tpowName = pow,\n\t\tpoolName = pool,\n\t\tworkQueue,\n\t\ttravelDistance,\n\t\tmoveKind,\n\t\tisTwin,\n\t\tstartDistance,\n\t\tunitReference = unitRef,\n\t\ttranId = tran_ID,\n\t\tlocType,\n\t\tlocId = locID,\n\t\tlocSlot,\n\t\topsPosId = opsPosID,\n\t\tunladenLoctype,\n\t\tunladenLocId = unladenLocID,\n\t\tunladenLocSlot,\n\t\tladenLoctype,\n\t\tladenLocId = ladenLocID,\n\t\tladen_LocSlot,\n\t\toperatorName = OPERATOR_NAME,\n\t\tEcEventTime,\n\t\tYear,\n\t\tMonth,\n\t\tWeek\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> Select1\nderivedColumn1 filter(not(isNull(ecEventGkey))) ~> Filter1\nSelect1 derive(cheID = toLong(cheID),\n\t\tecEventGkey = toLong(ecEventGkey),\n\t\tyardGkey = toLong(yardGkey)) ~> derivedColumn1\nAlterRow1 sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'delta',\n\tfileSystem: 'malta',\n\tfolderPath: 'silver/ecevents',\n\tmergeSchema: true,\n\tautoCompact: true,\n\toptimizedWrite: true,\n\tvacuum: 0,\n\tdeletable: false,\n\tinsertable: false,\n\tupdateable: false,\n\tupsertable: true,\n\tkeys:['ecEventGkey'],\n\tumask: 0022,\n\tpreCommands: [],\n\tpostCommands: [],\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\tpartitionBy('key',\n\t\t0,\n\t\tYear,\n\t\tMonth,\n\t\tWeek\n\t)) ~> sink1"
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('workspaceId'), '/linkedServices/linkedService1')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('workspaceName'), '/malta')]",
-			"type": "Microsoft.Synapse/workspaces/pipelines",
-			"apiVersion": "2019-06-01-preview",
-			"properties": {
-				"activities": [
-					{
-						"name": "MoveSrc_malta",
-						"type": "ExecuteDataFlow",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "MoveSrc_malta",
-								"type": "DataFlowReference",
-								"parameters": {},
-								"datasetParameters": {
-									"CSV": {},
-									"sink2": {}
-								}
-							},
-							"staging": {},
-							"compute": {
-								"coreCount": 8,
-								"computeType": "General"
-							},
-							"traceLevel": "Fine"
-						}
-					},
-					{
-						"name": "EcEvents_malta",
-						"type": "ExecuteDataFlow",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "EcEvents_malta",
-								"type": "DataFlowReference",
-								"parameters": {},
-								"datasetParameters": {
-									"CSV": {},
-									"sink1": {}
-								}
-							},
-							"staging": {},
-							"compute": {
-								"coreCount": 8,
-								"computeType": "General"
-							},
-							"traceLevel": "Fine"
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"annotations": []
-			},
-			"dependsOn": [
-				"[concat(variables('workspaceId'), '/dataflows/MoveSrc_malta')]",
-				"[concat(variables('workspaceId'), '/integrationRuntimes/AutoResolveIntegrationRuntime')]",
-				"[concat(variables('workspaceId'), '/dataflows/EcEvents_malta')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('workspaceName'), '/R1_NewEquipmentRunningHrs')]",
-			"type": "Microsoft.Synapse/workspaces/sqlscripts",
-			"apiVersion": "2019-06-01-preview",
-			"properties": {
-				"description": "summary WorkingHours",
-				"content": {
-					"query": "CREATE OR ALTER PROCEDURE ExecuteR1Query AS\nBEGIN\n    -- R1 Query Logic\n    WITH NextEvent AS (\n        SELECT x1.cheID,\n               x1.operatorName,\n               x1.typeDescription AS EcEventType,\n               x1.EcEventTime,\n               x1.ecEventGkey,\n               x1.Year,\n               x1.Month,\n               x1.Week,\n               x2.operatorName AS NextOperator,\n               x2.typeDescription AS NextEcEvent,\n               x2.EcEventTime AS NextEcEventEcEventTime,\n               CASE \n                   WHEN x1.typeDescription = x2.typeDescription THEN 'NO' \n                   ELSE 'YES'\n               END AS CorrectCycle,\n                (SELECT TOP 1 ime.t_put\n                FROM dbo.move_history ime\n                WHERE (ime.Fetch_CHE_Id = x1.cheID or ime.Put_CHE_Id = x1.cheID)\n                    AND ime.t_put < x2.EcEventTime\n                ORDER BY ime.t_put DESC)\n               AS LastMoveEventEcEventTime,\n\t\t\t   ROW_NUMBER() OVER (PARTITION BY x2.cheID ORDER BY x2.EcEventTime ASC) as row_num\n        FROM dbo.ecevents x1\n        LEFT JOIN dbo.ecevents x2\n\t\tON x1.cheID = x2.cheID\n        AND x2.EcEventTime > x1.EcEventTime\n        WHERE x1.typeDescription = 'LGON'\n        AND x2.typeDescription IN ('LGON', 'LGOF')\n\t\tAND x1.cheKind Like 'RTG%'\n    )\n    INSERT INTO dbo.EquipmentRunningHours\n    SELECT\n        ne.ecEventGkey,\n        ne.cheID,\n        ne.operatorName,\n        ne.EcEventType,\n        ne.EcEventTime,\n        ne.NextOperator,\n        ne.NextEcEvent,\n        ne.NextEcEventEcEventTime,\n        ne.CorrectCycle,\n        ne.LastMoveEventEcEventTime,\n        CASE\n            WHEN ne.CorrectCycle = 'YES' \n            THEN DATEDIFF(MINUTE, ne.EcEventTime, ne.NextEcEventEcEventTime) / 60.0\n            ELSE DATEDIFF(MINUTE, ne.EcEventTime, ne.LastMoveEventEcEventTime) / 60.0\n        END AS TotalWorkinghrs,\n        ne.Year,\n        ne.Month,\n        ne.Week\n    FROM NextEvent ne\n\tWHERE row_num = 1\n    ORDER BY ne.cheID, ne.EcEventTime;\nEND;\n\n\n",
-					"metadata": {
-						"language": "sql"
-					},
-					"currentConnection": {
-						"databaseName": "navispowerbidata2",
-						"poolName": "navispowerbidata2"
-					},
-					"resultLimit": -1
-				},
-				"type": "SqlQuery"
-			},
-			"dependsOn": []
-		},
-		{
 			"name": "[concat(parameters('workspaceName'), '/navispowerbidata2')]",
 			"type": "Microsoft.Synapse/workspaces/sqlPools",
 			"apiVersion": "2019-06-01-preview",
 			"properties": {
+				"collation": "SQL_Latin1_General_CP1_CI_AS",
+				"maxSizeBytes": 263882790666240,
 				"annotations": []
 			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('workspaceName'), '/Rehandle_cmsa_new')]",
-			"type": "Microsoft.Synapse/workspaces/dataflows",
-			"apiVersion": "2019-06-01-preview",
-			"properties": {
-				"type": "MappingDataFlow",
-				"typeProperties": {
-					"sources": [
-						{
-							"linkedService": {
-								"referenceName": "linkedService1",
-								"type": "LinkedServiceReference"
-							},
-							"name": "MoveHistory"
-						}
-					],
-					"sinks": [
-						{
-							"linkedService": {
-								"referenceName": "linkedService2",
-								"type": "LinkedServiceReference"
-							},
-							"name": "sink1"
-						}
-					],
-					"transformations": [
-						{
-							"name": "DataTypeConversion"
-						},
-						{
-							"name": "Aggregate1"
-						},
-						{
-							"name": "Select1"
-						},
-						{
-							"name": "AlterRow1"
-						},
-						{
-							"name": "Select2"
-						},
-						{
-							"name": "filter1"
-						}
-					],
-					"script": "source(output(\n\t\t{Unit Nbr} as string,\n\t\t{Facility Id} as string,\n\t\t{Complex Id} as string,\n\t\t{Yard Id} as string,\n\t\t{Carrier Visit Key} as string,\n\t\t{Event Type Id} as string,\n\t\t{Move Kind} as string,\n\t\t{From Location} as string,\n\t\t{To Location} as string,\n\t\t{From Position Name} as string,\n\t\t{To Position Name} as string,\n\t\t{Carry CHE Operator Id} as string,\n\t\t{Fetch CHE Operator Id} as string,\n\t\t{Put CHE Operator Id} as string,\n\t\t{Fetch CHE Id} as string,\n\t\t{Fetch CHE Kind} as string,\n\t\t{Carry CHE Id} as string,\n\t\t{Carry CHE Kind} as string,\n\t\t{Put CHE Id} as string,\n\t\t{Put CHE Kind} as string,\n\t\t{QC CHE Id} as string,\n\t\t{QC CHE Kind} as string,\n\t\tt_carry_complete as string,\n\t\tt_put as string,\n\t\tt_fetch as string,\n\t\tt_dispatch as string,\n\t\tt_discharge as string,\n\t\tt_carry_dispatch as string,\n\t\tt_carry_fetch_ready as string,\n\t\tt_carry_put_ready as string,\n\t\tdist_carry as integer,\n\t\tdist_start as short,\n\t\t{Twin Fetch} as boolean,\n\t\t{Twin Carry} as boolean,\n\t\t{Twin Put} as boolean,\n\t\t{Category Id} as string,\n\t\t{Freight Kind Id} as string,\n\t\tto_pos_gkey as string,\n\t\tfm_pos_gkey as string,\n\t\t{Restow Reason} as string,\n\t\t{Container Line Id} as string,\n\t\t{Container Line Role} as string,\n\t\tpow as string,\n\t\tmve_gkey as integer,\n\t\tufv_gkey as integer,\n\t\t{Berth Id} as string,\n\t\t{Goods And Ctr Wt Kg} as integer,\n\t\tactive_ufv as integer,\n\t\t{Requires Power Flag} as boolean,\n\t\t{OOG Flag} as boolean,\n\t\t{Shipper Id} as string,\n\t\t{Consignee Id} as string,\n\t\t{Commodity Id} as string,\n\t\tATA as string,\n\t\tATD as string,\n\t\tRehandles as short\n\t),\n\tuseSchema: false,\n\tallowSchemaDrift: false,\n\tvalidateSchema: true,\n\tignoreNoFilesFound: true,\n\tmoveFiles: ['bronze/moves/load','bronze/moves/archive'],\n\tformat: 'delimited',\n\tfileSystem: 'cmsa',\n\tfolderPath: 'bronze/moves/load',\n\tcolumnDelimiter: ',',\n\tescapeChar: '\\\\',\n\tquoteChar: '\\\"',\n\tcolumnNamesAsHeader: true,\n\tdateFormats: ['dd-MM-yyyy'],\n\ttimestampFormats: ['yyyy-MM-dd\\'T\\'HH:mm:ss.SSS\\'Z\\'','yyyy-MM-dd\\'T\\'HH:mm:ss\\'Z\\'']) ~> MoveHistory\nAggregate1 derive(t_carry_complete = coalesce(toTimestamp(t_carry_complete,'yyyy/MM/dd HH:mm:ss'),toTimestamp(t_carry_complete,'dd-MM-yy HH:mm:ss'),toTimestamp(t_carry_complete,'dd/MM/yyyy\\'T\\'HH:mm:ss'), toTimestamp(t_carry_complete,'yyyy-MM-dd HH:mm:ss.SSS'),toTimestamp(t_carry_complete,'dd/MM/yyyy HH:mm:ss'),toTimestamp(t_carry_complete,'dd-MM-yyyy HH:mm:ss')),\n\t\tt_put = coalesce(toTimestamp(t_put,'yyyy/MM/dd HH:mm:ss'),toTimestamp(t_put,'dd-MM-yy HH:mm:ss'),toTimestamp(t_put,'dd/MM/yyyy\\'T\\'HH:mm:ss'), toTimestamp(t_put,'yyyy-MM-dd HH:mm:ss.SSS'),toTimestamp(t_put,'dd/MM/yyyy HH:mm:ss'),toTimestamp(t_put,'dd-MM-yyyy HH:mm:ss'),toTimestamp(t_put,'dd MM yy HH:mm')),\n\t\tt_fetch = coalesce(toTimestamp(t_fetch,'yyyy/MM/dd HH:mm:ss'),toTimestamp(t_fetch,'dd-MM-yy HH:mm:ss'),toTimestamp(t_fetch,'dd.MM.yy HH:mm:ss'),toTimestamp(t_fetch,'dd/MM/yyyy\\'T\\'HH:mm:ss'), toTimestamp(t_fetch,'yyyy-MM-dd HH:mm:ss.SSS'),toTimestamp(t_fetch,'dd/MM/yyyy HH:mm:ss'),toTimestamp(t_fetch,'dd-MM-yyyy HH:mm:ss')),\n\t\tt_discharge = coalesce(toTimestamp(t_discharge,'yyyy/MM/dd HH:mm:ss'),toTimestamp(t_discharge,'MM/dd/yyyy HH:mm:ss'),toTimestamp(t_discharge,'dd-MM-yy HH:mm:ss'),toTimestamp(t_discharge,'dd.MM.yy HH:mm:ss'),toTimestamp(t_discharge,'dd/MM/yyyy\\'T\\'HH:mm:ss'), toTimestamp(t_discharge,'yyyy-MM-dd HH:mm:ss.SSS'),toTimestamp(t_discharge,'dd/MM/yyyy HH:mm:ss'),toTimestamp(t_discharge,'dd-MM-yyyy HH:mm:ss')),\n\t\tYear = year(coalesce(toTimestamp(t_put,'yyyy/MM/dd HH:mm:ss'),toTimestamp(t_put,'MM/dd/yyyy HH:mm:ss'),toTimestamp(t_put,'dd-MM-yy HH:mm:ss'),toTimestamp(t_put,'dd/MM/yyyy\\'T\\'HH:mm:ss'), toTimestamp(t_put,'yyyy-MM-dd HH:mm:ss.SSS'),toTimestamp(t_put,'dd/MM/yyyy HH:mm:ss'),toTimestamp(t_put,'dd-MM-yyyy HH:mm:ss'),toTimestamp(t_put,'dd MM yy HH:mm'))),\n\t\tMonth = month(coalesce(toTimestamp(t_put,'yyyy/MM/dd HH:mm:ss'),toTimestamp(t_put,'MM/dd/yyyy HH:mm:ss'),toTimestamp(t_put,'dd-MM-yy HH:mm:ss'),toTimestamp(t_put,'dd/MM/yyyy\\'T\\'HH:mm:ss'), toTimestamp(t_put,'yyyy-MM-dd HH:mm:ss.SSS'),toTimestamp(t_put,'dd/MM/yyyy HH:mm:ss'),toTimestamp(t_put,'dd-MM-yyyy HH:mm:ss'),toTimestamp(t_put,'dd MM yy HH:mm'))),\n\t\tWeek = weekOfYear(coalesce(toTimestamp(t_put,'yyyy/MM/dd HH:mm:ss'),toTimestamp(t_put,'MM/dd/yyyy HH:mm:ss'),toTimestamp(t_put,'dd-MM-yy HH:mm:ss'),toTimestamp(t_put,'dd/MM/yyyy\\'T\\'HH:mm:ss'), toTimestamp(t_put,'yyyy-MM-dd HH:mm:ss.SSS'),toTimestamp(t_put,'dd/MM/yyyy HH:mm:ss'),toTimestamp(t_put,'dd-MM-yyyy HH:mm:ss'),toTimestamp(t_put,'dd MM yy HH:mm'))),\n\t\tt_dispatch = coalesce(toTimestamp(t_dispatch,'yyyy/MM/dd HH:mm:ss'),toTimestamp(t_dispatch,'MM/dd/yyyy HH:mm:ss'),toTimestamp(t_dispatch,'dd-MM-yy HH:mm:ss'),toTimestamp(t_dispatch,'dd.MM.yy HH:mm:ss'),toTimestamp(t_dispatch,'dd/MM/yyyy\\'T\\'HH:mm:ss'), toTimestamp(t_dispatch,'yyyy-MM-dd HH:mm:ss.SSS'),toTimestamp(t_dispatch,'dd/MM/yyyy HH:mm:ss'),toTimestamp(t_dispatch,'dd-MM-yyyy HH:mm:ss')),\n\t\tt_carry_dispatch = coalesce(toTimestamp(t_carry_dispatch,'yyyy/MM/dd HH:mm:ss'),toTimestamp(t_carry_dispatch,'MM/dd/yyyy HH:mm:ss'),toTimestamp(t_carry_dispatch,'dd-MM-yy HH:mm:ss'),toTimestamp(t_carry_dispatch,'dd.MM.yy HH:mm:ss'),toTimestamp(t_carry_dispatch,'dd/MM/yyyy\\'T\\'HH:mm:ss'), toTimestamp(t_carry_dispatch,'yyyy-MM-dd HH:mm:ss.SSS'),toTimestamp(t_carry_dispatch,'dd/MM/yyyy HH:mm:ss'),toTimestamp(t_carry_dispatch,'dd-MM-yyyy HH:mm:ss')),\n\t\tt_carry_fetch_ready = coalesce(toTimestamp(t_carry_fetch_ready,'yyyy/MM/dd HH:mm:ss'),toTimestamp(t_carry_fetch_ready,'MM/dd/yyyy HH:mm:ss'),toTimestamp(t_carry_fetch_ready,'dd-MM-yy HH:mm:ss'),toTimestamp(t_carry_fetch_ready,'dd.MM.yy HH:mm:ss'),toTimestamp(t_carry_fetch_ready,'dd/MM/yyyy\\'T\\'HH:mm:ss'), toTimestamp(t_carry_fetch_ready,'yyyy-MM-dd HH:mm:ss.SSS'),toTimestamp(t_carry_fetch_ready,'dd/MM/yyyy HH:mm:ss'),toTimestamp(t_carry_fetch_ready,'dd-MM-yyyy HH:mm:ss')),\n\t\tt_carry_put_ready = coalesce(toTimestamp(t_carry_put_ready,'yyyy/MM/dd HH:mm:ss'),toTimestamp(t_carry_put_ready,'MM/dd/yyyy HH:mm:ss'),toTimestamp(t_carry_put_ready,'dd-MM-yy HH:mm:ss'),toTimestamp(t_carry_put_ready,'dd.MM.yy HH:mm:ss'),toTimestamp(t_carry_put_ready,'dd/MM/yyyy\\'T\\'HH:mm:ss'), toTimestamp(t_carry_put_ready,'yyyy-MM-dd HH:mm:ss.SSS'),toTimestamp(t_carry_put_ready,'dd/MM/yyyy HH:mm:ss'),toTimestamp(t_carry_put_ready,'dd-MM-yyyy HH:mm:ss')),\n\t\tDate = toDate(coalesce(toTimestamp(t_put,'yyyy/MM/dd HH:mm:ss'),toTimestamp(t_put,'MM/dd/yyyy HH:mm:ss'),toTimestamp(t_put,'dd-MM-yy HH:mm:ss'),toTimestamp(t_put,'dd/MM/yyyy\\'T\\'HH:mm:ss'), toTimestamp(t_put,'yyyy-MM-dd HH:mm:ss.SSS'),toTimestamp(t_put,'dd/MM/yyyy HH:mm:ss'),toTimestamp(t_put,'dd-MM-yyyy HH:mm:ss'),toTimestamp(t_put,'dd MM yy HH:mm'))),\n\t\tYear_Week = (year(coalesce(toTimestamp(t_put,'yyyy/MM/dd HH:mm:ss'),toTimestamp(t_put,'MM/dd/yyyy HH:mm:ss'),toTimestamp(t_put,'dd-MM-yy HH:mm:ss'),toTimestamp(t_put,'dd/MM/yyyy\\'T\\'HH:mm:ss'), toTimestamp(t_put,'yyyy-MM-dd HH:mm:ss.SSS'),toTimestamp(t_put,'dd/MM/yyyy HH:mm:ss'),toTimestamp(t_put,'dd-MM-yyyy HH:mm:ss'),toTimestamp(t_put,'dd MM yy HH:mm'))) * 100) + weekOfYear(coalesce(toTimestamp(t_put,'yyyy/MM/dd HH:mm:ss'),toTimestamp(t_put,'MM/dd/yyyy HH:mm:ss'),toTimestamp(t_put,'dd-MM-yy HH:mm:ss'),toTimestamp(t_put,'dd/MM/yyyy\\'T\\'HH:mm:ss'), toTimestamp(t_put,'yyyy-MM-dd HH:mm:ss.SSS'),toTimestamp(t_put,'dd/MM/yyyy HH:mm:ss'),toTimestamp(t_put,'dd-MM-yyyy HH:mm:ss'),toTimestamp(t_put,'dd MM yy HH:mm')))) ~> DataTypeConversion\nSelect1 aggregate(groupBy(mve_gkey),\n\teach(match(name!='mve_gkey'), $$ = first($$))) ~> Aggregate1\nMoveHistory select(mapColumn(\n\t\t{Unit Nbr},\n\t\t{Complex Id},\n\t\t{Yard Id},\n\t\t{Carrier Visit Key},\n\t\t{Event Type Id},\n\t\t{Move Kind},\n\t\t{Carry CHE Operator Id},\n\t\t{Fetch CHE Operator Id},\n\t\t{Put CHE Operator Id},\n\t\t{Fetch CHE Id},\n\t\t{Fetch CHE Kind},\n\t\t{Carry CHE Id},\n\t\t{Carry CHE Kind},\n\t\t{Put CHE Id},\n\t\t{Put CHE Kind},\n\t\t{QC CHE Id},\n\t\t{QC CHE Kind},\n\t\tt_carry_complete,\n\t\tt_put,\n\t\tt_fetch,\n\t\tt_dispatch,\n\t\tt_discharge,\n\t\tt_carry_dispatch,\n\t\tt_carry_fetch_ready,\n\t\tt_carry_put_ready,\n\t\tdist_carry,\n\t\tdist_start,\n\t\t{Category Id},\n\t\t{Freight Kind Id},\n\t\tpow,\n\t\tmve_gkey,\n\t\tactive_ufv,\n\t\tRehandles\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> Select1\nSelect2 alterRow(upsertIf(true())) ~> AlterRow1\nfilter1 select(mapColumn(\n\t\teach(match(true()),\n\t\t\tregexReplace($$,' ','_') = $$)\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> Select2\nDataTypeConversion filter(!isNull(mve_gkey) && !isNull(t_put) && !isNull({Unit Nbr})) ~> filter1\nAlterRow1 sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'delta',\n\tfileSystem: 'cmsa',\n\tfolderPath: 'gold/rehandle',\n\tmergeSchema: false,\n\tautoCompact: true,\n\toptimizedWrite: true,\n\tvacuum: 0,\n\tdeletable: false,\n\tinsertable: false,\n\tupdateable: false,\n\tupsertable: true,\n\tkeys:['mve_gkey'],\n\tumask: 0777,\n\tpreCommands: [],\n\tpostCommands: [],\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\tmapColumn(\n\t\tmve_gkey,\n\t\tUnit_Nbr,\n\t\tComplex_Id,\n\t\tYard_Id,\n\t\tCarrier_Visit_Key,\n\t\tEvent_Type_Id,\n\t\tMove_Kind,\n\t\tCarry_CHE_Operator_Id,\n\t\tFetch_CHE_Operator_Id,\n\t\tPut_CHE_Operator_Id,\n\t\tFetch_CHE_Id,\n\t\tFetch_CHE_Kind,\n\t\tCarry_CHE_Id,\n\t\tCarry_CHE_Kind,\n\t\tPut_CHE_Id,\n\t\tPut_CHE_Kind,\n\t\tQC_CHE_Id,\n\t\tQC_CHE_Kind,\n\t\tt_carry_complete,\n\t\tt_put,\n\t\tt_fetch,\n\t\tt_dispatch,\n\t\tt_discharge,\n\t\tt_carry_dispatch,\n\t\tt_carry_fetch_ready,\n\t\tt_carry_put_ready,\n\t\tdist_carry,\n\t\tdist_start,\n\t\tCategory_Id,\n\t\tFreight_Kind_Id,\n\t\tpow,\n\t\tactive_ufv,\n\t\tRehandles,\n\t\tYear,\n\t\tMonth,\n\t\tWeek,\n\t\tDate,\n\t\tYear_Week\n\t),\n\tpartitionBy('key',\n\t\t0,\n\t\tYear,\n\t\tMonth,\n\t\tWeek\n\t)) ~> sink1"
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('workspaceId'), '/linkedServices/linkedService1')]",
-				"[concat(variables('workspaceId'), '/linkedServices/linkedService2')]"
-			]
+			"dependsOn": [],
+			"location": "westus"
 		}
 	]
 }
