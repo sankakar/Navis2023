@@ -364,7 +364,7 @@
 				"          {MH ToPosName Short 5Char} = iif(length(split({To Position Name}, \"-\")[3]) == 8, substring(split({To Position Name}, \"-\")[3], 0, 7), split({To Position Name}, \"-\")[3]),",
 				"          {DH ToPosName Shorrt} = split(to_pos_name, \"-\")[3],",
 				"          {DH ToPosName Short 5Char} = iif(length(split(to_pos_name, \"-\")[3]) == 8, substring(split(to_pos_name, \"-\")[3], 0, 7), split(to_pos_name, \"-\")[3])) ~> derivedColumn3",
-				"derivedColumn3 filter({DH TimeStamp Within 4 Hours} == 1 && {DH ToPosName Short 5Char} != \"FLD\") ~> filter3",
+				"derivedColumn3 filter({DH TimeStamp Within 4 Hours} == 1 && {DH ToPosName Short 5Char} != \"FLD\" && not(like({DH ToPosName Short 5Char}, \"Fail%\"))) ~> filter3",
 				"filter3 aggregate(groupBy({Unit Nbr},",
 				"          {Move Kind},",
 				"          {Category Id},",
