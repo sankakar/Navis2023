@@ -1,0 +1,17 @@
+{
+	"name": "SQL script 13",
+	"properties": {
+		"content": {
+			"query": "SELECT TOP (100) [D_H_Decking_Type]\n,[MH_ToPosName_Short_5Char]\n,[DH_ToPosName_Short_5Char]\n,[MH_Unit_Nbr]\n,[Same_Block_Violation]\n,[Stack_Violation]\n,[Location_Match_or_Not]\n,[Shift_Date]\n,[Week_of_Year]\n,[XPS_ECUser.name]\n,[Block_To_Block_Violation]\n FROM [dbo].[violation]\n order by Shift_Date desc",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "rio",
+				"poolName": "Built-in"
+			},
+			"resultLimit": -1
+		},
+		"type": "SqlQuery"
+	}
+}
