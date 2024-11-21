@@ -1,0 +1,145 @@
+{
+	"name": "section_confirmity_MICT",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"linkedService": {
+						"referenceName": "linkedService2",
+						"type": "LinkedServiceReference"
+					},
+					"name": "SectionConfirmity"
+				}
+			],
+			"sinks": [
+				{
+					"linkedService": {
+						"referenceName": "linkedService2",
+						"type": "LinkedServiceReference"
+					},
+					"name": "SectionConformity"
+				}
+			],
+			"transformations": [
+				{
+					"name": "derivedColumn1"
+				},
+				{
+					"name": "window1"
+				},
+				{
+					"name": "aggregate1"
+				},
+				{
+					"name": "join1"
+				},
+				{
+					"name": "select1"
+				},
+				{
+					"name": "sort1"
+				},
+				{
+					"name": "filter1"
+				},
+				{
+					"name": "alterRow1"
+				},
+				{
+					"name": "select2"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          {Container No.} as string,",
+				"          {Stacking Factor} as string,",
+				"          CHE as string,",
+				"          {Blk Typ} as string,",
+				"          Type as string,",
+				"          {Current position} as string,",
+				"          {Yard Row} as string,",
+				"          Cat as string,",
+				"          Sts as string,",
+				"          {Section Factor} as string",
+				"     ),",
+				"     useSchema: false,",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     inferDriftedColumnTypes: true,",
+				"     ignoreNoFilesFound: true,",
+				"     moveFiles: ['/bronze/sectionconformity/load','bronze/sectionconformity/archive'],",
+				"     rowUrlColumn: 'FileDate',",
+				"     format: 'delimited',",
+				"     fileSystem: 'mict',",
+				"     folderPath: 'bronze/sectionconformity/load',",
+				"     columnDelimiter: '\\t',",
+				"     escapeChar: '\\\\',",
+				"     quoteChar: '',",
+				"     columnNamesAsHeader: true,",
+				"     skipLines: -2) ~> SectionConfirmity",
+				"SectionConfirmity derive(Date = toDate(substring(FileDate, -12, 8), 'yyyyMMdd'),",
+				"          Week = iif(dayOfWeek(toDate(substring(FileDate, -12, 8), 'yyyyMMdd')) == 1,  weekOfYear(toDate(substring(FileDate, -12, 8), 'yyyyMMdd')) + 1, weekOfYear(toDate(substring(FileDate, -12, 8), 'yyyyMMdd'))),",
+				"          stacking_array := split({Stacking Factor}, '/')) ~> derivedColumn1",
+				"derivedColumn1 window(over(Date,",
+				"          {Yard Row}),",
+				"     asc({Section Factor}, true),",
+				"     sectionrank = rank()) ~> window1",
+				"window1 aggregate(groupBy(Date,",
+				"          {Yard Row}),",
+				"     Section_conformity = iif(max(sectionrank) > 1, 'Mix', 'Pure')) ~> aggregate1",
+				"window1, aggregate1 join(derivedColumn1@Date == aggregate1@Date",
+				"     && SectionConfirmity@{Yard Row} == aggregate1@{Yard Row},",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> join1",
+				"filter1 select(mapColumn(",
+				"          {Container No.},",
+				"          {Stacking Factor},",
+				"          CHE,",
+				"          {Blk Typ},",
+				"          Type,",
+				"          {Current position},",
+				"          {Yard Row} = SectionConfirmity@{Yard Row},",
+				"          Cat,",
+				"          Sts,",
+				"          {Section Factor},",
+				"          Date = derivedColumn1@Date,",
+				"          Week,",
+				"          Section_conformity",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select1",
+				"select1 sort(asc(Date, true),",
+				"     asc({Container No.}, true)) ~> sort1",
+				"join1 filter(not(isDate({Container No.})) && not(isNull({Container No.})) && {Container No.} != '') ~> filter1",
+				"select2 alterRow(upsertIf(true())) ~> alterRow1",
+				"sort1 select(mapColumn(",
+				"          each(match(true()),",
+				"               regexReplace($$,' ','_') = $$)",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select2",
+				"alterRow1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'delta',",
+				"     fileSystem: 'mict',",
+				"     folderPath: 'gold/section_conformity',",
+				"     mergeSchema: false,",
+				"     autoCompact: false,",
+				"     optimizedWrite: false,",
+				"     vacuum: 0,",
+				"     deletable: false,",
+				"     insertable: true,",
+				"     updateable: false,",
+				"     upsertable: false,",
+				"     umask: 0777,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> SectionConformity"
+			]
+		}
+	}
+}
