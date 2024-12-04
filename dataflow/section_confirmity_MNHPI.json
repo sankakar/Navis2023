@@ -55,7 +55,7 @@
 				"          {Equipment ID} as string,",
 				"          {Stacking Factor} as string,",
 				"          CHE as string,",
-				"          {Blk Typ} as boolean,",
+				"          {Blk Typ} as string,",
 				"          Type as string,",
 				"          {Current Position} as string,",
 				"          {Yard Row} as string,",
