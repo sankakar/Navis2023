@@ -6,7 +6,7 @@
 		"pipelines": [
 			{
 				"pipelineReference": {
-					"referenceName": "MNHPI_stack_confirmity",
+					"referenceName": "MNHPI_confirmities",
 					"type": "PipelineReference"
 				}
 			}
