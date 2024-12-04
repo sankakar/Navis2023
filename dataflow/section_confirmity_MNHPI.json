@@ -68,7 +68,7 @@
 				"     validateSchema: false,",
 				"     inferDriftedColumnTypes: true,",
 				"     ignoreNoFilesFound: true,",
-				"     moveFiles: ['/bronze/sectionconformity/load','bronze/sectionconformity/archive'],",
+				"     moveFiles: ['/bronze/sectionconformity/load','bronze/stackconformity/archive'],",
 				"     rowUrlColumn: 'FileDate',",
 				"     format: 'delimited',",
 				"     fileSystem: 'mnhpi',",
