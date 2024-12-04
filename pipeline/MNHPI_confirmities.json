@@ -1,5 +1,5 @@
 {
-	"name": "MNHPI_stack_confirmity",
+	"name": "MNHPI_confirmities",
 	"properties": {
 		"activities": [
 			{
@@ -17,6 +17,37 @@
 				"typeProperties": {
 					"dataflow": {
 						"referenceName": "stack_confirmity_MNHPI",
+						"type": "DataFlowReference"
+					},
+					"compute": {
+						"coreCount": 8,
+						"computeType": "General"
+					},
+					"traceLevel": "Fine"
+				}
+			},
+			{
+				"name": "section_confirmity_MNHPI",
+				"type": "ExecuteDataFlow",
+				"dependsOn": [
+					{
+						"activity": "stack_confirmity_MNHPI",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataflow": {
+						"referenceName": "section_confirmity_MNHPI",
 						"type": "DataFlowReference"
 					},
 					"compute": {
